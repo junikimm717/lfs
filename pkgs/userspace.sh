@@ -32,3 +32,10 @@ build make
 
 # bootloader
 build limine
+
+# install the compiler
+
+build gmp
+build mpfr
+build mpc
+build gcc
