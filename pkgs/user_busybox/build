@@ -48,7 +48,7 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR" || exit 1
-  make -j8 HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
+  make -j${JOBS:-8} HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
   # install to both dist (main system) and initramfs

@@ -14,7 +14,5 @@ qemu-system-aarch64 \
   -no-reboot \
   -net nic -net user\
   -device qemu-xhci -usb -device usb-kbd\
-  -nographic -serial mon:stdio
-
-  #-device virtio-gpu-pci -display cocoa \
-  #-drive if=pflash,format=raw,file=$(brew --prefix qemu)/share/qemu/edk2-arm-vars.fd \
+  -device virtio-gpu-pci -display cocoa
+  #-nographic -serial mon:stdio

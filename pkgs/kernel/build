@@ -50,9 +50,9 @@ makeinstall() {
   echo "compiling and installing header"
   cd "$DIR/$SRCDIR" || exit 1
   _runwithflags make olddefconfig
-  _runwithflags make -j8
-  _runwithflags make -j8 headers_install INSTALL_HDR_PATH=$ROOTFS/usr
-  _runwithflags make -j8 INSTALL_PATH=$DIST/rootfs/boot install
+  _runwithflags make -j${JOBS:-8}
+  _runwithflags make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr
+  _runwithflags make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install
 }
 
 clear() {

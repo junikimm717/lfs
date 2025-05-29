@@ -9,14 +9,14 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="2.12"
-BASEURL="https://dev.mit.junic.kim/pkgs"
-SRCDIR="grub-$VERSION"
+VERSION="8.2.13"
+BASEURL="https://ftp.gnu.org/gnu/readline"
+SRCDIR="readline-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 download() {
   cd "$DIR" || exit 1
-  echo "downloading grub source..."
+  echo "downloading readline source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -27,7 +27,7 @@ download() {
 
 extract() {
   cd "$DIR" || exit 1
-  echo "extracting grub source..."
+  echo "extracting readline source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
@@ -35,19 +35,18 @@ extract() {
 
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
-  patch -p1 < "$DIR/buildfail.patch" || exit 1
-  ./configure --prefix="/usr" --exec-prefix="/lib" --target="$TARGET" || exit 1
+  ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET" --with-curses
 }
 
 makeinstall() {
-  echo "building grub..."
+  echo "building readline..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
   cd "$DIR/$SRCDIR" || exit 1
 
-  make -j8 || exit 1
+  make -j${JOBS:-8} || exit 1
   make DESTDIR=$ROOTFS install || exit 1
 }
 
@@ -75,7 +74,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for grub
+Build script for readline
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball

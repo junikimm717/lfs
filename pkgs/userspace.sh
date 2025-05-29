@@ -11,20 +11,16 @@ build() {
   "$PKGS/$1/build" a 2>&1 | tee -a "$PKGS/log/$1.log"
 }
 
-# required by everything.
+# libraries required by everything.
 build openssl
 build libc
-
-build ncurses
-build user_busybox
-
-# libraries
 build zlib
-
-# bootloader
-build limine
+# readline depends on curses
+build ncurses
+build readline
 
 # tools
+build user_busybox
 build runit
 build eudev
 build chrony
@@ -32,3 +28,7 @@ build dhcpcd
 build opendoas
 build fastfetch
 build file
+build make
+
+# bootloader
+build limine

@@ -48,7 +48,7 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR/build" || exit 1
 
-  cmake --build . -j 8 --target fastfetch || exit 1
+  cmake --build . -j ${JOBS:-8} --target fastfetch || exit 1
   install -Dm755 fastfetch $ROOTFS/usr/bin
 }
 

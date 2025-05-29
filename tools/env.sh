@@ -23,6 +23,7 @@ _OLD_LD="\$LD"
 _OLD_CFLAGS="\$CFLAGS"
 _OLD_CXXFLAGS="\$CXXFLAGS"
 _OLD_LDFLAGS="\$LDFLAGS"
+_OLD_JOBS="\$JOBS"
 
 deactivate() {
   export PATH="\$_OLD_PATH"
@@ -33,12 +34,14 @@ deactivate() {
   export CFLAGS=\$_OLD_CFLAGS
   export CXXFLAGS=\$_OLD_CXXFLAGS
   export LDFLAGS=\$_OLD_LDFLAGS
+  export JOBS=\$_OLD_JOBS
 
   unset _OLD_CC
   unset _OLD_CXX
   unset _OLD_AR
   unset _OLD_RANLIB
   unset _OLD_LD
+  unset _OLD_JOBS
 
   unset HGCCVER
   unset BUILDTRIPLE
@@ -74,6 +77,12 @@ export ROOTFS="$DIR/dist/rootfs"
 export CFLAGS="\$CFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export CXXFLAGS="\$CXXFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
+
+JOBS=$(($(nproc)-2))
+if [ \$JOBS -lt 0 ]; then
+  JOBS=$(nproc)
+fi
+export JOBS
 
 export TARGET="$TARGET"
 export HGCCVER="$HGCCVER"

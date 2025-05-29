@@ -20,7 +20,7 @@ fi
 
 msg "starting udevd"
 /usr/sbin/udevd --daemon
-/usr/sbin/udevadm trigger --type=subsystems
+#/usr/sbin/udevadm trigger --type=subsystems
 /usr/sbin/udevadm trigger --type=devices
 /usr/sbin/udevadm settle --debug --timeout=3
 

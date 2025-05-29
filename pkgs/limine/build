@@ -53,7 +53,7 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR" || exit 1
 
-  make -j1 || exit 1
+  make -j${JOBS:-8} || exit 1
   make DESTDIR=$ROOTFS install || exit 1
 }
 
