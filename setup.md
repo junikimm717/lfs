@@ -35,3 +35,5 @@ Then, refresh the rootfs image by running `./tools/cr_rootimg.sh`
 
 Just use the `./tools/emulator.sh` script to get rolling, either on the
 container or on your main system.
+
+# Installation

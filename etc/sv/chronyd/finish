@@ -6,4 +6,4 @@ if [ -f /run/chrony/chronyd.pid ]; then
     rm -f /run/chrony/chronyd.pid
   fi
 fi
-exec chronyd -f /etc/chrony/chrony.conf
+exec chronyd -f /etc/chrony.conf

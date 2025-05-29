@@ -33,3 +33,11 @@ Get into the container environment, then
 # create the bootable drive.
 ./tools/bootable.sh
 ```
+
+## Default Environment
+
+The root password is `junios`. Once booted up, you may manually add new users
+using busybox's utilities.
+
+You should obviously change the password if this is a real system (it's probably
+not though)

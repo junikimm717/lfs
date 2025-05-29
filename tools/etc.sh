@@ -25,13 +25,4 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
 
 # setting permissions
 chmod 644 "$ROOTFS/etc/passwd" "$ROOTFS/etc/group"
-chmod 600 "$ROOTFS/etc/shadow"
-
-# ask for a root password
-chroot "$ROOTFS" /bin/busybox adduser user -D
-chroot "$ROOTFS" /bin/busybox adduser user wheel
-chroot "$ROOTFS" /bin/busybox adduser user video
-chroot "$ROOTFS" /bin/busybox adduser user audio
-chroot "$ROOTFS" /bin/busybox adduser user input
-
-chroot "$ROOTFS" /bin/busybox passwd user
+chmod 640 "$ROOTFS/etc/shadow"

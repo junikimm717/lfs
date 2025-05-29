@@ -6,6 +6,7 @@ wheel:x:10:
 floppy:x:11:
 dialout:x:20:
 kvm:x:21:
+shadow:x:22:
 cdrom:x:24:
 tape:x:25:
 video:x:26:

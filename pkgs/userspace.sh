@@ -12,14 +12,19 @@ build() {
 }
 
 # required by everything.
+build openssl
 build libc
 
 build ncurses
 build user_busybox
 
+# libraries
+build zlib
+
 # bootloader
 build limine
 
+# tools
 build runit
 build eudev
 build chrony

@@ -6,7 +6,10 @@ cd "$DIR" || exit 1
 cd ../dist || { echo "rootfs doesn't exit!"; exit 1; }
 
 KERNEL=$(find ./rootfs -name 'vmlinux*' | head -n 1)
-INITRD="./emulator.cpio.gz"
+INITRD=./rootfs/boot/initramfs.cpio.gz
+if test "$1" = "-d"; then
+  INITRD="./emulator.cpio.gz"
+fi
 
 test -z "$KERNEL" -o -z "$INITRD" && {
   echo "could not find kernel or initrd; please use the ./tools/setup_initramfs.sh";
