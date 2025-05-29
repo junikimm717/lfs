@@ -36,7 +36,7 @@ extract() {
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
   
-  ./Configure linux-$(echo "$TARGET" | cut -d'-' -f 1) \
+  ./Configure linux-"$(echo "$TARGET" | cut -d'-' -f 1)" \
     no-tests \
     --prefix=/usr --openssldir=/etc/ssl
 }

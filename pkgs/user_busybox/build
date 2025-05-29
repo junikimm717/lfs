@@ -37,7 +37,7 @@ extract() {
   sed -i\
     -e "s|main|int main|g"\
     ./$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh
-  cp -p ./config "$SRCDIR/.config"
+  cp -a ./config "$SRCDIR/.config"
 }
 
 makeinstall() {

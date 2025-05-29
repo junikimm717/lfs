@@ -22,7 +22,7 @@ msg "starting udevd"
 /usr/sbin/udevd --daemon
 /usr/sbin/udevadm trigger --type=subsystems
 /usr/sbin/udevadm trigger --type=devices
-/usr/sbin/udevadm settle
+/usr/sbin/udevadm settle --debug --timeout=3
 
 msg "Setting up loopback interface..."
 ip link set up dev lo
