@@ -38,7 +38,7 @@ timeout: 5
 /JuniOS $kernel graphical
     protocol: linux
     path: boot():/boot/$kernel
-    cmdline:console=tty0 console=ttyAMA0 panic=-1 root=UUID=$rootuuid rw
+    cmdline:console=ttyS0,115200 panic=-1 root=UUID=$rootuuid rw quiet
     module_path: boot():/boot/initramfs.cpio.gz
 EOF
 

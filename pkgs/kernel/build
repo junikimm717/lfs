@@ -38,7 +38,7 @@ extract() {
     exit 1
   fi
   tar xf "$TARBALL"
-  cp -p "./configs/vanilla.config" "$SRCDIR/.config"
+  cp -p "./configs/custom.config" "$SRCDIR/.config"
   cd "$DIR/$SRCDIR" || exit 1
 }
 
@@ -51,8 +51,7 @@ makeinstall() {
   _runwithflags make olddefconfig
   _runwithflags make -j8
   _runwithflags make -j8 headers_install INSTALL_HDR_PATH=$ROOTFS/usr
-  # maybe we can get away with not installing modules?
-  # _runwithflags make -j8 INSTALL_MOD_PATH=$ROOTFS modules_install
+  _runwithflags make -j8 INSTALL_MOD_PATH=$ROOTFS modules_install
   _runwithflags make -j8 INSTALL_PATH=$DIST/rootfs/boot install
 }
 

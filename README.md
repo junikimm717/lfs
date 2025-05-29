@@ -1,11 +1,14 @@
 # Juni's Linux from Scratch
 
+![screenshot](./fastfetch.png)
+
 Just another deranged attempt at a Linux From Scratch, except not going by the
 book. This is **very much** WIP, but if you would like instructions, see
 [setup.md](./setup.md). Development is standardized around the alpine docker
 image defined in the Dockerfile.
 
-A lot of the init scripts were shamelessly ripped from Void Linux :)
+A lot of the init scripts were shamelessly ripped from Void Linux. Runit was
+chosen as PID 1.
 
 Goals:
 
