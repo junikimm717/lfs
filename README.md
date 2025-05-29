@@ -19,3 +19,13 @@ Non-goals:
 
 1. Get it to work on real hardware (I tried stripping down the kernel as much
    as possible, but this is maybe possible)
+
+## To get the bootable image
+
+Get into the container environment, then
+```sh
+./tools/setup_initramfs.sh # compiles the kernel and initramfs-related things.
+./pkgs/userspace.sh # installs userspace packages
+./tools/etc.sh # installs configuration files and sets up a user
+./tools/bootable.sh # actually creates the bootable drive
+```

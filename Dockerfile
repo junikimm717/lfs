@@ -9,6 +9,6 @@ RUN apk add --no-cache\
   binutils file make patch \
   bash zstd findutils gcc musl-dev g++ gperf cmake\
   automake autoconf m4 parted lsblk e2tools sgdisk libtool \
-  gmp-dev mpc1-dev mpfr-dev
+  gmp-dev mpc1-dev mpfr-dev mtools
 
 WORKDIR /workspace

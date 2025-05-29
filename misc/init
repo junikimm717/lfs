@@ -5,5 +5,26 @@ mountpoint -q /sys || mount -o nosuid,noexec,nodev -t sysfs sys /sys
 mountpoint -q /run || mount -o mode=0755,nosuid,nodev -t tmpfs run /run
 mountpoint -q /dev || mount -o mode=0755,nosuid -t devtmpfs dev /dev
 
-mount -t ext4 /dev/vda2 /mnt
+DRIVE=$(cat /proc/cmdline | sed -nE 's/.*\broot=([^[:space:]]*).*/\1/p')
+
+case "$DRIVE" in
+  /dev*)
+    mount "$DRIVE" /mnt
+  ;;
+  UUID=*)
+    UUID=$(echo "$DRIVE" | cut -d'=' -f 2 | tr -d '"')
+    DEVICE=$(blkid | sed -nE "s/([^:]*).*\b(UUID=\"$UUID\").*/\1/p")
+    if test -z "$DEVICE"; then
+      echo "It's cooked there's no device with uuid $UUID"
+      exit 1
+    fi
+    mount "$DEVICE" /mnt
+  ;;
+  *)
+    echo "xoops it's joever chat didn't get the right root param (dev or uuid)"
+    echo "we got $DRIVE"
+    exit 1
+  ;;
+esac
+
 exec switch_root /mnt /sbin/init
