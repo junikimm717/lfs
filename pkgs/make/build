@@ -9,7 +9,6 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-https://mirrors.ibiblio.org/gnu/make/make-4.4.1.tar.gz
 VERSION="4.4.1"
 BASEURL="https://mirrors.ibiblio.org/gnu/make"
 SRCDIR="make-$VERSION"
