@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.36.1
-# Tue May 27 23:00:37 2025
+# Thu May 29 11:40:29 2025
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -506,8 +506,8 @@ CONFIG_HALT=y
 CONFIG_POWEROFF=y
 CONFIG_REBOOT=y
 CONFIG_FEATURE_WAIT_FOR_INIT=y
-# CONFIG_FEATURE_CALL_TELINIT is not set
-CONFIG_TELINIT_PATH=""
+CONFIG_FEATURE_CALL_TELINIT=y
+CONFIG_TELINIT_PATH="/sbin/init"
 # CONFIG_INIT is not set
 # CONFIG_LINUXRC is not set
 # CONFIG_FEATURE_USE_INITTAB is not set

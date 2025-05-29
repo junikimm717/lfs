@@ -37,3 +37,9 @@ fi
 
 msg "mounting filesystems from fstab..."
 mount -a
+
+mkdir -p /run/runit
+install -m000 /dev/null /run/runit/stopit
+install -m000 /dev/null /run/runit/reboot
+
+msg "Stage 1 Complete!"

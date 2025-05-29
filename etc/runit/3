@@ -4,8 +4,8 @@ export PATH=/usr/bin:/usr/sbin:/sbin:/bin
 . /etc/runit/functions
 
 msg "Waiting for services to stop..."
-sv force-stop /var/service/*
-sv exit /var/service/*
+sv force-stop /etc/service/*
+sv exit /etc/service/*
 
 seedrng
 
