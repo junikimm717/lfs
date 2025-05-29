@@ -11,8 +11,16 @@ build() {
   "$PKGS/$1/build" a 2>&1 | tee -a "$PKGS/log/$1.log"
 }
 
-build user_busybox
+# required by everything.
+build libc
+
 build ncurses
+build user_busybox
+
+# bootloader
+build limine
+
+build runit
 build eudev
 build chrony
 build dhcpcd

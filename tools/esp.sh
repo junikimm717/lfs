@@ -24,9 +24,9 @@ test -z $bootloader && {
 }
 
 rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
-kernel=$(ls $ROOTFS/boot/vmlinux-* | grep -v 'old' | head -n 1 | rev | cut -d'/' -f1 | rev)
+kernel=$(echo $ROOTFS/boot/vmlinuz-* | grep -v 'old' | head -n 1 | rev | cut -d'/' -f1 | rev)
 
-test -z $kernel -o -z $rootuuid && exit 1
+test -z "$kernel" -o -z "$rootuuid" && exit 1
 
 mcopy -i esp.img $bootloader ::/EFI/BOOT/$(basename $bootloader)
 mcopy -i esp.img "$ROOTFS/boot/$kernel" ::/BOOT/$kernel

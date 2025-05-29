@@ -5,7 +5,7 @@ DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIR" || exit 1
 cd ../dist || { echo "rootfs doesn't exit!"; exit 1; }
 
-KERNEL=$(find ./rootfs -name 'vmlinux*' | head -n 1)
+KERNEL=$(find ./rootfs -name 'vmlinuz*' | head -n 1)
 INITRD="./emulator.cpio.gz"
 
 test -z "$KERNEL" -o -z "$INITRD" && {
