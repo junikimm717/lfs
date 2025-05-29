@@ -1,0 +1,14 @@
+.DS_Store
+
+# kill any archives before they get anywhere near our repo.
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.log
+*.html
+*.fd
+./misc/edk2-arm-vars.fd
+
+/dist

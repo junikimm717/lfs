@@ -1,0 +1,92 @@
+#!/bin/sh
+
+DIR="$(realpath "$(dirname "$0" )" )"
+cd "$DIR" || exit 1
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && \
+  echo "You cannot run this script while not in the juniosenv!" && \
+  exit 1
+
+BASEURL="https://dev.mit.junic.kim/pkgs"
+SRCDIR="busybox-1.36.1"
+TARBALL="$SRCDIR.tar.bz2"
+
+download() {
+  cd "$DIR" || exit 1
+  if test -f "$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+    return
+  fi
+  echo "downloading busybox source"
+  curl -LOf $BASEURL/$TARBALL
+}
+
+extract() {
+  cd "$DIR" || exit 1
+  if ! test -f "$TARBALL"; then
+    echo "No tarball to operate on!"
+    exit 1
+  fi
+  echo "extracting busybox source and applying config..."
+  tar xjf "$TARBALL" || exit 1
+  cd "$SRCDIR" || exit 1
+  patch -p1 < "$DIR/net.patch" || exit 1
+  cd "$DIR" || exit 1
+  # actually skull emoji of a patch
+  sed -i\
+    -e "s|main|int main|g"\
+    ./$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh
+  cp -p ./config "$SRCDIR/.config"
+}
+
+makeinstall() {
+  cd "$DIR" || exit 1
+  echo "building busybox"
+  if ! test -d "$SRCDIR"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  cd "$DIR/$SRCDIR" || exit 1
+  make -j8 HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
+    HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
+    CC="$CC" AR="$AR" LD="$LD"
+  # install to both dist (main system) and initramfs
+  make CONFIG_PREFIX="$ROOTFS" install
+}
+
+clear() {
+  cd "$DIR" || exit 1
+  rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
+}
+
+cd "$DIR" || exit 1
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for musl-cross-make on macos
+
+download|d -> download the tarball
+extract|e -> extract and patch the tarball
+makeinstall|mi -> make and install the tarball into ../gcc
+clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
+all|a -> clean, and then go through everything.
+EOF
+    exit 1
+    ;;
+esac

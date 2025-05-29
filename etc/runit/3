@@ -1,0 +1,36 @@
+#!/bin/sh
+
+export PATH=/usr/bin:/usr/sbin:/sbin:/bin
+. /etc/runit/functions
+
+msg "Waiting for services to stop..."
+sv force-stop /var/service/*
+sv exit /var/service/*
+
+seedrng
+
+halt -w
+
+udevadm control --exit
+
+msg "Sending TERM signal to processes..."
+for pid in $(ps | awk '!/^[ ]*PID/ && $1 != 1 && $1 != 0 { print $1 }'); do
+    kill -TERM "$pid"
+done
+sleep 1
+msg "Sending KILL signal to processes..."
+for pid in $(ps | awk '!/^[ ]*PID/ && $1 != 1 && $1 != 0 { print $1 }'); do
+    kill -KILL "$pid"
+done
+
+msg "Unmounting filesystems, disabling swap..."
+swapoff -a
+umount -r -a -t nosysfs,noproc,nodevtmpfs,notmpfs
+
+if [ -n "$(find /run/runit/reboot -perm -u+x 2>/dev/null)" ] &&
+  command -v kexec >/dev/null
+then
+  msg "Triggering kexec..."
+  kexec -e 2>/dev/null
+fi
+

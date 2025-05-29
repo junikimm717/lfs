@@ -1,0 +1,31 @@
+diff --git a/include/paths.h b/include/paths.h
+index 67de6b3..88b7a4b 100644
+--- a/include/paths.h
++++ b/include/paths.h
+@@ -18,9 +18,9 @@
+ #define	_PATH_SHADOW	"/etc/shadow"
+ #define	_PATH_SHELLS	"/etc/shells"
+ #define	_PATH_TTY	"/dev/tty"
+-#define _PATH_UTMP	"/dev/null/utmp"
++#define _PATH_UTMP	"/run/utmps/utmp"
+ #define	_PATH_VI	"/usr/bin/vi"
+-#define _PATH_WTMP	"/dev/null/wtmp"
++#define _PATH_WTMP	"/var/log/wtmp"
+ 
+ #define	_PATH_DEV	"/dev/"
+ #define	_PATH_TMP	"/tmp/"
+diff --git a/include/utmp.h b/include/utmp.h
+index 48a400d..6340214 100644
+--- a/include/utmp.h
++++ b/include/utmp.h
+@@ -37,8 +37,8 @@ int utmpname(const char *);
+ 
+ int login_tty(int);
+ 
+-#define _PATH_UTMP "/dev/null/utmp"
+-#define _PATH_WTMP "/dev/null/wtmp"
++#define _PATH_UTMP	"/run/utmps/utmp"
++#define _PATH_WTMP	"/var/log/wtmp"
+ 
+ #define UTMP_FILE _PATH_UTMP
+ #define WTMP_FILE _PATH_WTMP

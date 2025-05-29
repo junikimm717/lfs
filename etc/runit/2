@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export PATH=/usr/bin:/usr/sbin:/sbin:/bin
+. /etc/runit/functions
+
+exec runsvdir -P /etc/service

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+tty=${PWD##*-}
+
+[ -r conf ] && . ./conf
+
+exec chpst -P getty ${GETTY_ARGS} \
+	"${tty}" "${BAUD_RATE}" "${TERM_NAME}"

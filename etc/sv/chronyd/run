@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mkdir -p "/var/lib/chrony" "/var/log/chrony"
+rm -rf /var/run/chrony/chronyd.pid
+pkill chronyd
+exec chronyd -n

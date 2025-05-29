@@ -1,0 +1,6 @@
+!build
+!*.patch
+!.gitignore
+!config
+!config-*
+busybox-*

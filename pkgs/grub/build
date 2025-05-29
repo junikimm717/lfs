@@ -1,0 +1,88 @@
+#!/bin/sh
+
+DIR="$(realpath "$(dirname "$0" )" )"
+cd "$DIR" || exit 1
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the juniosenv!" && \
+  exit 1;
+}
+
+VERSION="2.12"
+BASEURL="https://dev.mit.junic.kim/pkgs"
+SRCDIR="grub-$VERSION"
+TARBALL="$SRCDIR.tar.gz"
+
+download() {
+  cd "$DIR" || exit 1
+  echo "downloading grub source..."
+  if test -f "$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+    return
+  fi
+
+  curl -LOf $BASEURL/$TARBALL
+}
+
+extract() {
+  cd "$DIR" || exit 1
+  echo "extracting grub source..."
+  if ! test -f "$TARBALL"; then
+    echo "No tarball to operate on!"
+    exit 1
+  fi
+
+  tar xzf "$TARBALL" || exit 1
+  cd "$SRCDIR" || exit 1
+  patch -p1 < "$DIR/buildfail.patch" || exit 1
+  ./configure --prefix="/usr" --exec-prefix="/lib" --target="$TARGET" || exit 1
+}
+
+makeinstall() {
+  echo "building grub..."
+  if ! test -d "$DIR/$SRCDIR"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  cd "$DIR/$SRCDIR" || exit 1
+
+  make -j8 || exit 1
+  make DESTDIR=$ROOTFS install || exit 1
+}
+
+clear() {
+  cd "$DIR" || exit 1
+  rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
+}
+
+cd "$DIR" || exit 1
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for grub
+
+download|d -> download the tarball
+extract|e -> extract and patch the tarball
+makeinstall|mi -> make and install the build artifacts
+clear|clean|c -> clean all artifacts
+all|a -> clean, and then go through everything.
+EOF
+    exit 1
+    ;;
+esac
