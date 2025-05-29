@@ -24,7 +24,7 @@ test -z $bootloader && {
 }
 
 rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
-kernel=$(echo $ROOTFS/boot/vmlinuz-* | grep -v 'old' | head -n 1 | rev | cut -d'/' -f1 | rev)
+kernel=$(echo $ROOTFS/boot/vmlinux-* | grep -v 'old' | head -n 1 | rev | cut -d'/' -f1 | rev)
 
 test -z "$kernel" -o -z "$rootuuid" && exit 1
 
