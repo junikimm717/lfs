@@ -4,5 +4,7 @@ tty=${PWD##*-}
 
 [ -r conf ] && . ./conf
 
-exec chpst -P getty ${GETTY_ARGS} \
+GETTY_ARGS="${GETTY_ARGS} -L"
+
+exec chpst -P agetty ${GETTY_ARGS} \
 	"${tty}" "${BAUD_RATE}" "${TERM_NAME}"
