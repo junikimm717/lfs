@@ -17,6 +17,8 @@ cat <<EOF
 _OLD_PATH="\$PATH"
 _OLD_CC="\$CC"
 _OLD_CXX="\$CXX"
+_OLD_CPP="\$CPP"
+_OLD_CXXCPP="\$CXXCPP"
 _OLD_AR="\$AR"
 _OLD_RANLIB="\$RANLIB"
 _OLD_LD="\$LD"
@@ -28,6 +30,9 @@ _OLD_JOBS="\$JOBS"
 deactivate() {
   export PATH="\$_OLD_PATH"
   export CC=\$_OLD_CC
+  export CXX=\$_OLD_CXX
+  export CPP=\$_OLD_CPP
+  export CXXCPP=\$_OLD_CXXCPP
   export AR=\$_OLD_AR
   export RANLIB=\$_OLD_RANLIB
   export LD=\$_OLD_LD
@@ -69,6 +74,8 @@ export VIRTUAL_ENV="junios"
 export PATH="$DIR/cross/$TARGET-native/bin:\$PATH"
 export CC="$DIR/cross/$TARGET-native/bin/$TARGET-gcc"
 export CXX="$DIR/cross/$TARGET-native/bin/$TARGET-g++"
+export CPP="$TARGET-gcc -E"
+export CXXCPP="$TARGET-g++ -E"
 export AR="$DIR/cross/$TARGET-native/bin/$TARGET-ar"
 export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"

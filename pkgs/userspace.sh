@@ -35,7 +35,4 @@ build limine
 
 # install the compiler
 
-build gmp
-build mpfr
-build mpc
-build gcc
+build gmp && build mpfr && build mpc && build gcc

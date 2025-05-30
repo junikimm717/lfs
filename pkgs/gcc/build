@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="14.2.0"
-BASEURL="https://mirror.marwan.ma/gcc/releases/gcc-$VERSION"
+BASEURL="https://dev.mit.junic.kim/pkgs"
 SRCDIR="gcc-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
@@ -36,7 +36,18 @@ extract() {
   fi
 
   tar xf "$TARBALL" || exit 1
-  mkdir -p "$BUILDDIR" && cd "$BUILDDIR" || exit 1
+
+  cd "$SRCDIR" || exit 1
+  case $(uname -m) in
+    x86_64)
+      sed -e '/m64=/s/lib64/lib/' \
+          -i.orig gcc/config/i386/t-linux64
+    ;;
+  esac
+  sed '/thread_header =/s/@.*@/gthr-posix.h/' \
+    -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
+
+  mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR" || exit 1
 
   # This gcc will be used when we are actually booted into our system.
   # Therefore, its sysroot must be set to /
@@ -82,7 +93,6 @@ makeinstall() {
   fi
   cd "$DIR/$BUILDDIR" || exit 1
 
-  #make -j1 || exit 1
   make -j${JOBS:-8} all-gcc || exit 1
   make DESTDIR=$ROOTFS install-gcc || exit 1
 }

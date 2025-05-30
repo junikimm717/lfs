@@ -35,6 +35,8 @@ extract() {
 
   tar xf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
+  export CXXCPP="$TARGET-g++ -E"
+  export CPP="$TARGET-gcc -E"
   ./configure --prefix="/usr" --exec-prefix="/usr"
 }
 
