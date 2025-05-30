@@ -33,6 +33,9 @@ build make
 # bootloader
 build limine
 
-# install the compiler
-
-build gmp && build mpfr && build mpc && build gcc
+# install the compiler and tools.
+build gmp \
+  && build mpfr \
+  && build mpc \
+  && build binutils \
+  && build gcc

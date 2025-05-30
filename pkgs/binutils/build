@@ -9,16 +9,15 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="14.2.0"
-BASEURL="https://dev.mit.junic.kim/pkgs"
-SRCDIR="gcc-$VERSION"
+VERSION="2.44"
+BASEURL="https://sourceware.org/pub/binutils/releases"
+SRCDIR="binutils-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
-
-BUILDDIR="dist"
+BUILDDIR="builddir"
 
 download() {
   cd "$DIR" || exit 1
-  echo "downloading gcc source..."
+  echo "downloading binutils source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -29,82 +28,53 @@ download() {
 
 extract() {
   cd "$DIR" || exit 1
-  echo "extracting gcc source..."
+  echo "extracting binutils source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
   tar xf "$TARBALL" || exit 1
-  cd "$SRCDIR" || exit 1
-  case $(uname -m) in
-    x86_64)
-      sed -e '/m64=/s/lib64/lib/' \
-        -i.orig gcc/config/i386/t-linux64
-    ;;
-    aarch64)
-      sed -e 's/lib64/lib/'\
-        -i.orig gcc/config/aarch64/t-aarch64-linux
-    ;;
-  esac
-  sed '/thread_header =/s/@.*@/gthr-posix.h/' \
-    -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
 
-  mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR" || exit 1
-
-  # This gcc will be used when we are actually booted into our system.
-  # Therefore, its sysroot must be set to /
+  mkdir -p "$DIR/$BUILDDIR" || exit 1
+  cd "$DIR/$BUILDDIR" || exit 1
   "$DIR/$SRCDIR/configure" \
     --prefix="/usr" \
+    --exec-prefix="/usr" \
     --target="$TARGET" \
-    --libdir=/usr/lib \
     --disable-fixed-point \
     --disable-libquadmath \
     --disable-decimal-float \
     --enable-default-pie \
     --enable-default-ssp \
     --program-prefix= \
-    LDFLAGS_FOR_TARGET="-L$PWD/$TARGET/libgcc"\
+    --disable-separate-code \
     --disable-nls \
     --with-sysroot=/ \
     --with-build-sysroot="$ROOTFS" \
-    --enable-libatomic \
-    --enable-languages=c,c++ \
     --disable-bootstrap \
-    --disable-assembly \
     --disable-werror \
     --disable-multilib \
     --disable-lto \
     --enable-tls \
     --disable-libmudflap \
     --disable-libsanitizer \
-    --disable-gnu-indirect-function \
-    --disable-libmpx \
-    --enable-shared \
-    --enable-initfini-array \
-    --enable-libstdcxx-time=rt \
+    --disable-libctf \
     CC="$CC $CFLAGS -fPIC"\
     CXX="$CXX $CXXFLAGS -fPIC"\
     || exit 1
 }
 
 makeinstall() {
-  echo "building gcc..."
+  echo "building binutils..."
   if ! test -d "$DIR/$BUILDDIR" -a -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
+
   cd "$DIR/$BUILDDIR" || exit 1
-
-  make -j${JOBS:-8} all-gcc || exit 1
-  make -j${JOBS:-8} all-target-libgcc || exit 1
-  make -j${JOBS:-8} all-target-libstdc++-v3 CXXFLAGS="-fPIC" || exit 1
-  make -j${JOBS:-8} all-target-libatomic CXXFLAGS="-fPIC" || exit 1
-
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-gcc || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libgcc || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libstdc++-v3 || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libatomic || exit 1
+  make -j${JOBS:-8} || exit 1
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install || exit 1
 }
 
 clear() {
@@ -131,7 +101,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for gcc
+Build script for binutils
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball

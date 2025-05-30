@@ -11,4 +11,4 @@
 *.fd
 ./misc/edk2-arm-vars.fd
 
-/dist
+dist
