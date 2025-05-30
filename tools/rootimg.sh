@@ -11,4 +11,8 @@ ROOT_SIZE=1023
 cd "$DIST" || exit 1
 dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1
 # bruh fakeroot just shits itself if you're on x86_64
-mke2fs -t ext4 -F -d rootfs/ rootfs.img || exit 1
+if [ "$(arch)" = "x86_64" ]; then
+  mke2fs -t ext4 -F -d rootfs/ rootfs.img || exit 1
+else
+  fakeroot mke2fs -t ext4 -F -d rootfs/ rootfs.img || exit 1
+fi
