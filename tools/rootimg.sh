@@ -16,3 +16,11 @@ if [ "$(arch)" = "x86_64" ]; then
 else
   fakeroot mke2fs -t ext4 -F -d rootfs/ rootfs.img || exit 1
 fi
+
+# Your one chance to set permissions correctly.
+debugfs -w rootfs.img <<EOF
+chmod 0644 /etc/passwd /etc/group
+chmod 0640 /etc/shadow
+chown 0 22 /etc/shadow
+quit
+EOF

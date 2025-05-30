@@ -1,5 +1,7 @@
 #!/bin/sh
 
+DIR="$(realpath "$(dirname "$0" )" )"
+
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
   echo "You cannot run this script while not in the juniosenv!" && \
@@ -11,10 +13,15 @@ build() {
   "$PKGS/$1/build" a 2>&1 | tee -a "$PKGS/log/$1.log"
 }
 
+mkdir -m 700 -p "$ROOTFS/root"
+mkdir -m 755 -p "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run"
+mkdir -m 755 -p "$ROOTFS/boot/efi"
+
 # libraries required by everything.
 build openssl
 build libc
 build zlib
+build certs
 # readline depends on curses
 build ncurses
 build readline
@@ -39,3 +46,6 @@ build gmp \
   && build mpc \
   && build binutils \
   && build gcc
+
+# copy over stuff in userspace
+rsync --delete -a "$DIR/../etc/" "$ROOTFS/etc/" || exit 1

@@ -4,8 +4,8 @@
 
 Just another deranged attempt at a Linux From Scratch, except not going by the
 book. This is **very much** WIP, but if you would like instructions, see
-[setup.md](./setup.md). Development is standardized around the alpine docker
-image defined in the Dockerfile.
+[setup.md](./setup.md). Development is standardized around the Alpine Linux
+Docker image defined in the Dockerfile.
 
 A lot of the init scripts were shamelessly ripped from Void Linux. Runit was
 chosen as PID 1.
@@ -28,8 +28,7 @@ Get into the container environment, then
 ./pkgs/kernel/build all
 # set up the rootfs
 ./tools/setup_initramfs.sh # compiles initramfs-related things.
-./pkgs/userspace.sh # installs userspace packages
-./tools/etc.sh # installs configuration files and sets up a user
+./tools/userspace.sh # installs userspace packages and also a user.
 
 # create the bootable drive.
 ./tools/bootable.sh
@@ -40,5 +39,5 @@ Get into the container environment, then
 The root password is `junios`. Once booted up, you may manually add new users
 using busybox's utilities.
 
-You should obviously change the password if this is a real system (it's probably
-not though)
+You should obviously change the root password if this is a real system (it's
+probably not though)

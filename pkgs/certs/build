@@ -1,0 +1,79 @@
+#!/bin/sh
+
+DIR="$(realpath "$(dirname "$0" )" )"
+cd "$DIR" || exit 1
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the juniosenv!" && \
+  exit 1;
+}
+
+VERSION=""
+BASEURL="https://curl.se/ca"
+SRCDIR="certs-$VERSION"
+TARBALL="cacert.pem"
+
+download() {
+  cd "$DIR" || exit 1
+  echo "downloading certs source..."
+  if test -f "$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+    return
+  fi
+  curl -LOf $BASEURL/$TARBALL
+}
+
+extract() {
+  cd "$DIR" || exit 1
+  echo "extracting certs source..."
+  if ! test -f "$TARBALL"; then
+    echo "No cert to operate on!"
+    exit 1
+  fi
+}
+
+makeinstall() {
+  echo "building certs..."
+  if ! test -f "$DIR/$TARBALL"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  install -m755 "$TARBALL" "$ROOTFS/etc/ssl/cert.pem"
+}
+
+clear() {
+  cd "$DIR" || exit 1
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+}
+
+cd "$DIR" || exit 1
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for certs
+
+download|d -> download the tarball
+extract|e -> extract and patch the tarball
+makeinstall|mi -> make and install the build artifacts
+clear|clean|c -> clean all artifacts
+all|a -> clean, and then go through everything.
+EOF
+    exit 1
+    ;;
+esac
