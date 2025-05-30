@@ -24,8 +24,7 @@ test -z $bootloader && {
 }
 
 rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
-kernel=$(find "$ROOTFS/boot" -name 'vmlinu*' | sort | head -n 1)
-kernel=$(basename "$kernel")
+kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort | head -n 1)")"
 
 test -z "$kernel" -o -z "$rootuuid" && exit 1
 
@@ -36,10 +35,10 @@ mcopy -i esp.img "$ROOTFS/boot/initramfs.cpio.gz" ::/BOOT/initramfs.cpio.gz
 cat <<EOF > ./limine.conf
 timeout: 5
 
-/JuniOS $kernel graphical
+/JuniOS $kernel
     protocol: linux
     path: boot():/boot/$kernel
-    cmdline:console=ttyS0,115200 panic=-1 root=UUID=$rootuuid rw quiet
+    cmdline:console=ttyAMA0,115200 panic=-1 root=UUID=$rootuuid rw
     module_path: boot():/boot/initramfs.cpio.gz
 EOF
 

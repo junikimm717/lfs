@@ -8,7 +8,12 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the juniosenv!" && \
   exit 1
 
-#VERSION="6.12.30"
+# FORCE using the build system's compiler.
+export PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin
+export CC="$(command -v gcc)"
+unset CFLAGS LDFLAGS CPPFLAGS
+export CFLAGS LDFLAGS CPPFLAGS
+
 VERSION="6.14.8"
 BASEURL="cdn.kernel.org/pub/linux/kernel/v$(echo "$VERSION" | cut -d'.' -f 1 ).x"
 SRCDIR="linux-$VERSION"
@@ -22,12 +27,6 @@ download() {
   fi
   echo "downloading kernel source"
   curl -LOf "$BASEURL/$TARBALL"
-}
-
-_runwithflags() {
-  "$@" \
-    HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
-    HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)"
 }
 
 extract() {
@@ -49,10 +48,11 @@ makeinstall() {
   ! test -e "$SRCDIR" && { echo "You must have $SRCDIR prepared first!" && exit 1; }
   echo "compiling and installing header"
   cd "$DIR/$SRCDIR" || exit 1
-  _runwithflags make olddefconfig
-  _runwithflags make -j${JOBS:-8}
-  _runwithflags make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr
-  _runwithflags make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install
+  # this screws up the config
+  make olddefconfig || exit 1
+  make -j${JOBS:-8} || exit 1
+  make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr || exit 1
+  make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install || exit 1
 }
 
 clear() {

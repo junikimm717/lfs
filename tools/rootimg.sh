@@ -19,8 +19,10 @@ fi
 
 # Your one chance to set permissions correctly.
 debugfs -w rootfs.img <<EOF
-chmod 0644 /etc/passwd /etc/group
-chmod 0640 /etc/shadow
-chown 0 22 /etc/shadow
+set_inode_field /etc/passwd mode 0100644
+set_inode_field /etc/group  mode 0100644
+set_inode_field /etc/shadow mode 0100640
+set_inode_field /etc/shadow uid 0
+set_inode_field /etc/shadow gid 22
 quit
 EOF
