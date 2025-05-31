@@ -2,7 +2,7 @@
 
 - [x] install curl
   - [x] libnghttp2
-- [ ] install meson
-  - [ ] install python3
+- [x] install meson
+  - [x] install python3
     - [x] install lzma and bzip2
-    - [ ] libffi and sqlite3
+    - [x] libffi and sqlite3

@@ -29,6 +29,7 @@ _OLD_JOBS="\$JOBS"
 _OLD_PKG_CONFIG_SYSROOT_DIR="\$PKG_CONFIG_SYSROOT_DIR"
 _OLD_PKG_CONFIG_LIBDIR=\$PKG_CONFIG_LIBDIR
 _OLD_PKG_CONFIG_PATH=\$PKG_CONFIG_PATH
+_OLD_LD_LIBRARY_PATH=\$LD_LIBRARY_PATH
 
 deactivate() {
   export PATH="\$_OLD_PATH"
@@ -46,6 +47,7 @@ deactivate() {
   export PKG_CONFIG_SYSROOT_DIR=\$_OLD_PKG_CONFIG_SYSROOT_DIR
   export PKG_CONFIG_LIBDIR=\$_OLD_PKG_CONFIG_LIBDIR
   export PKG_CONFIG_PATH=\$_OLD_PKG_CONFIG_PATH
+  export LD_LIBRARY_PATH=\$_OLD_LD_LIBRARY_PATH
 
   unset _OLD_CC
   unset _OLD_CXX
@@ -53,6 +55,10 @@ deactivate() {
   unset _OLD_RANLIB
   unset _OLD_LD
   unset _OLD_JOBS
+  unset _OLD_LD_LIBRARY_PATH
+  unset _OLD_PKG_CONFIG_PATH
+  unset _OLD_PKG_CONFIG_LIBDIR
+  unset _OLD_PKG_CONFIG_SYSROOT_DIR
 
   unset HGCCVER
   unset BUILDTRIPLE
@@ -86,9 +92,10 @@ export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"
 export DIST="$DIR/dist"
 export ROOTFS="$DIR/dist/rootfs"
-export CFLAGS="\$CFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
-export CXXFLAGS="\$CXXFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
+export CFLAGS="\$CFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
+export CXXFLAGS="\$CXXFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
+export LD_LIBRARY_PATH=\$ROOTFS/lib:\$ROOTFS/usr/lib:\$LD_LIBRARY_PATH
 
 export VIRTUAL_ENV="junios"
 export PKG_CONFIG_SYSROOT_DIR=$ROOTFS

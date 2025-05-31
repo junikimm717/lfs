@@ -31,7 +31,9 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build readline && \
   build nghttp2 && \
   build bzip2 && \
-  build xz
+  build xz && \
+  build libffi && \
+  build sqlite
 } && {
   # tools
   build user_busybox && \
