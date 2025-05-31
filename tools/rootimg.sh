@@ -3,7 +3,7 @@
 DIR="$(realpath "$(dirname "$0" )" )"
 
 test -z "$INOSENV" && \
-  echo "You cannot run this script while not in the juniosenv!" && \
+  echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
 ROOT_SIZE=1023

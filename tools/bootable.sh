@@ -14,7 +14,7 @@ TOTAL_SECTORS=$((ROOTFS_START + ROOTFS_SECTORS))
 TOTAL_SIZE=$(((TOTAL_SECTORS * 512) / 1048576 + 1))
 
 test -z "$INOSENV" && \
-  echo "You cannot run this script while not in the juniosenv!" && \
+  echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
 cd "$DIST" || exit 1
