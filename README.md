@@ -4,7 +4,7 @@ In Memory of Mimi (2022-5/13/2025)
 
 ![Mimi](./mimi.jpg)
 
-![FastFetch](./fastfetch.png)
+![FastFetch](./fastfetch2.png)
 
 This is **very much** WIP, but if you would like instructions, see
 [setup.md](./setup.md). Development is standardized around the Alpine Linux
