@@ -24,6 +24,8 @@ Non-goals:
 
 Get into the container environment, then
 ```sh
+# download the cross compilers
+./cross/build all
 # build the kernel FIRST
 ./core/kernel/build all
 # set up the rootfs
