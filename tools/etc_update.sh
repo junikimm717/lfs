@@ -12,4 +12,4 @@ DIR="$(realpath "$(dirname "$0" )" )/.."
 DIR="$(realpath "$DIR" )"
 
 # copy over stuff in userspace
-rsync --delete -a "$DIR/etc/" "$ROOTFS/etc/" || exit 1
+rsync -a "$DIR/etc/" "$ROOTFS/etc/" || exit 1

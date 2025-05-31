@@ -26,6 +26,9 @@ _OLD_CFLAGS="\$CFLAGS"
 _OLD_CXXFLAGS="\$CXXFLAGS"
 _OLD_LDFLAGS="\$LDFLAGS"
 _OLD_JOBS="\$JOBS"
+_OLD_PKG_CONFIG_SYSROOT_DIR="\$PKG_CONFIG_SYSROOT_DIR"
+_OLD_PKG_CONFIG_LIBDIR=\$PKG_CONFIG_LIBDIR
+_OLD_PKG_CONFIG_PATH=\$PKG_CONFIG_PATH
 
 deactivate() {
   export PATH="\$_OLD_PATH"
@@ -40,6 +43,9 @@ deactivate() {
   export CXXFLAGS=\$_OLD_CXXFLAGS
   export LDFLAGS=\$_OLD_LDFLAGS
   export JOBS=\$_OLD_JOBS
+  export PKG_CONFIG_SYSROOT_DIR=\$_OLD_PKG_CONFIG_SYSROOT_DIR
+  export PKG_CONFIG_LIBDIR=\$_OLD_PKG_CONFIG_LIBDIR
+  export PKG_CONFIG_PATH=\$_OLD_PKG_CONFIG_PATH
 
   unset _OLD_CC
   unset _OLD_CXX
@@ -70,7 +76,7 @@ deactivate() {
   unset -f deactivate
 }
 
-export VIRTUAL_ENV="junios"
+# ALL of these need to change if you have a source tree.
 export PATH="$DIR/cross/$TARGET-native/bin:\$PATH"
 export CC="$DIR/cross/$TARGET-native/bin/$TARGET-gcc"
 export CXX="$DIR/cross/$TARGET-native/bin/$TARGET-g++"
@@ -84,6 +90,11 @@ export ROOTFS="$DIR/dist/rootfs"
 export CFLAGS="\$CFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export CXXFLAGS="\$CXXFLAGS -O2 -pipe -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
+
+export VIRTUAL_ENV="junios"
+export PKG_CONFIG_SYSROOT_DIR=$ROOTFS
+export PKG_CONFIG_LIBDIR=$ROOTFS/usr/lib/pkgconfig
+export PKG_CONFIG_PATH=$ROOTFS/usr/share/pkgconfig
 
 JOBS=$(($(nproc)-2))
 if [ \$JOBS -lt 0 ]; then
