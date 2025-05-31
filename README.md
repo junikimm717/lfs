@@ -1,9 +1,9 @@
-# Juni's Linux from Scratch
+# Mimux
 
-![screenshot](./fastfetch.png)
+In Memory of Mimi (2022-5/13/2025)
+![Mimi](./mimi.jpg)
 
-Just another deranged attempt at a Linux From Scratch, except not going by the
-book. This is **very much** WIP, but if you would like instructions, see
+This is **very much** WIP, but if you would like instructions, see
 [setup.md](./setup.md). Development is standardized around the Alpine Linux
 Docker image defined in the Dockerfile.
 
@@ -38,8 +38,7 @@ Get into the container environment, then
 
 ## Default Environment
 
-The root password is `junios`. Once booted up, you may manually add new users
-using busybox's utilities.
+The default user is `mimi` and the password is `george` (his favorite chipmunk).
 
 You should obviously change the root password if this is a real system (it's
 probably not though)

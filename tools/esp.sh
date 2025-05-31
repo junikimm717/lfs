@@ -35,16 +35,22 @@ mcopy -i esp.img "$ROOTFS/boot/initramfs.cpio.gz" ::/BOOT/initramfs.cpio.gz
 cat <<EOF > ./limine.conf
 timeout: 5
 
-/JuniOS $kernel
+/Mimux $kernel
     protocol: linux
     path: boot():/boot/$kernel
     cmdline:panic=-1 root=UUID=$rootuuid rw
     module_path: boot():/boot/initramfs.cpio.gz
 
-/JuniOS $kernel (debug)
+/Mimux $kernel (logs)
     protocol: linux
     path: boot():/boot/$kernel
-    cmdline:console=tty0 panic=-1 init=/init.shell rw
+    cmdline:console=tty0 panic=5 root=UUID=$rootuuid rw
+    module_path: boot():/boot/initramfs.cpio.gz
+
+/Mimux $kernel (debug shell)
+    protocol: linux
+    path: boot():/boot/$kernel
+    cmdline:console=tty0 panic=5 debug=true
     module_path: boot():/boot/initramfs.cpio.gz
 EOF
 

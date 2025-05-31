@@ -62,5 +62,4 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build meson
 }
 
-# copy over config files
-rsync -a "$DIR/../etc/" "$ROOTFS/etc/" || exit 1
+"$DIR/etc_update.sh" || exit 1

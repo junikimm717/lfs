@@ -23,6 +23,5 @@ mkdir -p "$DIST/initramfs"
 cd "$DIST/initramfs" || exit 1
 mkdir -p bin dev etc lib tmp var boot proc run sys mnt
 cp -a "$DIR/../misc/init" "$DIST/initramfs/init"
-cp -a "$DIR/../misc/init.shell" "$DIST/initramfs/init.shell"
 mkdir -p "$ROOTFS/boot"
 find . | cpio -H newc -o | gzip > "$ROOTFS/boot/initramfs.cpio.gz"

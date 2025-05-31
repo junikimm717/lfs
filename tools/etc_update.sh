@@ -12,4 +12,6 @@ DIR="$(realpath "$(dirname "$0" )" )/.."
 DIR="$(realpath "$DIR" )"
 
 # copy over stuff in userspace
+mkdir -p "$ROOTFS/home/mimi"
 rsync -a "$DIR/etc/" "$ROOTFS/etc/" || exit 1
+echo "Mimux 0.1-dev ($(arch))" > "$ROOTFS/etc/issue"

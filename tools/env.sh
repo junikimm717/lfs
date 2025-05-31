@@ -97,7 +97,7 @@ export CXXFLAGS="\$CXXFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
 export LD_LIBRARY_PATH=\$ROOTFS/lib:\$ROOTFS/usr/lib
 
-export VIRTUAL_ENV="junios"
+export VIRTUAL_ENV="mimux"
 export PKG_CONFIG_SYSROOT_DIR=$ROOTFS
 export PKG_CONFIG_LIBDIR=$ROOTFS/usr/lib/pkgconfig
 export PKG_CONFIG_PATH=$ROOTFS/usr/share/pkgconfig
@@ -114,9 +114,9 @@ export BUILDTRIPLE="$BUILDTRIPLE"
 export INOSENV=1
 
 _OLD_VIRTUAL_PS1="\${PS1:-}"
-PS1='(junios) '"\${PS1:-}"
+PS1='(mimux) '"\${PS1:-}"
 export PS1
-VIRTUAL_ENV_PROMPT='(junios) '
+VIRTUAL_ENV_PROMPT='(mimux) '
 export VIRTUAL_ENV_PROMPT
 set -o vi
 EOF

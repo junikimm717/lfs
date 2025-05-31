@@ -7,6 +7,7 @@ test -z "$INOSENV" && \
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
+cp -a "$DIR/../misc/init" "$DIST/initramfs/init"
 cd "$DIST/initramfs" || exit 1
 mkdir -p "$ROOTFS/boot"
 find . | cpio -H newc -o | gzip > "$ROOTFS/boot/initramfs.cpio.gz"

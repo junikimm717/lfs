@@ -24,5 +24,9 @@ set_inode_field /etc/group  mode 0100644
 set_inode_field /etc/shadow mode 0100640
 set_inode_field /etc/shadow uid 0
 set_inode_field /etc/shadow gid 22
+
+set_inode_field /home/mimi mode 0040700
+set_inode_field /home/mimi uid 1000
+set_inode_field /home/mimi gid 1000
 quit
 EOF
