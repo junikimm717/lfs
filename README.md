@@ -1,7 +1,10 @@
 # Mimux
 
 In Memory of Mimi (2022-5/13/2025)
+
 ![Mimi](./mimi.jpg)
+
+![FastFetch](./fastfetch.png)
 
 This is **very much** WIP, but if you would like instructions, see
 [setup.md](./setup.md). Development is standardized around the Alpine Linux
@@ -39,6 +42,4 @@ Get into the container environment, then
 ## Default Environment
 
 The default user is `mimi` and the password is `george` (his favorite chipmunk).
-
-You should obviously change the root password if this is a real system (it's
-probably not though)
+Root login is disabled but you can do arbitrary commands via `doas`.
