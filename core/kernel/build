@@ -52,7 +52,11 @@ makeinstall() {
   make olddefconfig || exit 1
   make -j${JOBS:-8} || exit 1
   make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr || exit 1
-  make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install || exit 1
+  if [ "$(arch)" = "x86_64" ]; then
+    install ./arch/x86/boot/bzImage $DIST/rootfs/boot/vmlinuz-$VERSION || exit 1
+  else
+    make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install || exit 1
+  fi
 }
 
 clear() {
