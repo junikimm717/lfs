@@ -29,11 +29,7 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   # curl depends on nghttp2
   build ncurses && \
   build readline && \
-  build nghttp2 && \
-  build bzip2 && \
-  build xz && \
-  build libffi && \
-  build sqlite
+  build nghttp2
 } && {
   # tools
   build user_busybox && \
@@ -45,7 +41,7 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build fastfetch && \
   build file && \
   build make && \
-  build util-linux &&
+  build util-linux &&\
   build curl
 } && {
   # bootloader
@@ -57,7 +53,15 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build mpc && \
   build binutils && \
   build gcc
+} && {
+  # is it better to distribute the static distribution hmm...
+  build bzip2 && \
+  build xz && \
+  build libffi && \
+  build sqlite && \
+  build python3 && \
+  build meson
 }
 
-# copy over stuff in userspace
+# copy over config files
 rsync -a "$DIR/../etc/" "$ROOTFS/etc/" || exit 1
