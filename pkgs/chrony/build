@@ -37,7 +37,8 @@ extract() {
   cd "$SRCDIR" || exit 1
   ./configure --prefix="/usr"\
     --exec-prefix="/usr"\
-    --sysconfdir="/etc"
+    --sysconfdir="/etc"\
+    --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {

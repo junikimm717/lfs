@@ -37,7 +37,7 @@ extract() {
   cd "$SRCDIR" || exit 1
   export CXXCPP="$TARGET-g++ -E"
   export CPP="$TARGET-gcc -E"
-  ./configure --prefix="/usr" --exec-prefix="/usr"
+  ./configure --prefix="/usr" --exec-prefix="/usr" --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {

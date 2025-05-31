@@ -67,7 +67,7 @@ extract() {
     LDFLAGS_FOR_TARGET="-L$PWD/$TARGET/libgcc"\
     --disable-nls \
     --with-sysroot=/ \
-    --with-build-sysroot="$ROOTFS" \
+    --with-build-sysroot="${ROOTFS:-/}" \
     --enable-libatomic \
     --enable-languages=c,c++ \
     --disable-bootstrap \

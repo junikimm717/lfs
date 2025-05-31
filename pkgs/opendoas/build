@@ -35,6 +35,7 @@ extract() {
 
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
+  # opendoas's build script actually just sucks
   OS=linux WITHOUT_TIMESTAMP='' WITHOUT_SHADOW='' ./configure \
     --prefix="/usr" --exec-prefix="/usr" --with-timestamp --with-shadow
 }

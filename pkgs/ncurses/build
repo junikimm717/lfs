@@ -39,6 +39,7 @@ extract() {
     --without-shared --prefix=/usr\
     --exec-prefix=/usr --enable-static\
     --host=$TARGET\
+    --with-sysroot="${ROOTFS:-/}"\
     --without-ada \
     --without-tests \
     --enable-termcap

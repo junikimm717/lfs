@@ -35,7 +35,7 @@ extract() {
 
   tar xf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
-  ./configure --prefix="/usr" --target="$TARGET"
+  ./configure --prefix="/usr" --target="$TARGET" --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {

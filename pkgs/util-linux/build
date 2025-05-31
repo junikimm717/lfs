@@ -38,7 +38,7 @@ extract() {
   ./configure --prefix="/usr" --exec-prefix="/usr"\
     --without-python\
     --disable-nls\
-    --with-sysroot=$ROOTFS\
+    --with-sysroot="${ROOTFS:-/}"\
     --without-systemd\
     --disable-all-programs\
     --enable-agetty\

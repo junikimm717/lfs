@@ -51,7 +51,7 @@ extract() {
     --disable-separate-code \
     --disable-nls \
     --with-sysroot=/ \
-    --with-build-sysroot="$ROOTFS" \
+    --with-build-sysroot="${ROOTFS:-/}"\
     --disable-bootstrap \
     --disable-werror \
     --disable-multilib \

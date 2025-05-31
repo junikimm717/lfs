@@ -42,7 +42,7 @@ extract() {
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
   ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
-    --enable-uefi-$uefi_arch
+    --enable-uefi-$uefi_arch --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {

@@ -35,7 +35,7 @@ extract() {
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
   patch -p1 < "$DIR/utmp.patch" || exit 1
-  ./configure --prefix="/usr" --syslibdir="/lib"
+  ./configure --prefix="/usr" --syslibdir="/lib" --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {
