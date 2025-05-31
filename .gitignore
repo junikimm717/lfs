@@ -10,5 +10,7 @@
 *.html
 *.fd
 ./misc/edk2-arm-vars.fd
+*.pem
+*.crt
 
 dist

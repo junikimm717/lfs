@@ -26,8 +26,12 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build certs
 } && {
   # readline depends on curses
+  # curl depends on nghttp2
   build ncurses && \
-  build readline
+  build readline && \
+  build nghttp2 && \
+  build bzip2 && \
+  build xz
 } && {
   # tools
   build user_busybox && \
@@ -39,7 +43,8 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build fastfetch && \
   build file && \
   build make && \
-  build util-linux
+  build util-linux &&
+  build curl
 } && {
   # bootloader
   build limine

@@ -9,14 +9,14 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION=""
-BASEURL=""
-SRCDIR="PACKAGE-$VERSION"
+VERSION="8.14.0"
+BASEURL="https://github.com/curl/curl/releases/download/curl-8_14_0"
+SRCDIR="curl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 download() {
   cd "$DIR" || exit 1
-  echo "downloading PACKAGE source..."
+  echo "downloading curl source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -27,7 +27,7 @@ download() {
 
 extract() {
   cd "$DIR" || exit 1
-  echo "extracting PACKAGE source..."
+  echo "extracting curl source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
@@ -36,11 +36,16 @@ extract() {
   tar xf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
   ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
-    --with-sysroot="${ROOTFS:-/}"
+    --with-sysroot="${ROOTFS:-/}"\
+    --with-openssl\
+    --disable-test-bundles\
+    --without-libpsl\
+    --with-ca-embed=/etc/ssl/cert.pem
+
 }
 
 makeinstall() {
-  echo "building PACKAGE..."
+  echo "building curl..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
@@ -75,7 +80,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for PACKAGE
+Build script for curl
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball

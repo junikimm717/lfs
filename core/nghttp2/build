@@ -9,14 +9,14 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION=""
-BASEURL=""
-SRCDIR="PACKAGE-$VERSION"
+VERSION="1.65.0"
+BASEURL="https://github.com/nghttp2/nghttp2/releases/download/v$VERSION"
+SRCDIR="nghttp2-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 download() {
   cd "$DIR" || exit 1
-  echo "downloading PACKAGE source..."
+  echo "downloading nghttp2 source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -27,7 +27,7 @@ download() {
 
 extract() {
   cd "$DIR" || exit 1
-  echo "extracting PACKAGE source..."
+  echo "extracting nghttp2 source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
@@ -40,7 +40,7 @@ extract() {
 }
 
 makeinstall() {
-  echo "building PACKAGE..."
+  echo "building nghttp2..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
@@ -75,7 +75,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for PACKAGE
+Build script for nghttp2
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball
