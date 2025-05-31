@@ -19,6 +19,7 @@ extract() {
 
 makeinstall() {
   echo "building meson..."
+  chroot "$ROOTFS" python3 -m ensurepip
   chroot "$ROOTFS" pip3 install --root-user-action ignore meson ninja
 }
 

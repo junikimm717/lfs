@@ -10,6 +10,3 @@ DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIST/initramfs" || exit 1
 mkdir -p "$ROOTFS/boot"
 find . | cpio -H newc -o | gzip > "$ROOTFS/boot/initramfs.cpio.gz"
-
-cd "$DIST/emulatorfs" || exit 1
-find . | cpio -H newc -o | gzip > "$DIST/emulator.cpio.gz"

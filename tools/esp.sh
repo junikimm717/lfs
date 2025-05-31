@@ -40,6 +40,12 @@ timeout: 5
     path: boot():/boot/$kernel
     cmdline:panic=-1 root=UUID=$rootuuid rw
     module_path: boot():/boot/initramfs.cpio.gz
+
+/JuniOS $kernel (debug)
+    protocol: linux
+    path: boot():/boot/$kernel
+    cmdline:console=tty0 panic=-1 init=/init.shell rw
+    module_path: boot():/boot/initramfs.cpio.gz
 EOF
 
 mcopy -i esp.img ./limine.conf ::/EFI/BOOT/

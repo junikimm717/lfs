@@ -32,7 +32,7 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build nghttp2
 } && {
   # tools
-  build user_busybox && \
+  build busybox && \
   build runit && \
   build eudev && \
   build chrony && \
@@ -54,7 +54,6 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
   build binutils && \
   build gcc
 } && {
-  # is it better to distribute the static distribution hmm...
   build bzip2 && \
   build xz && \
   build libffi && \

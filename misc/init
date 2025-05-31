@@ -7,6 +7,10 @@ mountpoint -q /dev || mount -o mode=0755,nosuid -t devtmpfs dev /dev
 
 DRIVE=$(cat /proc/cmdline | sed -nE 's/.*\broot=([^[:space:]]*).*/\1/p')
 
+/usr/sbin/udevd --daemon
+/usr/sbin/udevadm trigger
+/usr/sbin/udevadm settle --timeout=3
+
 case "$DRIVE" in
   /dev*)
     mount "$DRIVE" /mnt

@@ -55,7 +55,7 @@ makeinstall() {
 
 clear() {
   cd "$DIR" || exit 1
-  rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR" || exit 1

@@ -42,7 +42,8 @@ extract() {
     --with-sysroot="${ROOTFS:-/}"\
     --without-ada \
     --without-tests \
-    --enable-termcap
+    --enable-termcap\
+    CFLAGS="$CFLAGS -fPIC"
 }
 
 makeinstall() {

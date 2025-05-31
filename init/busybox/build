@@ -51,7 +51,6 @@ makeinstall() {
   make -j${JOBS:-8} HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
-  # install to both dist (main system) and initramfs
   make CONFIG_PREFIX="$DIST/initramfs" install
 }
 

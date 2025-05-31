@@ -8,7 +8,7 @@ cd ../dist || { echo "rootfs doesn't exit!"; exit 1; }
 KERNEL=$(find ./rootfs -name 'vmlinu*' | sort | head -n 1)
 INITRD=./rootfs/boot/initramfs.cpio.gz
 if test "$1" = "-d"; then
-  INITRD="./emulator.cpio.gz"
+  INITRD="./debug.cpio.gz"
 fi
 
 test -z "$KERNEL" -o -z "$INITRD" && {

@@ -7,3 +7,7 @@ cd "$DIR/.." || exit 1
 for dr in ./core/*/; do
   test -x "$dr/build" && "$dr/build" clear
 done || true
+
+for dr in ./init/*/; do
+  test -x "$dr/build" && "$dr/build" clear
+done || true

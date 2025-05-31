@@ -9,15 +9,14 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-# https://sqlite.org/2025/sqlite-autoconf-3500000.tar.gz
-VERSION="3500000"
-BASEURL="https://sqlite.org/2025"
-SRCDIR="sqlite-autoconf-$VERSION"
+VERSION="3.2.14"
+BASEURL="https://github.com/eudev-project/eudev/releases/download/v$VERSION"
+SRCDIR="eudev-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 download() {
   cd "$DIR" || exit 1
-  echo "downloading sqlite source..."
+  echo "downloading eudev source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -28,7 +27,7 @@ download() {
 
 extract() {
   cd "$DIR" || exit 1
-  echo "extracting sqlite source..."
+  echo "extracting eudev source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
@@ -36,19 +35,30 @@ extract() {
 
   tar xzf "$TARBALL" || exit 1
   cd "$SRCDIR" || exit 1
-  ./configure --prefix="/usr" --exec-prefix="/usr" CFLAGS="$CFLAGS -fPIC"
+  ./configure --prefix="/usr" --exec-prefix="/usr" --host=$TARGET\
+    --with-sysroot="${ROOTFS:-/}"\
+    --disable-kmod \
+    --enable-static \
+    --disable-shared \
+    CC="$CC" \
+    LD="$LD" \
+    CFLAGS="-Os -static" \
+    LDFLAGS="$LDFLAGS -s -static"\
+    LIBS="-static"
 }
 
+
 makeinstall() {
-  echo "building sqlite..."
+  echo "building eudev..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
   cd "$DIR/$SRCDIR" || exit 1
 
-  make -j${JOBS:-8} || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install || exit 1
+  # fuck libtool
+  make -j${JOBS:-8} LDFLAGS="-all-static -s" || exit 1
+  make -j${JOBS:-8} DESTDIR="$DIST/initramfs" install || exit 1
 }
 
 clear() {
@@ -75,7 +85,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for sqlite
+Build script for eudev
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball

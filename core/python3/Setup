@@ -142,7 +142,8 @@ _sqlite3 _sqlite/blob.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microproto
 # needs -lssl and -lcrypt
 _ssl _ssl.c -lssl -lcrypt
 # needs -lcrypt
-_hashlib _hashopenssl.c -lcrypt
+# apparently -lcrypt causes this thing to shit itself??
+_hashlib _hashopenssl.c
 
 # Linux: -luuid, BSD/AIX: libc's uuid_create()
 #_uuid _uuidmodule.c
