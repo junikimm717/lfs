@@ -12,11 +12,11 @@ mkdir -p "$DIST/initramfs"
 
 # download everything first.
 ./cross/build d
-./pkgs/init_busybox/build d
+./core/init_busybox/build d
 
 # these must be done IN ORDER!
 ./cross/build all || exit 1
-./pkgs/init_busybox/build all || exit 1
+./core/init_busybox/build all || exit 1
 
 cd "$DIST/initramfs" || exit 1
 mkdir -p bin dev etc lib tmp var boot proc run sys mnt

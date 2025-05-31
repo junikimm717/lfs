@@ -2,15 +2,16 @@
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
+CORE="$DIR/../core"
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
   echo "You cannot run this script while not in the juniosenv!" && \
   exit 1
 
 build() {
-  mkdir -p "$PKGS/log"
+  mkdir -p "$CORE/log"
   echo "========= Building $1... ==========="
-  "$PKGS/$1/build" a 2>&1 | tee -a "$PKGS/log/$1.log"
+  "$CORE/$1/build" a 2>&1 | tee -a "$CORE/log/$1.log"
 }
 
 mkdir -m 700 -p "$ROOTFS/root"
@@ -19,36 +20,36 @@ mkdir -m 755 -p "$ROOTFS/boot/efi"
 
 {
   # libraries required by everything.
-  build openssl &&
-  build libc &&
-  build zlib &&
+  build openssl && \
+  build libc && \
+  build zlib && \
   build certs
 } && {
   # readline depends on curses
-  build ncurses &&
+  build ncurses && \
   build readline
 } && {
   # tools
-  build user_busybox &&
-  build runit &&
-  build eudev &&
-  build chrony &&
-  build dhcpcd &&
-  build opendoas &&
-  build fastfetch &&
-  build file &&
-  build make &&
+  build user_busybox && \
+  build runit && \
+  build eudev && \
+  build chrony && \
+  build dhcpcd && \
+  build opendoas && \
+  build fastfetch && \
+  build file && \
+  build make && \
   build util-linux
 } && {
   # bootloader
   build limine
 } && {
   # install the compiler and tools.
-  build gmp \
-    && build mpfr \
-    && build mpc \
-    && build binutils \
-    && build gcc
+  build gmp && \
+  build mpfr && \
+  build mpc && \
+  build binutils && \
+  build gcc
 }
 
 # copy over stuff in userspace

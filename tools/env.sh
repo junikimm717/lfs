@@ -60,7 +60,6 @@ deactivate() {
   unset INOSENV
   unset DIST
   unset ROOTFS
-  unset PKGS
 
   hash -r 2> /dev/null
 
@@ -106,7 +105,6 @@ export TARGET="$TARGET"
 export HGCCVER="$HGCCVER"
 export BUILDTRIPLE="$BUILDTRIPLE"
 export INOSENV=1
-export PKGS="$DIR/pkgs"
 
 _OLD_VIRTUAL_PS1="\${PS1:-}"
 PS1='(junios) '"\${PS1:-}"

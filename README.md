@@ -25,7 +25,7 @@ Non-goals:
 Get into the container environment, then
 ```sh
 # build the kernel FIRST
-./pkgs/kernel/build all
+./core/kernel/build all
 # set up the rootfs
 ./tools/setup_initramfs.sh # compiles initramfs-related things.
 ./tools/userspace.sh # installs userspace packages and also a user.

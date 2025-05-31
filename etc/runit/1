@@ -12,20 +12,24 @@ mkdir -p -m0755 /run/runit /run/lvm /run/user /run/lock /run/log /dev/pts /dev/s
 mountpoint -q /dev/pts || mount -o mode=0620,gid=5,nosuid,noexec -n -t devpts devpts /dev/pts
 mountpoint -q /dev/shm || mount -o mode=1777,nosuid,nodev -n -t tmpfs shm /dev/shm
 mountpoint -q /sys/kernel/security || mount -n -t securityfs securityfs /sys/kernel/security
-
-
 if [ -d /sys/firmware/efi/efivars ]; then
     mountpoint -q /sys/firmware/efi/efivars || mount -o nosuid,noexec,nodev -t efivarfs efivarfs /sys/firmware/efi/efivars
 fi
+msg_ok
 
 msg "starting udevd"
 /usr/sbin/udevd --daemon
-#/usr/sbin/udevadm trigger --type=subsystems
+msg "udevd subsystems"
+/usr/sbin/udevadm trigger --type=subsystems
+msg "udevd devices"
 /usr/sbin/udevadm trigger --type=devices
-/usr/sbin/udevadm settle --debug --timeout=3
+msg "udevd settle"
+/usr/sbin/udevadm settle --timeout=3
+msg_ok
 
 msg "Setting up loopback interface..."
 ip link set up dev lo
+msg_ok
 
 [ -r /etc/hostname ] && read -r HOSTNAME < /etc/hostname
 if [ -n "$HOSTNAME" ]; then
