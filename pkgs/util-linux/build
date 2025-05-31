@@ -42,6 +42,7 @@ extract() {
     --without-systemd\
     --disable-all-programs\
     --enable-agetty\
+    --enable-dmesg
 
 }
 

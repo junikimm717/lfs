@@ -40,6 +40,8 @@ build make
 # bootloader
 build limine
 
+build util-linux
+
 # install the compiler and tools.
 build gmp \
   && build mpfr \
