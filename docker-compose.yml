@@ -1,6 +1,5 @@
 services:
   builder:
-    privileged: true
     build:
       context: .
       dockerfile: Dockerfile
