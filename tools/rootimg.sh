@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo
+
 DIR="$(realpath "$(dirname "$0" )" )"
 
 test -z "$INOSENV" && \

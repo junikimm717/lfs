@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo
+
 DIR="$(realpath "$(dirname "$0" )" )"
 ESP_SIZE="$(grep 'ESP_SIZE=' $DIR/esp.sh | cut -d'=' -f 2)"
 ROOT_SIZE="$(grep 'ROOT_SIZE=' $DIR/rootimg.sh | cut -d'=' -f 2)"
@@ -17,11 +19,11 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
-cd "$DIST" || exit 1
+cd "$DIST"
 
-$DIR/re_initramfs.sh || exit 1
-$DIR/rootimg.sh || exit 1
-$DIR/esp.sh || exit 1
+$DIR/re_initramfs.sh
+$DIR/rootimg.sh
+$DIR/esp.sh
 
 dd if=/dev/zero of=bootable.img bs=1M count=$TOTAL_SIZE
 

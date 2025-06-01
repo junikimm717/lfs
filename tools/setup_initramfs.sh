@@ -3,7 +3,7 @@
 set -euo
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR/.." || exit 1
+cd "$DIR/.."
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -18,11 +18,11 @@ mkdir -p "$DIST/initramfs"
 ./init/eudev/build d
 
 # these must be done IN ORDER!
-./cross/build all || exit 1
-./init/busybox/build all || exit 1
-./init/eudev/build all || exit 1
+./cross/build all
+./init/busybox/build all
+./init/eudev/build all
 
-cd "$DIST/initramfs" || exit 1
+cd "$DIST/initramfs"
 mkdir -p bin dev etc lib tmp var boot proc run sys mnt
 cp -a "$DIR/../misc/init" "$DIST/initramfs/init"
 mkdir -p "$ROOTFS/boot"

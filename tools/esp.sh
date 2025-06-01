@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo
+
 DIR="$(realpath "$(dirname "$0" )" )"
 
 test -z "$INOSENV" && \
@@ -8,8 +10,8 @@ test -z "$INOSENV" && \
 
 ESP_SIZE=64
 
-cd "$DIST" || exit 1
-dd if=/dev/zero of=esp.img bs=1M count=$ESP_SIZE || exit 1
+cd "$DIST"
+dd if=/dev/zero of=esp.img bs=1M count=$ESP_SIZE
 mkfs.vfat -F 32 esp.img
 
 export MTOOLS_SKIP_CHECK=1
