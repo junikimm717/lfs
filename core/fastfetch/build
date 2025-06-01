@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,7 +16,7 @@ SRCDIR="fastfetch-$VERSION"
 TARBALL="$VERSION.tar.gz"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading fastfetch source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
@@ -26,15 +27,15 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting fastfetch source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xzf "$TARBALL" || exit 1
-  cd "$SRCDIR" || exit 1
+  tar xzf "$TARBALL"
+  cd "$SRCDIR"
   mkdir -p build
   cd build
   cmake -DENABLE_ELF=OFF ..
@@ -46,18 +47,18 @@ makeinstall() {
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR/build" || exit 1
+  cd "$DIR/$SRCDIR/build"
 
-  cmake --build . -j ${JOBS:-8} --target fastfetch || exit 1
+  cmake --build . -j ${JOBS:-8} --target fastfetch
   install -Dm755 fastfetch $ROOTFS/usr/bin
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

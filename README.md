@@ -34,8 +34,6 @@ In particular, the container is the *only* supported development environment.
 
 Get into the container environment (as describe above), then
 ```sh
-# download the cross compilers
-./cross/build all
 # build the kernel FIRST
 ./core/kernel/build all
 # set up an initramfs.cpio.gz

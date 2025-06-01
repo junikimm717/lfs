@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -13,7 +14,7 @@ SRCDIR="runit-2.2.0"
 TARBALL="$SRCDIR.tar.gz"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading runit source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
@@ -24,15 +25,15 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting runit source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xzf "$TARBALL" --strip-components=1 || exit 1
-  cd "$DIR/$SRCDIR" || exit 1
+  tar xzf "$TARBALL" --strip-components=1
+  cd "$DIR/$SRCDIR"
 
   sed -i 's/gcc/$CC/g' src/find-systype.sh
   sed -i 's/gcc/$CC $CFLAGS/g' src/conf-cc
@@ -45,20 +46,20 @@ makeinstall() {
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR" || exit 1
+  cd "$DIR/$SRCDIR"
 
   # FORCE static linking everything
-  LDFLAGS="$LDFLAGS" package/compile || exit 1
+  LDFLAGS="$LDFLAGS" package/compile
   install -Dm755 command/runit-init   $ROOTFS/sbin/init
   install -Dm755 command/*            $ROOTFS/sbin/
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

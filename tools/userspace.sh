@@ -52,6 +52,7 @@ build mpfr
 build mpc
 build binutils
 build gcc
+# building dependencies, etc. for python3
 build bzip2
 build xz
 build libffi

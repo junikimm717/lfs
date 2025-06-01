@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -17,7 +18,7 @@ TARBALL="$SRCDIR.tar.xz"
 BUILDDIR="dist"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading gcc source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
@@ -28,15 +29,15 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting gcc source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL" || exit 1
-  cd "$SRCDIR" || exit 1
+  tar xf "$TARBALL"
+  cd "$SRCDIR"
   case $(uname -m) in
     x86_64)
       sed -e '/m64=/s/lib64/lib/' \
@@ -50,7 +51,7 @@ extract() {
   sed '/thread_header =/s/@.*@/gthr-posix.h/' \
     -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
 
-  mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR" || exit 1
+  mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR"
 
   # This gcc will be used when we are actually booted into our system.
   # Therefore, its sysroot must be set to /
@@ -85,7 +86,7 @@ extract() {
     --enable-libstdcxx-time=rt \
     CC="$CC $CFLAGS -fPIC"\
     CXX="$CXX $CXXFLAGS -fPIC"\
-    || exit 1
+   
 }
 
 makeinstall() {
@@ -94,25 +95,25 @@ makeinstall() {
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$BUILDDIR" || exit 1
+  cd "$DIR/$BUILDDIR"
 
-  make -j${JOBS:-8} all-gcc || exit 1
-  make -j${JOBS:-8} all-target-libgcc || exit 1
-  make -j${JOBS:-8} all-target-libstdc++-v3 CXXFLAGS="-fPIC" || exit 1
-  make -j${JOBS:-8} all-target-libatomic CXXFLAGS="-fPIC" || exit 1
+  make -j${JOBS:-8} all-gcc
+  make -j${JOBS:-8} all-target-libgcc
+  make -j${JOBS:-8} all-target-libstdc++-v3 CXXFLAGS="-fPIC"
+  make -j${JOBS:-8} all-target-libatomic CXXFLAGS="-fPIC"
 
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-gcc || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libgcc || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libstdc++-v3 || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libatomic || exit 1
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install-gcc
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libgcc
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libstdc++-v3
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libatomic
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL" "$BUILDDIR"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

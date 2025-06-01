@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -13,7 +14,7 @@ SRCDIR="busybox-1.36.1"
 TARBALL="$SRCDIR.tar.bz2"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -23,16 +24,16 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
   echo "extracting busybox source and applying config..."
-  tar xjf "$TARBALL" || exit 1
-  cd "$SRCDIR" || exit 1
-  patch -p1 < "$DIR/net.patch" || exit 1
-  cd "$DIR" || exit 1
+  tar xjf "$TARBALL"
+  cd "$SRCDIR"
+  patch -p1 < "$DIR/net.patch"
+  cd "$DIR"
   # actually skull emoji of a patch
   sed -i\
     -e "s|main|int main|g"\
@@ -41,13 +42,13 @@ extract() {
 }
 
 makeinstall() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "building busybox"
   if ! test -d "$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR" || exit 1
+  cd "$DIR/$SRCDIR"
   make -j${JOBS:-8} HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
@@ -56,11 +57,11 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

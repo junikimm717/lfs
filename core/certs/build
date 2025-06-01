@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,7 +16,7 @@ SRCDIR="certs-$VERSION"
 TARBALL="cacert.pem"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading certs source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
@@ -25,7 +26,7 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting certs source..."
   if ! test -f "$TARBALL"; then
     echo "No cert to operate on!"
@@ -43,11 +44,11 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

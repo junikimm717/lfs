@@ -1,7 +1,9 @@
 #!/bin/sh
 
+set -eu
+
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -12,7 +14,7 @@ SRCDIR="$TARGET-native"
 TARBALL="$SRCDIR.tgz"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading musl-cross-make toolchain..."
   if test -f "$TARBALL"; then
     return
@@ -21,7 +23,7 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   if ! test -f "$TARBALL"; then
     echo "no archive found"
     exit 1
@@ -45,11 +47,11 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR" || exit 1
-  rm -rf *.tgz "$TARBALL" "$SRCDIR"
+  cd "$DIR"
+  rm -rf ./*.tgz "$TARBALL" "$SRCDIR"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

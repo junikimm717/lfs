@@ -1,7 +1,8 @@
 #!/bin/sh
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,7 +16,7 @@ SRCDIR="util-linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "downloading util-linux source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
@@ -26,15 +27,15 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting util-linux source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL" || exit 1
-  cd "$SRCDIR" || exit 1
+  tar xf "$TARBALL"
+  cd "$SRCDIR"
   ./configure --prefix="/usr" --exec-prefix="/usr"\
     --without-python\
     --disable-nls\
@@ -52,18 +53,18 @@ makeinstall() {
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR" || exit 1
+  cd "$DIR/$SRCDIR"
 
-  make -j${JOBS:-8} || exit 1
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install || exit 1
+  make -j${JOBS:-8}
+  make -j${JOBS:-8} DESTDIR=$ROOTFS install
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download

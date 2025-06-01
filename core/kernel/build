@@ -1,7 +1,9 @@
 #!/bin/sh
 
+set -eu
+
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR" || exit 1
+cd "$DIR"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -20,7 +22,7 @@ SRCDIR="linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 download() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
@@ -30,7 +32,7 @@ download() {
 }
 
 extract() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   echo "extracting kernel source and applying config..."
   if ! test -f "$TARBALL"; then
     echo "$TARBALL does not exist!!"
@@ -39,32 +41,32 @@ extract() {
   tar xf "$TARBALL"
   # config that is slimmed down and reduces used modules
   cp -p "./configs/nomodules.config" "$SRCDIR/.config"
-  cd "$DIR/$SRCDIR" || exit 1
+  cd "$DIR/$SRCDIR"
 }
 
 
 makeinstall() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   ! test -e "$SRCDIR" && { echo "You must have $SRCDIR prepared first!" && exit 1; }
   echo "compiling and installing header"
-  cd "$DIR/$SRCDIR" || exit 1
+  cd "$DIR/$SRCDIR"
   # this screws up the config
-  make olddefconfig || exit 1
-  make -j${JOBS:-8} || exit 1
-  make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr || exit 1
+  make olddefconfig
+  make -j${JOBS:-8}
+  make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr
   if [ "$(arch)" = "x86_64" ]; then
-    install -D ./arch/x86/boot/bzImage $DIST/rootfs/boot/vmlinuz-$VERSION || exit 1
+    install -D ./arch/x86/boot/bzImage $DIST/rootfs/boot/vmlinuz-$VERSION
   else
-    make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install || exit 1
+    make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install
   fi
 }
 
 clear() {
-  cd "$DIR" || exit 1
+  cd "$DIR"
   rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
 }
 
-cd "$DIR" || exit 1
+cd "$DIR"
 case "$1" in
   download|d)
     download
