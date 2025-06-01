@@ -5,18 +5,9 @@ x86_64 and aarch64.
 
 ![Mimi](./mimi.jpg)
 
-This is **very much** WIP, but if you would like instructions, see
-[setup.md](./setup.md). Development is standardized around the Alpine Linux
-Docker image defined in the Dockerfile.
-
-A lot of the init scripts were shamelessly ripped from Void Linux. Runit was
-chosen as PID 1.
-
-Non-goals:
-
-1. Get it to work on real hardware (I tried stripping down the kernel as much
-   as possible, but this is maybe possible)
-2. Real dependency management (that's when you go to a *real* distro^^)
+This is **very much** WIP and is absolutely NOT ready for use unless you wish to
+contribute. Development is standardized around the Alpine Linux Docker image
+defined in the Dockerfile.
 
 ## Setup
 
@@ -65,5 +56,6 @@ with something like Virt-manager, UTM, etc.
 The default user is `mimi` and the password is `george` (his favorite chipmunk).
 Root login is disabled by default; you can do arbitrary commands via `doas`.
 
-Mimux uses musl and busybox to reduce bloat, but you should have many of your
-standard build tools installed on the system.
+Mimux uses musl, busybox, and runit to reduce bloat, but you should have many of
+your standard build tools installed on the system. Many of the runit init
+scripts were shamelessly ripped from Void :)

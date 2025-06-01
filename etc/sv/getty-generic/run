@@ -6,5 +6,5 @@ tty=${PWD##*-}
 
 GETTY_ARGS="${GETTY_ARGS} -L"
 
-exec chpst -P agetty ${GETTY_ARGS} \
+exec chpst -P getty ${GETTY_ARGS} \
 	"${tty}" "${BAUD_RATE}" "${TERM_NAME}"

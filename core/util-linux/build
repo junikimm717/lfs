@@ -42,9 +42,13 @@ extract() {
     --with-sysroot="${ROOTFS:-/}"\
     --without-systemd\
     --disable-all-programs\
-    --enable-agetty\
-    --enable-dmesg
-
+    --enable-dmesg\
+    --enable-libblkid\
+    --enable-blkid\
+    --enable-libsmartcols\
+    --enable-libmount\
+    --enable-lsblk\
+    --enable-chsh
 }
 
 makeinstall() {

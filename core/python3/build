@@ -44,6 +44,8 @@ extract() {
     --with-openssl="$ROOTFS/usr"\
     --enable-shared \
     --disable-static \
+    --without-static-libpython \
+    --disable-test-modules \
     CFLAGS="$CFLAGS -fPIC --sysroot=$ROOTFS/usr"\
     LDFLAGS="$LDFLAGS --sysroot=$ROOTFS/usr"
 }
@@ -61,7 +63,6 @@ makeinstall() {
   ln -sfn python3.13 "$ROOTFS/usr/bin/python3"
   # reduce bloat.
   rm -rf "$ROOTFS/usr/lib/python3.13/test"
-  rm -rf "$ROOTFS/usr/lib/python3.13/config-3*"
 }
 
 clear() {

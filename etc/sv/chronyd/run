@@ -8,9 +8,7 @@ while ! ping -c1 -W1 time.google.com >/dev/null 2>&1; do
   sleep 1
 done
 
-if test $BLOCKED -eq 1; then
-  echo "starting chronyd..."
-fi
+echo "starting chronyd..."
 
 mkdir -p "/var/lib/chrony" "/var/log/chrony"
 rm -rf /var/run/chrony/chronyd.pid
