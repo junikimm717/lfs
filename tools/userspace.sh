@@ -42,7 +42,7 @@ build opendoas
 build fastfetch
 build file
 build make
-build util-linux &&\
+build util-linux
 build curl
 # bootloader
 build limine
@@ -57,4 +57,3 @@ build xz
 build libffi
 build sqlite
 build python3
-build meson
