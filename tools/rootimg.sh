@@ -32,3 +32,5 @@ set_inode_field /home/mimi uid 1000
 set_inode_field /home/mimi gid 1000
 quit
 EOF
+
+printf "\n"

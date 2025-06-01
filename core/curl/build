@@ -41,7 +41,7 @@ extract() {
     --with-openssl\
     --disable-test-bundles\
     --without-libpsl\
-    --with-ca-embed=/etc/ssl/cert.pem
+    --with-ca-bundle=/etc/ssl/cert.pem
 
 }
 
