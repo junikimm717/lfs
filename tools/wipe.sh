@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euox
+set -eux
 
 DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIR/.." || exit 1

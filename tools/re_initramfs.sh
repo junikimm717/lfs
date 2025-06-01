@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo
+set -eu
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -euo
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
 ESP_SIZE="$(grep 'ESP_SIZE=' $DIR/esp.sh | cut -d'=' -f 2)"
