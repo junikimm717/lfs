@@ -38,7 +38,9 @@ extract() {
   
   ./Configure linux-"$(echo "$TARGET" | cut -d'-' -f 1)" \
     no-tests \
-    --prefix=/usr --openssldir=/etc/ssl
+    --prefix=/usr --openssldir=/etc/ssl\
+    -DDEFAULT_CERT_FILE=\"/etc/ssl/cert.pem\" \
+    -DDEFAULT_CERT_DIR=\"/etc/ssl/certs\"
 }
 
 makeinstall() {

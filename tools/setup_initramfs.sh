@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -euo
+
 DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIR/.." || exit 1
 
