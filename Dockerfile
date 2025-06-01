@@ -10,6 +10,6 @@ RUN apk add --no-cache\
   bash zstd findutils gcc musl-dev g++ gperf cmake\
   automake autoconf m4 parted lsblk e2tools sgdisk libtool \
   gmp-dev mpc1-dev mpfr-dev mtools libelf elfutils-dev linux-headers nasm\
-  genext2fs
+  tzdata-utils
 
 WORKDIR /workspace

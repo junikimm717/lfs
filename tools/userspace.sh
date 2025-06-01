@@ -28,6 +28,7 @@ build libc
 build busybox
 build zlib
 build certs
+build tzdata
 # readline depends on curses
 # curl depends on nghttp2
 build ncurses
