@@ -19,6 +19,7 @@ build() {
 mkdir -m 700 -p "$ROOTFS/root"
 mkdir -m 755 -p "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run"
 mkdir -m 755 -p "$ROOTFS/boot/efi"
+mkdir -m 777 -p "$ROOTFS/tmp"
 
 "$DIR/etc_update.sh"
 ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
