@@ -15,6 +15,9 @@ BASEURL="https://www.python.org/ftp/python/$VERSION"
 SRCDIR="Python-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
+# python actually just shits itself without this.
+export LD_LIBRARY_PATH="$ROOTFS/lib:$ROOTFS/usr/lib"
+
 download() {
   cd "$DIR"
   echo "downloading python3 source..."
@@ -50,6 +53,7 @@ extract() {
     LDFLAGS="$LDFLAGS --sysroot=$ROOTFS/usr"
 }
 
+
 makeinstall() {
   echo "building python3..."
   if ! test -d "$DIR/$SRCDIR"; then
@@ -57,7 +61,6 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
-
   make -j${JOBS:-8}
   make -j${JOBS:-8} DESTDIR=$ROOTFS install
   ln -sfn python3.13 "$ROOTFS/usr/bin/python3"

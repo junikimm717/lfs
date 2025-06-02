@@ -10,6 +10,6 @@ RUN apk add --no-cache\
   bash zstd findutils gcc musl-libintl musl-dev g++ gperf cmake\
   automake autoconf m4 parted lsblk e2tools sgdisk libtool \
   gmp-dev mpc1-dev mpfr-dev mtools libelf elfutils-dev linux-headers nasm\
-  tzdata-utils coreutils python3
+  tzdata-utils coreutils python3 bash
 
 WORKDIR /workspace
