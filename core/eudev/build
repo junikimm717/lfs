@@ -38,7 +38,7 @@ extract() {
   cd "$SRCDIR"
   # monkey patched for now, but bad idea to hard code /usr/bin
   # ideal scenario, we just never search for g++ because IT's NOT NEEDED
-  ./configure --prefix="/usr" --exec-prefix="/usr" --host=$TARGET\
+  ./configure --prefix="/" --exec-prefix="/" --host=$TARGET\
     --with-sysroot="${ROOTFS:-/}"
 }
 

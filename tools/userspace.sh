@@ -21,6 +21,7 @@ mkdir -m 755 -p "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOT
 mkdir -m 755 -p "$ROOTFS/boot/efi"
 
 "$DIR/etc_update.sh"
+ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
 
 # libraries required by everything.
 build openssl
@@ -60,3 +61,4 @@ build libffi
 build sqlite
 build python3
 build mandoc
+build kbd
