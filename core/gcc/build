@@ -106,6 +106,7 @@ makeinstall() {
   make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libgcc
   make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libstdc++-v3
   make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libatomic
+  ln -sfn gcc "$ROOTFS/usr/bin/cc"
 }
 
 clear() {

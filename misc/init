@@ -12,11 +12,6 @@ if grep 'debug' /proc/cmdline; then
   exec /bin/sh </dev/console >/dev/console 2>&1
 fi
 
-/usr/sbin/udevd --daemon
-/usr/sbin/udevadm trigger --type=subsystems --action=add
-/usr/sbin/udevadm trigger --type=devices --action=add
-/usr/sbin/udevadm settle
-
 case "$DRIVE" in
   /dev*)
     mount "$DRIVE" /mnt
@@ -24,7 +19,7 @@ case "$DRIVE" in
   UUID=*)
     UUID=$(echo "$DRIVE" | cut -d'=' -f 2 | tr -d '"')
     DEVICE=""
-    for i in $(seq 1 30); do
+    for _ in $(seq 1 30); do
       DEVICE=$(blkid | sed -nE "s|([^:]*).*UUID=\"$UUID\".*|\1|p")
       if test -n "$DEVICE" ; then break; fi
       echo "Waiting for device with UUID=$UUID..."

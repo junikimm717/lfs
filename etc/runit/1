@@ -3,6 +3,8 @@
 export PATH=/usr/bin:/usr/sbin:/sbin:/bin
 . /etc/runit/functions
 
+setfont /usr/share/consolefonts/arm8.fnt.gz
+
 msg "mounting device filesystems..."
 mountpoint -q /proc || mount -o nosuid,noexec,nodev -t proc proc /proc
 mountpoint -q /sys || mount -o nosuid,noexec,nodev -t sysfs sys /sys
@@ -18,13 +20,13 @@ fi
 msg_ok
 
 msg "starting udevd"
-/usr/sbin/udevd --daemon
+/sbin/udevd --daemon
 msg "udevd subsystems"
-/usr/sbin/udevadm trigger --type=subsystems
+/sbin/udevadm trigger --type=subsystems
 msg "udevd devices"
-/usr/sbin/udevadm trigger --type=devices
+/sbin/udevadm trigger --type=devices
 msg "udevd settle"
-/usr/sbin/udevadm settle --timeout=3
+/sbin/udevadm settle --timeout=3
 msg_ok
 
 msg "Setting up loopback interface..."
