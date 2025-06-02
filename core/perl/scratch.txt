@@ -1,0 +1,19 @@
+The perl package is still under development!
+
+  ./configure --target="$TARGET" --prefix=/usr --sysroot="$ROOTFS"\
+    -Duseshrplib\
+    --host-has\ perl_lc_all_uses_name_value_pairs=no \
+    --host-has\ perl_lc_all_separator=yes \
+    --host-set\ perl_lc_all_separator='";"' \
+    --host-has\ perl_lc_all_category_positions_init=yes \
+    --host-set\ perl_lc_all_category_positions_init='{0,1,2,3,4,5}' \
+    -Ud_perl_lc_all_uses_name_value_pairs \
+    -Dd_perl_lc_all_separator \
+    -Dperl_lc_all_separator='";"' \
+    -Dd_perl_lc_all_category_positions_init \
+    -Dperl_lc_all_category_positions_init='{ 0, 1, 2, 3, 4, 5 }'\
+    -Dusedevel\
+    -Ud_fpos64_t \
+    -Ud_off64_t \
+    -Dusenm \
+    -Duse64bitint
