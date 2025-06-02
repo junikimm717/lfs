@@ -7,7 +7,7 @@ RUN apk add --no-cache\
   xz flex bison ncurses-dev ncurses-libs ncurses rsync\
   e2fsprogs e2fsprogs-extra fakeroot \
   binutils file make patch \
-  bash zstd findutils gcc musl-dev g++ gperf cmake\
+  bash zstd findutils gcc musl-libintl musl-dev g++ gperf cmake\
   automake autoconf m4 parted lsblk e2tools sgdisk libtool \
   gmp-dev mpc1-dev mpfr-dev mtools libelf elfutils-dev linux-headers nasm\
   tzdata-utils

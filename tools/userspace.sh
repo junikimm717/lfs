@@ -59,3 +59,4 @@ build xz
 build libffi
 build sqlite
 build python3
+build mandoc

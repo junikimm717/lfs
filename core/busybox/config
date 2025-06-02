@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Busybox version: 1.36.1
-# Thu May 29 11:40:29 2025
+# Mon Jun  2 00:35:12 2025
 #
 CONFIG_HAVE_DOT_CONFIG=y
 
@@ -826,7 +826,7 @@ CONFIG_LSSCSI=y
 CONFIG_MAKEDEVS=y
 # CONFIG_FEATURE_MAKEDEVS_LEAF is not set
 CONFIG_FEATURE_MAKEDEVS_TABLE=y
-CONFIG_MAN=y
+# CONFIG_MAN is not set
 CONFIG_MICROCOM=y
 CONFIG_MIM=y
 CONFIG_MT=y

@@ -23,6 +23,12 @@ download() {
   curl -LOf $BASEURL/$TARBALL
 }
 
+menuconfig() {
+  cd "$DIR/$SRCDIR"
+  export HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"
+  LD_LIBRARY_PATH=/lib:/usr/lib make menuconfig HOSTCC="$HOSTCC"
+}
+
 extract() {
   cd "$DIR"
   if ! test -f "$TARBALL"; then
@@ -69,6 +75,9 @@ case "$1" in
   extract|e)
     extract
     ;;
+  menu)
+    menuconfig
+    ;;
   makeinstall|mi)
     makeinstall
     ;;
@@ -84,6 +93,7 @@ Build script for musl-cross-make on macos
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball
+menu -> create a menuconfig
 makeinstall|mi -> make and install the tarball into ../gcc
 clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
 all|a -> clean, and then go through everything.
