@@ -4,7 +4,7 @@ set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
-"$DIR/core/kernel/build all"
+"$DIR/core/kernel/build" all
 "$DIR/tools/setup_initramfs.sh"
 "$DIR/tools/userspace.sh"
 "$DIR/tools/bootable.sh"
