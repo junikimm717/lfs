@@ -32,10 +32,14 @@ build zlib
 build certs
 build tzdata
 # readline depends on curses
-# curl depends on nghttp2
 build ncurses
 build readline
-build nghttp2
+# building dependencies, etc. for python3
+build bzip2
+build xz
+build libffi
+build sqlite
+build python3
 # tools
 build runit
 build eudev
@@ -46,6 +50,8 @@ build fastfetch
 build file
 build make
 build util-linux
+# curl depends on nghttp2
+build nghttp2
 build curl
 # bootloader
 build limine
@@ -55,11 +61,5 @@ build mpfr
 build mpc
 build binutils
 build gcc
-# building dependencies, etc. for python3
-build bzip2
-build xz
-build libffi
-build sqlite
-build python3
 build mandoc
 build kbd
