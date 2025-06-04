@@ -140,7 +140,8 @@ _curses _cursesmodule.c -lncursesw
 _sqlite3 _sqlite/blob.c _sqlite/connection.c _sqlite/cursor.c _sqlite/microprotocols.c _sqlite/module.c _sqlite/prepare_protocol.c _sqlite/row.c _sqlite/statement.c _sqlite/util.c
 
 # needs -lssl and -lcrypt
-_ssl _ssl.c -lssl -lcrypt
+#_ssl _ssl.c -lssl -lcrypt
+_ssl _ssl.c
 # needs -lcrypt
 # apparently -lcrypt causes this thing to shit itself??
 _hashlib _hashopenssl.c

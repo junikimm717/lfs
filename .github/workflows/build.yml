@@ -23,7 +23,7 @@ jobs:
         run: |
           docker build -t mimux-builder -f ./Dockerfile .
 
-      - name: Build custom Docker image
+      - name: Build everything
         run: |
           docker run --rm \
             -v "$PWD:/workspace" \
@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: images
-          name: ""
+          name: "Freshly Built Images :)"
           files: |
             dist/rootfs-x86_64.tar.gz
             dist/bootable-x86_64.img.gz
