@@ -4,6 +4,17 @@ set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
+
+if uname -m | grep -E 'arm|aarch' 2>&1 > /dev/null; then
+  export TARGET="aarch64-linux-musl"
+  export BUILDTRIPLE="aarch64-linux-musl"
+else
+  export TARGET="x86_64-linux-musl"
+  export BUILDTRIPLE="x86_64-linux-musl"
+fi
+
+export INOSENV=1
+
 export PATH="$DIR/cross/$TARGET-native/bin:$PATH"
 export CC="$DIR/cross/$TARGET-native/bin/$TARGET-gcc"
 export CXX="$DIR/cross/$TARGET-native/bin/$TARGET-g++"

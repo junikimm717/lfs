@@ -62,7 +62,6 @@ deactivate() {
   unset _OLD_PKG_CONFIG_LIBDIR
   unset _OLD_PKG_CONFIG_SYSROOT_DIR
 
-  unset HGCCVER
   unset BUILDTRIPLE
   unset TARGET
   unset INOSENV
@@ -83,6 +82,10 @@ deactivate() {
   unset -f deactivate
 }
 export -f deactivate
+
+export TARGET="$TARGET"
+export BUILDTRIPLE="$BUILDTRIPLE"
+export INOSENV=1
 
 # ALL of these need to change if you have a source tree.
 export PATH="$DIR/cross/$TARGET-native/bin:\$PATH"
@@ -109,11 +112,6 @@ if [ \$JOBS -lt 0 ]; then
   JOBS=$(nproc)
 fi
 export JOBS
-
-export TARGET="$TARGET"
-export HGCCVER="$HGCCVER"
-export BUILDTRIPLE="$BUILDTRIPLE"
-export INOSENV=1
 
 export _OLD_VIRTUAL_PS1="\${PS1:-}"
 PS1='(mimux) '"\${PS1:-}"
