@@ -1,0 +1,57 @@
+name: Image builder
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * 0'
+
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build custom Docker image
+        run: |
+          docker build -t mimux-builder -f ./Dockerfile .
+
+      - name: Build custom Docker image
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            mimux-builder \
+            -e JOBS=
+            /workspace/buildall.sh
+
+      - name: Package images
+        run: |
+          cd ./dist
+          tar czf rootfs.tar.gz rootfs/
+          gzip bootable.img
+
+      - name: Delete release
+        run: |
+          gh release delete images --yes || true
+          git push origin :images || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: images
+          name: ""
+          files: |
+            dist/rootfs.tar.gz
+            dist/bootable.img.gz
+          draft: false
+          prerelease: true
