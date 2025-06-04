@@ -35,8 +35,8 @@ jobs:
       - name: Package images
         run: |
           cd ./dist
-          tar czf rootfs.tar.gz rootfs/
-          gzip bootable.img
+          tar czf rootfs-x86_64.tar.gz rootfs/
+          gzip bootable.img && mv bootable.img.gz bootable-x86_64.img.gz
 
       - name: Delete release
         run: |
@@ -51,7 +51,7 @@ jobs:
           tag_name: images
           name: ""
           files: |
-            dist/rootfs.tar.gz
-            dist/bootable.img.gz
+            dist/rootfs-x86_64.tar.gz
+            dist/bootable-x86_64.img.gz
           draft: false
           prerelease: true
