@@ -25,14 +25,7 @@ In particular, the container is the *only* supported development environment.
 
 Get into the container environment (as describe above), then
 ```sh
-# build the kernel FIRST
-./core/kernel/build all
-# set up an initramfs.cpio.gz
-./tools/setup_initramfs.sh
-# set up and build userspace packages
-./tools/userspace.sh
-# create the bootable drive.
-./tools/bootable.sh
+./buildall.sh
 ```
 
 Hopefully I can get some nice CI jobs for these :)
