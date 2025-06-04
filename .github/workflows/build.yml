@@ -28,8 +28,8 @@ jobs:
           docker run --rm \
             -v "$PWD:/workspace" \
             -w /workspace \
+            -e JOBS=2 \
             mimux-builder \
-            -e JOBS=
             /workspace/buildall.sh
 
       - name: Package images
