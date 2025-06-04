@@ -14,7 +14,9 @@ else
 fi
 
 cat <<EOF
-test -r /etc/profile && source /etc/profile
+if test -n \$BASH_VERSION -a -r /etc/profile; then
+  source /etc/profile
+fi
 
 export _OLD_PATH="\$PATH"
 export _OLD_CC="\$CC"
