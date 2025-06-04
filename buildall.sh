@@ -4,6 +4,8 @@ set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
+eval "$("$DIR/tools/env.sh")"
+
 "$DIR/core/kernel/build" all
 "$DIR/tools/setup_initramfs.sh"
 "$DIR/tools/userspace.sh"
