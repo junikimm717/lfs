@@ -20,6 +20,11 @@ if [ -d /sys/firmware/efi/efivars ]; then
 fi
 msg_ok
 
+while [ "$(cat /proc/sys/kernel/random/entropy_avail)" -lt 256 ]; do
+    echo "Waiting for entropy..."
+    sleep 0.2
+done
+
 msg "starting udevd"
 /sbin/udevd --daemon
 msg "udevd subsystems"
@@ -27,7 +32,7 @@ msg "udevd subsystems"
 msg "udevd devices"
 /sbin/udevadm trigger --type=devices
 msg "udevd settle"
-/sbin/udevadm settle --timeout=3
+/sbin/udevadm settle
 msg_ok
 
 msg "Setting up loopback interface..."
