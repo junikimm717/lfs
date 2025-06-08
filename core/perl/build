@@ -43,18 +43,11 @@ extract() {
   #tar --strip-components=1 -zxf perl-cross-1.6.2.tar.gz -C "$SRCDIR"
   cd "$SRCDIR"
   ./Configure -des -Dprefix=/usr \
-    -Duseshrplib \
     -Dcflags="$CFLAGS $LDFLAGS" \
-    -Ud_perl_lc_all_uses_name_value_pairs \
-    -Dd_perl_lc_all_separator \
-    -Dperl_lc_all_separator='";"' \
-    -Dd_perl_lc_all_category_positions_init \
-    -Dperl_lc_all_category_positions_init='{ 0, 1, 2, 3, 4, 5 }'\
-    -Dusedevel\
-    -Ud_fpos64_t \
-    -Ud_off64_t \
-    -Dusenm \
-    -Duse64bitint
+    -Dusedevel \
+    -Dvendorprefix=/usr
+  echo 'd_eaccess=undef' > ./config.sh
+  echo '#undef HAS_EACCESS' > ./config.h
 }
 
 makeinstall() {
