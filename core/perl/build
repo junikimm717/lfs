@@ -41,13 +41,19 @@ extract() {
 
   tar xf "$TARBALL"
   #tar --strip-components=1 -zxf perl-cross-1.6.2.tar.gz -C "$SRCDIR"
+  chmod -R u+w "$SRCDIR"
   cd "$SRCDIR"
+  sed -i \
+    -e "s/Makefile=Makefile/Makefile=build.Makefile/g" \
+    -e '1a\# vim:ft=sh' \
+    -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend MAKEDEPEND=/g"\
+    Makefile.SH
   ./Configure -des -Dprefix=/usr \
     -Dcflags="$CFLAGS $LDFLAGS" \
     -Dusedevel \
     -Dvendorprefix=/usr
-  echo 'd_eaccess=undef' > ./config.sh
-  echo '#undef HAS_EACCESS' > ./config.h
+  echo 'd_eaccess=undef' >> ./config.sh
+  echo '#undef HAS_EACCESS' >> ./config.h
 }
 
 makeinstall() {
@@ -58,8 +64,8 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR"
 
-  make -j${JOBS:-8} CFLAGS='-O0 -g' CPPFLAGS='-O0 -g'
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install
+  make -f build.Makefile -j${JOBS:-8}
+  make -f build.Makefile -j${JOBS:-8} DESTDIR=$ROOTFS install
 }
 
 clear() {
