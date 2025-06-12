@@ -18,16 +18,13 @@ BASEURL=https://www.cpan.org/src/5.0
 SRCDIR="perl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
-CROSS="perl-cross-1.6.2.tar.gz"
-
 download() {
   cd "$DIR"
   echo "downloading perl source..."
-  if test -f "$TARBALL" -a -f $CROSS; then
-    echo "$TARBALL and $CROSS exist, skipping..."
+  if test -f "$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
   else
     curl -LOf $BASEURL/$TARBALL
-    curl -LOf https://github.com/arsv/perl-cross/releases/download/1.6.2/$CROSS
   fi
 }
 
@@ -46,7 +43,7 @@ extract() {
   sed -i \
     -e "s/Makefile=Makefile/Makefile=build.Makefile/g" \
     -e '1a\# vim:ft=sh' \
-    -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend MAKEDEPEND=/g"\
+    -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend/g"\
     Makefile.SH
   ./Configure -des -Dprefix=/usr \
     -Dcflags="$CFLAGS $LDFLAGS" \
@@ -54,6 +51,8 @@ extract() {
     -Dvendorprefix=/usr
   echo 'd_eaccess=undef' >> ./config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
+  #echo 'firstmakefile=build.Makefile' >> ./config.sh
+  cp "$DIR/write_buildcustomize.pl" .
 }
 
 makeinstall() {
