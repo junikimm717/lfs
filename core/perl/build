@@ -27,7 +27,6 @@ download() {
     echo "$TARBALL and $CROSS exist, skipping..."
   else
     curl -LOf $BASEURL/$TARBALL
-    curl -LOf https://github.com/arsv/perl-cross/releases/download/1.6.2/$CROSS
   fi
 }
 
@@ -52,6 +51,9 @@ extract() {
     -Dcflags="$CFLAGS $LDFLAGS" \
     -Dusedevel \
     -Dvendorprefix=/usr
+  sed -i\
+    -e '/^if test -f Makefile; then/,/^fi$/d'\
+    makedepend
   echo 'd_eaccess=undef' >> ./config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
 }
@@ -63,6 +65,9 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
+  export INSTALLSITELIB=$ROOTFS/usr/lib/perl5/site_perl
+  export INSTALLSITEARCH=$ROOTFS/usr/lib/perl5/site_perl/arch
+  export INSTALLSITEMAN1DIR=$ROOTFS/usr/share/man/man1
 
   make -f build.Makefile -j${JOBS:-8}
   make -f build.Makefile -j${JOBS:-8} DESTDIR=$ROOTFS install

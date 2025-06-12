@@ -28,6 +28,8 @@ Get into the container environment (as describe above), then
 ./buildall.sh
 ```
 
+On an M4 Mac running orbstack, this should take around 10 minutes to complete.
+
 Hopefully I can get some nice CI jobs for these :)
 
 ## Virtual Machines
