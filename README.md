@@ -37,7 +37,8 @@ Get into the container environment (as describe above), then
 ./buildall.sh
 ```
 
-On an M4 Mac running orbstack, this should take around 10 minutes to complete.
+On an M4 Pro Mac running orbstack, this should take around 10 minutes to
+complete.
 
 Hopefully I can get some nice CI jobs for these :) But only once the python
 build stops spontaneously failing on me on the ci server :(
