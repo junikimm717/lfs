@@ -40,18 +40,36 @@ extract() {
   #tar --strip-components=1 -zxf perl-cross-1.6.2.tar.gz -C "$SRCDIR"
   chmod -R u+w "$SRCDIR"
   cd "$SRCDIR"
-  sed -i \
-    -e "s/Makefile=Makefile/Makefile=build.Makefile/g" \
-    -e '1a\# vim:ft=sh' \
-    -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend/g"\
-    Makefile.SH
+  # another line that requires uncommenting AND THEN commenting
+  if ! test -z $PATCH; then
+    sed -i \
+      -e "s/Makefile=Makefile/Makefile=build.Makefile/g"\
+      -e '1a\# vim:ft=sh'\
+      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend/g"\
+      Makefile.SH
+  fi
   ./Configure -des -Dprefix=/usr \
     -Dcflags="$CFLAGS $LDFLAGS" \
+    -Dprefix=/usr \
+    -Dvendorprefix=/usr \
+    -Dman1dir=/usr/share/man/man1 \
+    -Dman3dir=/usr/share/man/man3 \
+    -Dsitelib=/usr/lib/perl5/site_perl \
+    -Dvendorlib=/usr/lib/perl5/vendor_perl \
+    -Dprivlib=/usr/lib/perl5/core_perl \
+    -Darchlib=/usr/lib/perl5/core_perl \
+    -Dsitearch=/usr/lib/perl5/site_perl \
+    -Dvendorarch=/usr/lib/perl5/vendor_perl \
+    -Dlocincpth=" " -Dloclibpth=" " \
+    -Dcf_by="mimux" \
     -Dusedevel \
     -Dvendorprefix=/usr
   echo 'd_eaccess=undef' >> ./config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
-  #echo 'firstmakefile=build.Makefile' >> ./config.sh
+  # a line that needs to be uncommented, AND THEN commented
+  if ! test -z $PATCH; then
+    echo 'firstmakefile=build.Makefile' >> ./config.sh
+  fi
   cp "$DIR/write_buildcustomize.pl" .
 }
 
@@ -63,8 +81,20 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR"
 
-  make -f build.Makefile -j${JOBS:-8}
-  make -f build.Makefile -j${JOBS:-8} DESTDIR=$ROOTFS install
+  if ! test -z "$PATCH"; then
+    # This WILL fail. That is FINE.
+    make -f build.Makefile -j${JOBS:-8} || true
+  else
+    make -f build.Makefile -j${JOBS:-8}
+    make -f build.Makefile -j${JOBS:-8} DESTDIR=$ROOTFS install
+    mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
+
+    find ./lib -type f | grep -E '\.t$' | xargs rm
+    rsync --no-o --no-g --exclude='*.t' ./lib/ "$ROOTFS/usr/lib/perl5/core_perl/"
+    for file in perl perlbug perldoc perlivp perlthanks; do
+      ln -sfn "$file$VERSION" "$ROOTFS/usr/bin/$file"
+    done
+  fi
 }
 
 clear() {
@@ -87,7 +117,12 @@ case "$1" in
     clear
     ;;
   all|a)
-    download && extract && makeinstall
+    # I can't fucking believe this.
+    download
+    export PATCH=1
+    extract && makeinstall
+    export PATCH=
+    extract && makeinstall
     ;;
   *)
     cat <<EOF
