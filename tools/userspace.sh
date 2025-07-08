@@ -63,3 +63,4 @@ build binutils
 build gcc
 build mandoc
 build kbd
+build perl
