@@ -96,7 +96,7 @@ makeinstall() {
     mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
 
     find ./lib -type f | grep -E '\.t$' | xargs rm
-    rsync --no-o --no-g --exclude='*.t' ./lib/ "$ROOTFS/usr/lib/perl5/core_perl/"
+    rsync -a --no-o --no-g --exclude='*.t' ./lib/ "$ROOTFS/usr/lib/perl5/core_perl/"
     for file in perl perlbug perldoc perlivp perlthanks; do
       ln -sfn "$file$VERSION" "$ROOTFS/usr/bin/$file"
     done
