@@ -38,7 +38,7 @@ extract() {
   cd "$SRCDIR"
   mkdir -p build
   cd build
-  cmake -DENABLE_ELF=OFF ..
+  cmake -DENABLE_ELF=OFF -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link=$ROOTFS/usr/lib" ..
 }
 
 makeinstall() {
