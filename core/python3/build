@@ -44,13 +44,13 @@ extract() {
   cp -a "$DIR/Setup" ./Modules/Setup.local
   ./configure --prefix="/usr" --exec-prefix="/usr"\
     --with-sysroot="${ROOTFS:-/}"\
-    --with-openssl="$ROOTFS/usr"\
+    --with-openssl="/usr"\
     --enable-shared \
     --disable-static \
     --without-static-libpython \
     --disable-test-modules \
-    CFLAGS="$CFLAGS -fPIC --sysroot=$ROOTFS/usr"\
-    LDFLAGS="$LDFLAGS --sysroot=$ROOTFS/usr"
+    CFLAGS="$CFLAGS -fPIC"\
+    LDFLAGS="$LDFLAGS"
 }
 
 
@@ -63,9 +63,10 @@ makeinstall() {
   cd "$DIR/$SRCDIR"
   make -j${JOBS:-8}
   make -j${JOBS:-8} DESTDIR=$ROOTFS install
-  ln -sfn python3.13 "$ROOTFS/usr/bin/python3"
+  MAJORMINOR="$(echo "$VERSION" | cut -d '.' -f 1-2)"
+  ln -sfn "python$MAJORMINOR" "$ROOTFS/usr/bin/python3"
   # reduce bloat.
-  rm -rf "$ROOTFS/usr/lib/python3.13/test"
+  rm -rf "$ROOTFS/usr/lib/python$MAJORMINOR/test"
 }
 
 clear() {

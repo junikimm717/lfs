@@ -27,7 +27,7 @@ eval "$(./tools/env.sh)"
 
 Or just run `docker-compose up -d && ./tools/dev.sh`.
 The container is the *only* officially supported development environment bc of
-tightly controlled paths, dependencies, and filesystem behavior (I HATE YOU
+tightly controlled dependencies and filesystem behavior (I HATE YOU
 APFS).
 
 ## Bootable Image Building
