@@ -34,6 +34,7 @@ jobs:
 
       - name: Package images
         run: |
+          run: sudo chown -R $USER:$USER ./dist
           cd ./dist
           tar czf rootfs-x86_64.tar.gz rootfs/
           gzip bootable.img && mv bootable.img.gz bootable-x86_64.img.gz
