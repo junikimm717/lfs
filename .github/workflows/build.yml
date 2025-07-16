@@ -34,7 +34,7 @@ jobs:
 
       - name: Package images
         run: |
-          run: sudo chown -R $USER:$USER ./dist
+          sudo chown -R $USER:$USER ./dist
           cd ./dist
           tar czf rootfs-x86_64.tar.gz rootfs/
           gzip bootable.img && mv bootable.img.gz bootable-x86_64.img.gz
@@ -50,7 +50,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: images
-          name: "Freshly Built Images :)"
+          name: "Freshly Built Mimux Images :)"
           files: |
             dist/rootfs-x86_64.tar.gz
             dist/bootable-x86_64.img.gz
