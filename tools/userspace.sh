@@ -28,6 +28,7 @@ ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
 build openssl
 build libc
 build busybox
+build perl
 build zlib
 build certs
 build tzdata
@@ -63,4 +64,3 @@ build binutils
 build gcc
 build mandoc
 build kbd
-build perl
