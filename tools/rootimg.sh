@@ -8,7 +8,7 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
-ROOT_SIZE=1023
+ROOT_SIZE=2048
 
 cd "$DIST" || exit 1
 dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1
