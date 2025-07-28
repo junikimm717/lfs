@@ -18,6 +18,8 @@ BASEURL=https://www.cpan.org/src/5.0
 SRCDIR="perl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
+MAKEFILE=skibidi.Makefile
+
 download() {
   cd "$DIR"
   echo "downloading perl source..."
@@ -43,9 +45,9 @@ extract() {
   # another line that requires uncommenting AND THEN commenting
   if ! test -z $PATCH; then
     sed -i \
-      -e "s/Makefile=Makefile/Makefile=build.Makefile/g"\
+      -e "s/Makefile=Makefile/Makefile=$MAKEFILE/g"\
       -e '1a\# vim:ft=sh'\
-      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f build.Makefile depend/g"\
+      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f $MAKEFILE depend MAKEDEPEND=/g"\
       Makefile.SH
   fi
   ./Configure -des -Dprefix=/usr \
@@ -68,10 +70,11 @@ extract() {
     -e '/^if test -f Makefile; then/,/^fi$/d'\
     makedepend
   echo 'd_eaccess=undef' >> ./config.sh
+  echo 'usrinc=' >> ./config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
   # a line that needs to be uncommented, AND THEN commented
   if ! test -z $PATCH; then
-    echo 'firstmakefile=build.Makefile' >> ./config.sh
+    echo "firstmakefile=$MAKEFILE" >> ./config.sh
   fi
   cp "$DIR/write_buildcustomize.pl" .
 }
@@ -89,10 +92,10 @@ makeinstall() {
 
   if ! test -z "$PATCH"; then
     # This WILL fail. That is FINE.
-    make -f build.Makefile -j${JOBS:-8} || true
+    make -f $MAKEFILE -j${JOBS:-8} || true
   else
-    make -f build.Makefile -j${JOBS:-8}
-    make -f build.Makefile -j${JOBS:-8} DESTDIR=$ROOTFS install
+    make -f $MAKEFILE -j${JOBS:-8}
+    make -f $MAKEFILE -j${JOBS:-8} DESTDIR=$ROOTFS install
     mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
 
     find ./lib -type f | grep -E '\.t$' | xargs rm
