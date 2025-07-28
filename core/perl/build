@@ -85,13 +85,14 @@ extract() {
   cp "$DIR/write_buildcustomize.pl" .
 
   # if we are not patching, let's make sure to put in the correct makefile.
-  if test -z "$PATCH"; then
-    cp "$DIR/$MAKEFILE" "$MAKEFILE"
+  if test -z "$PATCH" && echo "$TARGET" | grep "x86"; then
+    cp "$DIR/skibidi_x86.Makefile" "$MAKEFILE"
   fi
 }
 
 makeinstall() {
   echo "building perl..."
+  
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
