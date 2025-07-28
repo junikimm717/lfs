@@ -83,6 +83,11 @@ extract() {
     echo "firstmakefile=$MAKEFILE" >> ./config.sh
   fi
   cp "$DIR/write_buildcustomize.pl" .
+
+  # if we are not patching, let's make sure to put in the correct makefile.
+  if test -z "$PATCH"; then
+    cp "$DIR/$MAKEFILE" "$MAKEFILE"
+  fi
 }
 
 makeinstall() {
