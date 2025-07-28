@@ -8,9 +8,19 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
+cd "$DIST" || exit 1
+chmod 640 "$ROOTFS/etc/passwd"
+chmod 644 "$ROOTFS/etc/passwd"
+chmod 644 "$ROOTFS/etc/group"
+chmod 777 "$ROOTFS/tmp"
+chmod 700 "$ROOTFS/home/mimi"
+
+chown -R 0:22 "$ROOTFS/etc/shadow"
+chown -R 1000:1000 "$ROOTFS/home/mimi"
+tar czf rootfs-$(arch).tar.gz rootfs/
+
 ROOT_SIZE=2048
 
-cd "$DIST" || exit 1
 dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1
 # bruh fakeroot just shits itself if you're on x86_64
 if [ "$(arch)" = "x86_64" ]; then

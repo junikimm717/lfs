@@ -91,8 +91,10 @@ export INOSENV=1
 export PATH="$DIR/cross/$TARGET-native/bin:\$PATH"
 export CC="$DIR/cross/$TARGET-native/bin/$TARGET-gcc"
 export CXX="$DIR/cross/$TARGET-native/bin/$TARGET-g++"
-export CPP="$TARGET-gcc -E"
-export CXXCPP="$TARGET-g++ -E"
+
+export CPP="$DIR/cross/$TARGET-native/bin/$TARGET-gcc -E -nostdinc"
+export CXXCPP="$DIR/cross/$TARGET-native/bin/$TARGET-g++ -E -nostdinc"
+
 export AR="$DIR/cross/$TARGET-native/bin/$TARGET-ar"
 export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"

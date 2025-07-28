@@ -20,6 +20,9 @@ TARBALL="$SRCDIR.tar.xz"
 
 MAKEFILE=skibidi.Makefile
 
+export CPP="$CPP -nostdinc"
+export CFLAGS="$CFLAGS -nostdinc"
+
 download() {
   cd "$DIR"
   echo "downloading perl source..."
@@ -47,7 +50,7 @@ extract() {
     sed -i \
       -e "s/Makefile=Makefile/Makefile=$MAKEFILE/g"\
       -e '1a\# vim:ft=sh'\
-      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f $MAKEFILE depend MAKEDEPEND=/g"\
+      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f $MAKEFILE depend MAKEDEPEND=:/g"\
       Makefile.SH
   fi
   ./Configure -des -Dprefix=/usr \
@@ -71,6 +74,9 @@ extract() {
     makedepend
   echo 'd_eaccess=undef' >> ./config.sh
   echo 'usrinc=' >> ./config.sh
+  echo "d_uselocale='undef'" >> config.sh
+  echo "d_u8to16_le='undef'" >> config.sh
+  echo "d_u8to32_le='undef'" >> config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
   # a line that needs to be uncommented, AND THEN commented
   if ! test -z $PATCH; then
