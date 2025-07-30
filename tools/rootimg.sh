@@ -9,6 +9,8 @@ test -z "$INOSENV" && \
   exit 1
 
 cd "$DIST" || exit 1
+
+chown -R 0:0 "$ROOTFS" || true
 chmod 640 "$ROOTFS/etc/passwd"
 chmod 644 "$ROOTFS/etc/passwd"
 chmod 644 "$ROOTFS/etc/group"
@@ -17,8 +19,10 @@ chmod 700 "$ROOTFS/home/mimi"
 
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"
-tar czf rootfs-$(arch).tar.gz rootfs/
+cd "$ROOTFS" || exit 1
+tar czpf ../rootfs-$(arch).tar.gz .
 
+cd "$DIST" || exit 1
 ROOT_SIZE=2048
 
 dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1

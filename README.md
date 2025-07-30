@@ -13,12 +13,13 @@ I cannot believe I chose to undertake this project, but it's quite instructional
 and fun so far.
 
 After two months of suffering, I now have personal beef against the perl build
-system asdlfjas;lkdfjals;df
+system asdlfjas;lkdfjals;df (Also imagine goofy ahhh APFS not distinguishing
+upper and lower case files names)
 
 ## Setup
 
 The docker container is the *only* officially supported development environment
-bc of tightly controlled dependencies and filesystem behavior (I HATE YOU APFS).
+bc of tightly controlled dependencies and environment variables.
 
 To launch into a dev shell, run `docker-compose up -d && ./tools/dev.sh`.
 
@@ -28,6 +29,9 @@ dependencies listed in ./Dockerfile and then run
 ```sh
 eval "$(./tools/env.sh)"
 ```
+
+If a `build` script uses some random environment variable, it is almost
+certainly defined in `./tools/env.sh`.
 
 ## Bootable Image Building
 
