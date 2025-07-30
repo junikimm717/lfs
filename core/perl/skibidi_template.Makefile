@@ -4,6 +4,10 @@
 #  Makefile is used to generate skibidi.Makefile.  The only difference
 #  is that skibidi.Makefile has the dependencies filled in at the end.
 
+
+# This skibidi.Makefile ONLY supports perl 5.40.2
+# It must be regenerated for later versions.
+
 CC = cc
 LD = cc
 

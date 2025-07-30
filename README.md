@@ -32,17 +32,18 @@ eval "$(./tools/env.sh)"
 ## Bootable Image Building
 
 Execute the `./buildall.sh` with no arguments inside the dev container.
-All final build artifacts will be located in `./dist/`
+All final build artifacts will be located in `./dist/`.
 
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete.
 
-Images built by the CI should also be available as prereleases.
+CI-built compressed x86_64 images should also be available as prereleases
+[here](https://github.com/junikimm717/lfs/releases/tag/images).
 
 ## Virtual Machines
 
 The kernel has been maximally stripped and has no module support. There is no
-intention to support modern hardware.
+intention to support bare metal hardware.
 
 If you're on Apple Silicon with Homebrew, congrats. Just run
 `./tools/macos_boot.sh`; this should immediately boot up a working vm given you
