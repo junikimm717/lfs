@@ -770,8 +770,11 @@ cscope.out cscope: $(c) $(h)
 
 MAKEDEPEND = Makefile makedepend_file makedepend
 
-$(FIRSTMAKEFILE):	README $(MAKEDEPEND)
-	$(MAKE) depend MAKEDEPEND=
+$(FIRSTMAKEFILE):
+	true
+
+#$(FIRSTMAKEFILE):	README $(MAKEDEPEND)
+#	$(MAKE) depend MAKEDEPEND=
 
 Makefile: Makefile.SH config.sh
 	$(SHELL) Makefile.SH
