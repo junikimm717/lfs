@@ -39,12 +39,13 @@ extract() {
   ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
     --with-sysroot="${ROOTFS:-/}"
   sed -i \
-    -e 's|^CC=.*||' \
-    -e 's|^AR=.*||' \
-    -e 's|^RANLIB=.*||' \
-    -e 's|^CFLAGS=.*||' \
-    -e 's|^LDFLAGS=.*||' \
     -e "s|^PREFIX=.*|PREFIX=$ROOTFS/usr|" \
+    -e '/^CC=.*/d' \
+    -e '/^AR=.*/d' \
+    -e '/^RANLIB=.*/d' \
+    -e '/^CFLAGS=.*/d' \
+    -e '/^LDFLAGS=.*/d' \
+    -e '/ln -s/d' \
     Makefile
 }
 
@@ -57,6 +58,10 @@ makeinstall() {
   cd "$DIR/$SRCDIR"
 
   make -j${JOBS:-8}
+  ln -sfn bzgrep "$ROOTFS/usr/bin/bzegrep"
+  ln -sfn bzgrep "$ROOTFS/usr/bin/bzfgrep"
+  ln -sfn bzmore "$ROOTFS/usr/bin/bzless"
+  ln -sfn bzdiff "$ROOTFS/usr/bin/bzcmp"
   make -j${JOBS:-8} install
 }
 
