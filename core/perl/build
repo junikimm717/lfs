@@ -46,7 +46,7 @@ extract() {
   chmod -R u+w "$SRCDIR"
   cd "$SRCDIR"
   # another line that requires uncommenting AND THEN commenting
-  if ! test -z $PATCH; then
+  if ! test -z "${PATCH:-}" ; then
     sed -i \
       -e "s/Makefile=Makefile/Makefile=$MAKEFILE/g"\
       -e '1a\# vim:ft=sh'\
@@ -69,25 +69,21 @@ extract() {
     -Dcf_by="mimux" \
     -Dusedevel \
     -Dvendorprefix=/usr
-  sed -i\
-    -e '/^if test -f Makefile; then/,/^fi$/d'\
-    makedepend
   echo 'd_eaccess=undef' >> ./config.sh
   echo 'usrinc=' >> ./config.sh
   echo "d_uselocale='undef'" >> config.sh
-  echo "d_u8to16_le='undef'" >> config.sh
-  echo "d_u8to32_le='undef'" >> config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
   # a line that needs to be uncommented, AND THEN commented
-  if ! test -z $PATCH; then
+  if ! test -z "${PATCH:-}" ; then
+    sed -i \
     echo "firstmakefile=$MAKEFILE" >> ./config.sh
   fi
   cp "$DIR/write_buildcustomize.pl" .
+  cp "$DIR/makedepend" .
 
-  # if we are not patching, let's make sure to put in the correct makefile.
-  if test -z "$PATCH" && echo "$TARGET" | grep "x86"; then
-    cp "$DIR/skibidi_x86.Makefile" "$MAKEFILE"
-  fi
+  # I sure HOPE this stupid timestamp bullshit will work.
+  find . -type f -exec touch {} +
+  #find "$ROOTFS" -type f -exec touch -d '1 hour later' {} +
 }
 
 makeinstall() {
@@ -102,11 +98,18 @@ makeinstall() {
   export INSTALLSITEARCH=$ROOTFS/usr/lib/perl5/site_perl/arch
   export INSTALLSITEMAN1DIR=$ROOTFS/usr/share/man/man1
 
-  if ! test -z "$PATCH"; then
+  if ! test -z "${PATCH:-}" ; then
     # This WILL fail. That is FINE.
+    echo "==========================make first==========================="
     make -f $MAKEFILE -j${JOBS:-8} || true
   else
+    sed \
+      -e "s|CROSS_ROOT|$CROSS_ROOT|g"\
+      "$DIR/skibidi_template.Makefile"\
+      > "$MAKEFILE"
+    echo "==========================make running==========================="
     make -f $MAKEFILE -j${JOBS:-8}
+    echo "==========================make Install==========================="
     make -f $MAKEFILE -j${JOBS:-8} DESTDIR=$ROOTFS install
     mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
 

@@ -15,6 +15,7 @@ fi
 
 export INOSENV=1
 
+export CROSS_ROOT="$DIR/cross/$TARGET-native/$TARGET"
 export PATH="$DIR/cross/$TARGET-native/bin:$PATH"
 export CC="$DIR/cross/$TARGET-native/bin/$TARGET-gcc"
 export CXX="$DIR/cross/$TARGET-native/bin/$TARGET-g++"
