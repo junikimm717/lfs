@@ -770,6 +770,8 @@ cscope.out cscope: $(c) $(h)
 
 MAKEDEPEND = Makefile makedepend_file makedepend
 
+# Mimux FIX: We already provide a skibidi.Makefile. NO need to run stupid
+# Makefile.SH type BULLSHIT again.
 $(FIRSTMAKEFILE):
 	true
 

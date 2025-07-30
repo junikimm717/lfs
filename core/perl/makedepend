@@ -124,6 +124,9 @@ else
        $sed -f .hsed >> $mf.new
 fi
 
+# Makedepend does all of these BULLSHIT deletions that cause the
+# skibidi.makefile to suddently go missing GAHHHH
+
 #$rm -f $mf.old
 #$cp $mf $mf.old
 #$rm -f $mf
