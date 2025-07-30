@@ -12,9 +12,8 @@ Linux Docker image defined in the Dockerfile.
 I cannot believe I chose to undertake this project, but it's quite instructional
 and fun so far.
 
-The perl installation process is the most deranged and cursed thing known to
-man, requiring a FAILED build that leaves a broken configuration trail which
-then somehow enables a successful build.
+After two months of suffering, I now have personal beef against the perl build
+system asdlfjas;lkdfjals;df
 
 ## Setup
 

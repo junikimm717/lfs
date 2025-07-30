@@ -45,14 +45,6 @@ extract() {
   #tar --strip-components=1 -zxf perl-cross-1.6.2.tar.gz -C "$SRCDIR"
   chmod -R u+w "$SRCDIR"
   cd "$SRCDIR"
-  # another line that requires uncommenting AND THEN commenting
-  if ! test -z "${PATCH:-}" ; then
-    sed -i \
-      -e "s/Makefile=Makefile/Makefile=$MAKEFILE/g"\
-      -e '1a\# vim:ft=sh'\
-      -e "s/\$(MAKE) depend MAKEDEPEND=/\$(MAKE) -f $MAKEFILE depend MAKEDEPEND=:/g"\
-      Makefile.SH
-  fi
   ./Configure -des -Dprefix=/usr \
     -Dcflags="$CFLAGS $LDFLAGS" \
     -Dprefix=/usr \
@@ -73,17 +65,10 @@ extract() {
   echo 'usrinc=' >> ./config.sh
   echo "d_uselocale='undef'" >> config.sh
   echo '#undef HAS_EACCESS' >> ./config.h
-  # a line that needs to be uncommented, AND THEN commented
-  if ! test -z "${PATCH:-}" ; then
-    sed -i \
-    echo "firstmakefile=$MAKEFILE" >> ./config.sh
-  fi
   cp "$DIR/write_buildcustomize.pl" .
   cp "$DIR/makedepend" .
-
   # I sure HOPE this stupid timestamp bullshit will work.
   find . -type f -exec touch {} +
-  #find "$ROOTFS" -type f -exec touch -d '1 hour later' {} +
 }
 
 makeinstall() {
@@ -98,27 +83,21 @@ makeinstall() {
   export INSTALLSITEARCH=$ROOTFS/usr/lib/perl5/site_perl/arch
   export INSTALLSITEMAN1DIR=$ROOTFS/usr/share/man/man1
 
-  if ! test -z "${PATCH:-}" ; then
-    # This WILL fail. That is FINE.
-    echo "==========================make first==========================="
-    make -f $MAKEFILE -j${JOBS:-8} || true
-  else
-    sed \
-      -e "s|CROSS_ROOT|$CROSS_ROOT|g"\
-      "$DIR/skibidi_template.Makefile"\
-      > "$MAKEFILE"
-    echo "==========================make running==========================="
-    make -f $MAKEFILE -j${JOBS:-8}
-    echo "==========================make Install==========================="
-    make -f $MAKEFILE -j${JOBS:-8} DESTDIR=$ROOTFS install
-    mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
+  sed \
+    -e "s|CROSS_ROOT|$CROSS_ROOT|g"\
+    "$DIR/skibidi_template.Makefile"\
+    > "$MAKEFILE"
+  echo "==========================make running==========================="
+  make -f $MAKEFILE -j${JOBS:-8}
+  echo "==========================make Install==========================="
+  make -f $MAKEFILE -j${JOBS:-8} DESTDIR=$ROOTFS install
+  mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
 
-    find ./lib -type f | grep -E '\.t$' | xargs rm
-    rsync -a --no-o --no-g --exclude='*.t' ./lib/ "$ROOTFS/usr/lib/perl5/core_perl/"
-    for file in perl perlbug perldoc perlivp perlthanks; do
-      ln -sfn "$file$VERSION" "$ROOTFS/usr/bin/$file"
-    done
-  fi
+  find ./lib -type f | grep -E '\.t$' | xargs rm
+  rsync -a --no-o --no-g --exclude='*.t' ./lib/ "$ROOTFS/usr/lib/perl5/core_perl/"
+  for file in perl perlbug perldoc perlivp perlthanks cpan shasum; do
+    ln -sfn "$file$VERSION" "$ROOTFS/usr/bin/$file"
+  done
 }
 
 clear() {
@@ -141,12 +120,7 @@ case "$1" in
     clear
     ;;
   all|a)
-    # I can't fucking believe this.
-    download
-    export PATCH=1
-    extract && makeinstall
-    export PATCH=
-    extract && makeinstall
+    download && extract && makeinstall
     ;;
   *)
     cat <<EOF
