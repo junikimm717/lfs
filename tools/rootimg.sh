@@ -16,6 +16,7 @@ chmod 644 "$ROOTFS/etc/passwd"
 chmod 644 "$ROOTFS/etc/group"
 chmod 777 "$ROOTFS/tmp"
 chmod 700 "$ROOTFS/home/mimi"
+chmod 4755 "$ROOTFS/usr/bin/doas"
 
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"
@@ -37,6 +38,7 @@ fi
 debugfs -w rootfs.img <<EOF
 set_inode_field /etc/passwd mode 0100644
 set_inode_field /etc/group  mode 0100644
+set_inode_field /usr/bin/doas mode 0104755
 set_inode_field /etc/shadow mode 0100640
 set_inode_field /etc/shadow uid 0
 set_inode_field /etc/shadow gid 22

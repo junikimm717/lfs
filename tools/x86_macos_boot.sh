@@ -2,9 +2,6 @@
 
 DIR="$(realpath "$(dirname "$0" )" )"
 
-cd "$DIR" || exit 1
-cd ../dist || { echo "rootfs doesn't exit!"; exit 1; }
-
 if test -z "${1:-}"; then
   echo "\$1 is undefined for x86 booter."
   exit 1
@@ -21,4 +18,4 @@ qemu-system-x86_64 \
   -device virtio-gpu-pci -display cocoa\
   -device virtio-rng-pci\
   -object rng-random,filename=/dev/urandom,id=rng0\
-  -nographic -serial mon:stdio
+  #-nographic -serial mon:stdio
