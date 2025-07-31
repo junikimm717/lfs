@@ -18,4 +18,4 @@ qemu-system-x86_64 \
   -device virtio-gpu-pci -display cocoa\
   -device virtio-rng-pci\
   -object rng-random,filename=/dev/urandom,id=rng0\
-  #-nographic -serial mon:stdio
+  -nographic -serial mon:stdio

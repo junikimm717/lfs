@@ -21,6 +21,12 @@ mkdir -m 755 -p "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOT
 mkdir -m 755 -p "$ROOTFS/boot/efi"
 mkdir -m 777 -p "$ROOTFS/tmp"
 
+mkdir -m 755 -p "$ROOTFS/usr/lib"
+
+# MAKE sure to not run lib64
+rm -rf "$ROOTFS/usr/lib64"
+ln -sfn lib "$ROOTFS/usr/lib64"
+
 "$DIR/etc_update.sh"
 ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
 
