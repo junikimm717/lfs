@@ -1,0 +1,57 @@
+name: aarch64 Images
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * 0'
+
+
+jobs:
+  build-arm:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build custom Docker image
+        run: |
+          docker build -t mimux-builder -f ./Dockerfile .
+
+      - name: Build everything
+        run: |
+          docker run --rm \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            -e JOBS=2 \
+            mimux-builder \
+            /workspace/buildall.sh
+
+      - name: Package images
+        run: |
+          sudo chown -R $USER:$USER ./dist
+          cd ./dist
+          gzip bootable.img && mv bootable.img.gz bootable-aarch64.img.gz
+
+      - name: Delete release
+        run: |
+          gh release delete images --yes || true
+          git push origin :images || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: images-aarch64
+          name: "Freshly Built Aarch64 Mimux Images :)"
+          files: |
+            dist/rootfs-aarch64.tar.gz
+            dist/bootable-aarch64.img.gz
+          draft: false
+          prerelease: true

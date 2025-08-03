@@ -65,6 +65,7 @@ makeinstall() {
   make -j${JOBS:-8} DESTDIR=$ROOTFS install
   MAJORMINOR="$(echo "$VERSION" | cut -d '.' -f 1-2)"
   ln -sfn "python$MAJORMINOR" "$ROOTFS/usr/bin/python3"
+  ln -sfn "pip3" "$ROOTFS/usr/bin/pip"
   # reduce bloat.
   rm -rf "$ROOTFS/usr/lib/python$MAJORMINOR/test"
 }

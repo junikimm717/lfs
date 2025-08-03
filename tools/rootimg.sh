@@ -21,7 +21,7 @@ chmod 4755 "$ROOTFS/usr/bin/doas"
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"
 cd "$ROOTFS" || exit 1
-tar czpf ../rootfs-$(arch).tar.gz .
+tar czpf "../rootfs-$(arch).tar.gz" .
 
 cd "$DIST" || exit 1
 ROOT_SIZE=2048
