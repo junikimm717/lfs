@@ -13,7 +13,7 @@ qemu-system-x86_64 \
   -drive if=pflash,format=raw,readonly=on,file="$(brew --prefix qemu)/share/qemu/edk2-x86_64-code.fd" \
   -drive file="$1",format=raw,if=virtio \
   -no-reboot \
-  -net nic -net user\
+  -netdev user,id=net0 -device virtio-net,netdev=net0 \
   -device qemu-xhci -usb -device usb-kbd\
   -device virtio-gpu-pci -display cocoa\
   -device virtio-rng-pci\
