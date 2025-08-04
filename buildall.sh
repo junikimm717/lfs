@@ -33,6 +33,9 @@ export PKG_CONFIG_SYSROOT_DIR=$ROOTFS
 export PKG_CONFIG_LIBDIR=$ROOTFS/usr/lib/pkgconfig
 export PKG_CONFIG_PATH=$ROOTFS/usr/share/pkgconfig
 
+export ESP_SIZE=64
+export ROOT_SIZE=3072
+
 "$DIR/cross/build" all
 "$DIR/core/kernel/build" all
 "$DIR/tools/setup_initramfs.sh"

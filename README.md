@@ -16,6 +16,20 @@ After two months of suffering, I now have personal beef against the perl build
 system asdlfjas;lkdfjals;df (Also imagine goofy ahhh APFS not distinguishing
 upper and lower case files names)
 
+## Download (CI-Built)
+
+All bootable images assume precisely 3gb of storage.
+
+x86_64:
+
+- [Bootable .img](https://github.com/junikimm717/lfs/releases/download/images/bootable-x86_64.img.gz)
+- [rootfs tarball](https://github.com/junikimm717/lfs/releases/download/images/rootfs-x86_64.tar.gz)
+
+aarch64:
+
+- [Bootable .img](https://github.com/junikimm717/lfs/releases/download/images-aarch64/bootable-aarch64.img.gz)
+- [rootfs tarball](https://github.com/junikimm717/lfs/releases/download/images-aarch64/rootfs-aarch64.tar.gz)
+
 ## Setup
 
 The docker container is the *only* officially supported development environment
@@ -40,9 +54,6 @@ All final build artifacts will be located in `./dist/`.
 
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete.
-
-CI-built compressed x86_64 images should also be available as prereleases
-[here](https://github.com/junikimm717/lfs/releases/tag/images).
 
 ## Virtual Machines
 

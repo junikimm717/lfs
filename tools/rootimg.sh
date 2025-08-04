@@ -21,10 +21,14 @@ chmod 4755 "$ROOTFS/usr/bin/doas"
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"
 cd "$ROOTFS" || exit 1
-tar czpf "../rootfs-$(arch).tar.gz" .
+tar czpf "../rootfs-$(arch).tar.gz" \
+  --exclude='./boot/vmlinux-*' \
+  --exclude='./boot/System.map-*' \
+  --exclude='./boot/*.cpio.gz' \
+  .
 
 cd "$DIST" || exit 1
-ROOT_SIZE=2048
+ROOT_SIZE="${ROOT_SIZE:-2048}"
 
 dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1
 # bruh fakeroot just shits itself if you're on x86_64

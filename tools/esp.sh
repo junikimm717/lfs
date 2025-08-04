@@ -8,7 +8,7 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
-ESP_SIZE=64
+ESP_SIZE="${ESP_SIZE:-64}"
 
 cd "$DIST"
 dd if=/dev/zero of=esp.img bs=1M count=$ESP_SIZE

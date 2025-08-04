@@ -3,8 +3,10 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-ESP_SIZE="$(grep 'ESP_SIZE=' $DIR/esp.sh | cut -d'=' -f 2)"
-ROOT_SIZE="$(grep 'ROOT_SIZE=' $DIR/rootimg.sh | cut -d'=' -f 2)"
+
+# Note that esp and root sizes are both in megabytes
+export ESP_SIZE=${ESP_SIZE:-64}
+export ROOT_SIZE=${ROOT_SIZE:-2048}
 
 ESP_SECTORS=$((ESP_SIZE * 2048))
 ROOTFS_SECTORS=$((ROOT_SIZE * 2048))
