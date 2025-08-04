@@ -15,12 +15,10 @@ mkdir -p "$DIST/initramfs"
 # download everything first.
 ./cross/build d
 ./init/busybox/build d
-./init/eudev/build d
 
 # these must be done IN ORDER!
 ./cross/build all
 ./init/busybox/build all
-./init/eudev/build all
 
 cd "$DIST/initramfs"
 mkdir -p bin dev etc lib tmp var boot proc run sys mnt
