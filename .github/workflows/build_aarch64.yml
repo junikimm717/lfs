@@ -40,8 +40,8 @@ jobs:
 
       - name: Delete release
         run: |
-          gh release delete images --yes || true
-          git push origin :images || true
+          gh release delete images-aarch64 --yes || true
+          git push origin :images-aarch64 || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
