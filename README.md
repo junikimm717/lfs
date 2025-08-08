@@ -1,20 +1,22 @@
 # Mimux
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). A hobby Linux
-"distribution" supporting x86_64 and aarch64.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025). A complete build system to
+bootstrap a hobby Linux "distribution" supporting x86_64 and aarch64.
 
 ![Mimi](./mimi.jpg)
 
 This is **very much** WIP and is absolutely NOT ready for use unless you wish to
 contribute (if so, welcome :)). Development is standardized around the Alpine
-Linux Docker image defined in the Dockerfile.
+Linux Docker image defined in the Dockerfile. For further documentation on the
+mimux build process, check out the README's at [tools](./tools/) or [core](./core/).
 
 I cannot believe I chose to undertake this project, but it's quite instructional
 and fun so far.
 
-After two months of suffering, I now have personal beef against the perl build
+After two months of suffering, I also have personal beef against the perl build
 system asdlfjas;lkdfjals;df (Also imagine goofy ahhh APFS not distinguishing
 upper and lower case files names)
+
 
 ## Download (CI-Built)
 

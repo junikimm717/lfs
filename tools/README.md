@@ -29,21 +29,30 @@ homebrew.
 
 ## In-Container Tools
 
-These tools will refuse to run if they are not executed inside a container.
+These tools will refuse to run if they are not executed inside a container. To
+start the container, run the following command at the root directory of the
+mimux source tree:
 
-- `./wipe.sh` - basically runs `./build clean` on every single package in the
+```sh
+docker-compose build && docker-compose up -d
+```
+
+- [./wipe.sh](./wipe.sh) - basically runs `./build clean` on every single package in the
   mimux source tree so that all builds run from scratch. However, it
   intentionally does not delete `./dist`.
 
-- `./userspace.sh` - wrapper script that bootstraps all core userspace packages,
+- [./userspace.sh](./userspace.sh) - wrapper script that bootstraps all core userspace packages,
   sets permissions, and updates etc files.
 
-- `./esp.sh` - creates an efi filesystem image at `/dist/esp.img` that contains
+- [./esp.sh](./esp.sh) - creates an efi filesystem image at `/dist/esp.img` that contains
   a linux kernel and the limine bootloader.
-- `./rootimg.sh` - creates an ext4 filesystem image at `/dist/rootfs.img` based
+- [./rootimg.sh](./rootimg.sh) - creates an ext4 filesystem image at `/dist/rootfs.img` based
   on the files from `/dist/rootfs`
-- `./bootable.sh` - creates a bootable image at `/dist/bootable.img` by running
+- [./bootable.sh](./bootable.sh) - creates a bootable image at `/dist/bootable.img` by running
   the above two scripts, then stitching them together.
 
-- `./re_initramfs.sh` and `./setup_initramfs.sh` - sets up a compressed
-  initramfs image at `/dist/rootfs/boot/initramfs.cpio.gz`
+- [./re_initramfs.sh](./re_initramfs.sh) and
+  [./setup_initramfs.sh](./setup_initramfs.sh) - sets up a compressed initramfs
+  image at `/dist/rootfs/boot/initramfs.cpio.gz`
+- [./etc_update.sh](./etc_update.sh) - called by `./userspace.sh`. Basically an
+  rsync wrapper to copy over the etc files in `/etc` to the rootfs.
