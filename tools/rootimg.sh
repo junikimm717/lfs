@@ -16,7 +16,13 @@ chmod 644 "$ROOTFS/etc/passwd"
 chmod 644 "$ROOTFS/etc/group"
 chmod 777 "$ROOTFS/tmp"
 chmod 700 "$ROOTFS/home/mimi"
-chmod 4755 "$ROOTFS/usr/bin/doas"
+chmod 4755 "$ROOTFS/usr/bin/doas"\
+  "$ROOTFS/bin/su"\
+  "$ROOTFS/usr/bin/passwd"\
+  "$ROOTFS/bin/mount"\
+  "$ROOTFS/bin/umount"\
+  "$ROOTFS/bin/ping"\
+  "$ROOTFS/bin/ping6"
 
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"

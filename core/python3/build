@@ -26,9 +26,7 @@ download() {
     return
   fi
 
-  set -x
   curl -LOf $BASEURL/$TARBALL
-  set +x
 }
 
 extract() {
