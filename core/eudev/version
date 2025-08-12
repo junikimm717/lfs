@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/eudev-project/eudev/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | grep -E '^v[0-9,\.]+$' \
+  | head -n 1 \
+  | sed -e "s/^v\(.*\)$/\1/g"

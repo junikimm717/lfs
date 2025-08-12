@@ -10,9 +10,9 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-OPENSSL=3.5.0
-BASEURL="https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL"
-SRCDIR="openssl-$OPENSSL"
+VERSION=3.5.0
+BASEURL="https://github.com/openssl/openssl/releases/download/openssl-$VERSION"
+SRCDIR="openssl-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 download() {

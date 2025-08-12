@@ -54,6 +54,35 @@ In generally, you will run two main commands:
 ./core/{package}/build clear # clear all build artifacts.
 ```
 
+## Versioning
+
+Some package directories will contain a `version` script. This script is
+intended to have one task; output the latest stable version. This `version`
+script must be accompanied by a `$VERSION` variable declaration in the
+`build` script.
+
+For example, take a look at the version script for curl:
+
+```bash
+curl https://api.github.com/repos/curl/curl/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | grep -E '^curl-[0-9,\_]+$' \
+  | head -n 1 \
+  | sed -e "s/^curl-\(.*\)$/\1/g" \
+  | tr '_' '.'
+```
+
+And the definition in the `build` script:
+
+```bash
+# the important variable. Notice how $VERSION acts as a single source of truth.
+VERSION="8.14.0"
+TAG="curl-$(echo $VERSION | tr '.' '_')"
+BASEURL="https://github.com/curl/curl/releases/download/$TAG"
+SRCDIR="curl-$VERSION"
+TARBALL="$SRCDIR.tar.xz"
+```
+
 ## Environment Variables
 
 The tight coupling between the build script and the dev container means many

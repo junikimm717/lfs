@@ -11,7 +11,8 @@ test -z "$INOSENV" && {
 }
 
 VERSION="2.40.4"
-BASEURL="https://www.kernel.org/pub/linux/utils/util-linux/v2.40"
+TAG="$(echo $VERSION | awk -F. '{print "v" $1 "." $2}')"
+BASEURL="https://www.kernel.org/pub/linux/utils/util-linux/$TAG"
 SRCDIR="util-linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 

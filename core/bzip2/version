@@ -1,0 +1,10 @@
+#!/bin/sh
+
+curl https://sourceware.org/pub/bzip2/ 2> /dev/null \
+  | grep 'bzip2-\([0-9\.]*\)\.tar\.gz"' \
+  | sed \
+    -e "s/^.*\<a//g" \
+    -e "s/<\/a.*$//g" \
+    -e 's/^.*href="bzip2-\([0-9\.]*\)\.tar.gz\".*$/\1/gp'\
+  | uniq \
+  | tail -n 1

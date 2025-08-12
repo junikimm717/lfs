@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] Create very simple scripts for version management.
+
 - [x] Create CI Jobs to build both a rootfs tarball and the bootable :).
 - [ ] Make some simple utilities for populating the kernel and limine
   bootloader on the esp?

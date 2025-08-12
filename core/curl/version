@@ -1,0 +1,8 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/curl/curl/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | grep -E '^curl-[0-9,\_]+$' \
+  | head -n 1 \
+  | sed -e "s/^curl-\(.*\)$/\1/g" \
+  | tr '_' '.'

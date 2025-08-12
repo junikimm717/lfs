@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/fastfetch-cli/fastfetch/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | head -n 1

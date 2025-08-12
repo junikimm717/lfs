@@ -11,6 +11,8 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
+# tzdata requires explicit updates.
+
 VERSION="2025b"
 BASEURL="https://data.iana.org/time-zones/releases"
 SRCDIR="tzdata$VERSION"

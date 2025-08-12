@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl http://zlib.net 2> /dev/null \
+  | grep 'HREF="zlib-[0-9,\.]*\.tar\.gz"' \
+  | sed 's/^.*HREF="zlib-\([0-9,\.]*\)\.tar\.gz".*$/\1/g' \
+  | tail -n 1

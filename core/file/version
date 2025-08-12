@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/file/file/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | grep 'FILE' \
+  | head -n 1

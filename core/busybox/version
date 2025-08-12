@@ -1,0 +1,10 @@
+#!/bin/sh
+
+curl https://busybox.net/downloads/ 2> /dev/null \
+  | grep 'busybox-\([0-9\.]*\)\.tar\.bz2"' \
+  | sed \
+    -e "s/^.*\<a//g" \
+    -e "s/<\/a.*$//g" \
+    -e 's/^.*href="busybox-\([0-9\.]*\)\.tar.bz2\".*$/\1/gp'\
+  | uniq \
+  | tail -n 1

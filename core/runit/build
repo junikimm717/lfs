@@ -10,7 +10,8 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-SRCDIR="runit-2.2.0"
+VERSION="2.2.0"
+SRCDIR="runit-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 download() {

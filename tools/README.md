@@ -12,6 +12,7 @@ These are tools that should be run on your local machine when necessary.
   further information.
 - [./dev.sh](./dev.sh) - Launches a shell into the dev container (assuming that
   you started that first)
+- `./versions.py` - Inspects whether all our packages are up to date.
 
 The following scripts may only be used on M-series macs and are used to test
 various components of mimux. All tools below **require qemu** to be installed via

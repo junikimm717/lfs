@@ -11,7 +11,8 @@ test -z "$INOSENV" && {
 }
 
 VERSION="8.14.0"
-BASEURL="https://github.com/curl/curl/releases/download/curl-8_14_0"
+TAG="curl-$(echo $VERSION | tr '.' '_')"
+BASEURL="https://github.com/curl/curl/releases/download/$TAG"
 SRCDIR="curl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 

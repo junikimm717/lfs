@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+MINOR=$(curl https://www.kernel.org/pub/linux/utils/util-linux/ 2> /dev/null \
+  | grep 'v[0-9,\.]*/' \
+  | sed 's/^.*\(v[0-9,\.]*\)\/".*$/\1/g' \
+  | tail -n 1)
+
+curl "https://www.kernel.org/pub/linux/utils/util-linux/$MINOR/" 2> /dev/null \
+  | grep -E 'util-linux-[0-9,\.]*\.tar\.gz' \
+  | sed 's/^.*"util-linux-\([0-9,\.]*\)\.tar\.gz.*$/\1/g' \
+  | awk -F. '{printf "%02d.%03d.%03d %s\n", $1, $2, $3, $0 }' \
+  | sort -n \
+  | tail -n 1 \
+  | awk '{print $2}'

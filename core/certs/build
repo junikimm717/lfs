@@ -41,7 +41,7 @@ makeinstall() {
     exit 1
   fi
   install -m755 "$TARBALL" "$ROOTFS/etc/ssl/cert.pem"
-  ln -s /etc/ssl/cert.pem "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
+  ln -sfn /etc/ssl/cert.pem "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
 }
 
 clear() {

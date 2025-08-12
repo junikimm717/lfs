@@ -10,7 +10,8 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
-# FORCE using the build system's compiler.
+# FORCE using the build system's compiler. Kernel compilation has some build
+# dependencies that are not necessary for actual runtime (duh)
 export PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin
 export CC="$(command -v gcc)"
 unset CFLAGS LDFLAGS CPPFLAGS

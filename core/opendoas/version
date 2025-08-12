@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/Duncaen/OpenDoas/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | sed "s/^v\([0-9,\.]*\)$/\1/g" \
+  | head -n 1

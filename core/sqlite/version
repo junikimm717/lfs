@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl --retry 10 --retry-delay 5 --retry-connrefused "https://sqlite.org/download.html" 2> /dev/null \
+  | grep 'PRODUCT' \
+  | grep 'autoconf' \
+  | sed -e "s/^.*sqlite-autoconf-\([0-9]*\)\.tar\.gz.*$/\1/g"

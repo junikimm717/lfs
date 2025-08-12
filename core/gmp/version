@@ -1,0 +1,11 @@
+#!/bin/sh
+
+curl https://gmplib.org/download/gmp/ 2> /dev/null \
+  | grep '.tar.xz"' \
+  | grep -v 'gold' \
+  | sed \
+    -e "s/^.*\<a//g" \
+    -e "s/<\/a.*$//g" \
+    -e 's/^.*href="gmp-\([0-9\.]*\)\.tar.xz\".*$/\1/gp'\
+  | sort -n \
+  | tail -n 1
