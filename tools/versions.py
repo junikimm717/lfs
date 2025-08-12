@@ -27,10 +27,12 @@ for vscript in version_scripts:
     assert version is not None
     current = version.group(1)
 
+    devpkg = re.search(r'https://dev\.mit\.junic\.kim/pkgs', build) is not None
+
     if latest != current:
         updates += 1
-        print(f"The package {pkg} has a latest version of {latest} " 
-            f"but we are currently in {current}")
+        print(f"The package {pkg} {'(installs from dev.mit.junic.kim!!) ' if devpkg else ''}"
+            f"is set to {current} (Expected {latest})")
 
 print("Note that perl, tzinfo, make, and other packages require manual updating")
 if updates:

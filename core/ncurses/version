@@ -3,8 +3,6 @@
 curl https://invisible-island.net/archives/ncurses/ 2> /dev/null \
   | grep 'ncurses-\([0-9\.]*\)\.tar\.gz"' \
   | sed \
-    -e "s/^.*\<a//g" \
-    -e "s/<\/a.*$//g" \
     -e 's/^.*href="ncurses-\([0-9\.]*\)\.tar.gz\".*$/\1/gp'\
   | uniq \
   | tail -n 1

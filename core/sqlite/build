@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 # https://sqlite.org/2025/sqlite-autoconf-3500000.tar.gz
-VERSION="3500000"
+VERSION="3500400"
 BASEURL="https://sqlite.org/2025"
 SRCDIR="sqlite-autoconf-$VERSION"
 TARBALL="$SRCDIR.tar.gz"

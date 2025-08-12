@@ -5,10 +5,7 @@ VER=6.14
 curl "https://cdn.kernel.org/pub/linux/kernel/v$(echo $VER | cut -d. -f 1).x/" 2> /dev/null \
   | grep '.tar.xz"' \
   | grep "$VER." \
-  | sed \
-    -e "s/^.*\<a//g" \
-    -e "s/<\/a.*$//g" \
-    -e 's/^.*href="linux-\([0-9\.]*\)\.tar.xz\".*$/\1/gp'\
+  | sed 's/^.*href="linux-\([0-9\.]*\)\.tar.xz\".*$/\1/g' \
   | awk -F. '{printf "%02d.%03d.%03d %d.%d.%d\n", $1, $2, $3, $1, $2, $3 }' \
   | sort -n \
   | uniq \
