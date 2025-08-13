@@ -10,7 +10,8 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="3.14.0"
+# Don't upgrade to 3.14.0 this is an error from the version script.
+VERSION="3.13.6"
 BASEURL="https://www.python.org/ftp/python/$VERSION"
 SRCDIR="Python-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
