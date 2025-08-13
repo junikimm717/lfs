@@ -13,9 +13,9 @@ test -z "$INOSENV" && \
 # FORCE using the build system's compiler. Kernel compilation has some build
 # dependencies that are not necessary for actual runtime (duh)
 export PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin
-export CC="$(command -v gcc)"
+CC="$(command -v gcc)"
 unset CFLAGS LDFLAGS CPPFLAGS
-export CFLAGS LDFLAGS CPPFLAGS
+export CFLAGS LDFLAGS CPPFLAGS CC
 
 VERSION="6.14.11"
 BASEURL="cdn.kernel.org/pub/linux/kernel/v$(echo "$VERSION" | cut -d'.' -f 1 ).x"
@@ -53,18 +53,18 @@ makeinstall() {
   cd "$DIR/$SRCDIR"
   # this screws up the config
   make olddefconfig
-  make -j${JOBS:-8}
-  make -j${JOBS:-8} headers_install INSTALL_HDR_PATH=$ROOTFS/usr
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" headers_install INSTALL_HDR_PATH="$ROOTFS/usr"
   if [ "$(arch)" = "x86_64" ]; then
-    install -D ./arch/x86/boot/bzImage $DIST/rootfs/boot/vmlinuz-$VERSION
+    install -D ./arch/x86/boot/bzImage "$DIST/rootfs/boot/vmlinuz-$VERSION"
   else
-    make -j${JOBS:-8} INSTALL_PATH=$DIST/rootfs/boot install
+    make -j"${JOBS:-8}" INSTALL_PATH="$DIST/rootfs/boot install"
   fi
 }
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"

@@ -57,12 +57,12 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR"
 
-  make -j${JOBS:-8}
+  make -j"${JOBS:-8}"
   ln -sfn bzgrep "$ROOTFS/usr/bin/bzegrep"
   ln -sfn bzgrep "$ROOTFS/usr/bin/bzfgrep"
   ln -sfn bzmore "$ROOTFS/usr/bin/bzless"
   ln -sfn bzdiff "$ROOTFS/usr/bin/bzcmp"
-  make -j${JOBS:-8} install
+  make -j"${JOBS:-8}" install
 }
 
 clear() {

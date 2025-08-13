@@ -5,8 +5,8 @@ set -eu
 DIR="$(realpath "$(dirname "$0" )" )"
 
 # Note that esp and root sizes are both in megabytes
-export ESP_SIZE=${ESP_SIZE:-64}
-export ROOT_SIZE=${ROOT_SIZE:-2048}
+export ESP_SIZE="${ESP_SIZE:-64}"
+export ROOT_SIZE="${ROOT_SIZE:-2048}"
 
 ESP_SECTORS=$((ESP_SIZE * 2048))
 ROOTFS_SECTORS=$((ROOT_SIZE * 2048))
@@ -23,9 +23,9 @@ test -z "$INOSENV" && \
 
 cd "$DIST"
 
-$DIR/re_initramfs.sh
-$DIR/rootimg.sh
-$DIR/esp.sh
+"$DIR/re_initramfs.sh"
+"$DIR/rootimg.sh"
+"$DIR/esp.sh"
 
 dd if=/dev/zero of=bootable.img bs=1M count=$TOTAL_SIZE
 

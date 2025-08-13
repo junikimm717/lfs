@@ -22,7 +22,7 @@ download() {
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
   else
-    curl -LOf $BASEURL/$TARBALL
+    curl -LOf "$BASEURL/$TARBALL"
   fi
 
 }
@@ -49,8 +49,8 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR"
 
-  make -j${JOBS:-8}
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {

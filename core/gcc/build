@@ -97,15 +97,15 @@ makeinstall() {
   fi
   cd "$DIR/$BUILDDIR"
 
-  make -j${JOBS:-8} all-gcc
-  make -j${JOBS:-8} all-target-libgcc
-  make -j${JOBS:-8} all-target-libstdc++-v3 CXXFLAGS="-fPIC"
-  make -j${JOBS:-8} all-target-libatomic CXXFLAGS="-fPIC"
+  make -j"${JOBS:-8}" all-gcc
+  make -j"${JOBS:-8}" all-target-libgcc
+  make -j"${JOBS:-8}" all-target-libstdc++-v3 CXXFLAGS="-fPIC"
+  make -j"${JOBS:-8}" all-target-libatomic CXXFLAGS="-fPIC"
 
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-gcc
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libgcc
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libstdc++-v3
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install-target-libatomic
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install-gcc
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install-target-libgcc
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install-target-libstdc++-v3
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install-target-libatomic
   ln -sfn gcc "$ROOTFS/usr/bin/cc"
 }
 

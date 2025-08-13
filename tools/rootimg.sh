@@ -2,7 +2,7 @@
 
 set -eu
 
-DIR="$(realpath "$(dirname "$0" )" )"
+# DIR="$(realpath "$(dirname "$0" )" )"
 
 test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
@@ -36,7 +36,7 @@ tar czpf "../rootfs-$(arch).tar.gz" \
 cd "$DIST" || exit 1
 ROOT_SIZE="${ROOT_SIZE:-2048}"
 
-dd if=/dev/zero of=rootfs.img bs=1M count=$ROOT_SIZE || exit 1
+dd if=/dev/zero of=rootfs.img bs=1M count="$ROOT_SIZE" || exit 1
 # bruh fakeroot just shits itself if you're on x86_64
 if [ "$(arch)" = "x86_64" ]; then
   mke2fs -t ext4 -F -d rootfs/ rootfs.img || exit 1

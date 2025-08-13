@@ -16,12 +16,17 @@ build() {
   "$CORE/$1/build" a
 }
 
-mkdir -m 700 -p "$ROOTFS/root"
-mkdir -m 755 -p "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run"
-mkdir -m 755 -p "$ROOTFS/boot/efi"
-mkdir -m 777 -p "$ROOTFS/tmp"
+mkdir -p "$ROOTFS/root" \
+  "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" \
+  "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run" "$ROOTFS/usr/lib" \
+  "$ROOTFS/boot/efi"
+  "$ROOTFS/tmp"
 
-mkdir -m 755 -p "$ROOTFS/usr/lib"
+chmod 700 "$ROOTFS/root"
+chmod 755 "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" \
+  "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run" "$ROOTFS/boot/efi"\
+  "$ROOTFS/usr/lib"
+chmod 777 "$ROOTFS/tmp"
 
 # MAKE sure to not run lib64
 rm -rf "$ROOTFS/usr/lib64"

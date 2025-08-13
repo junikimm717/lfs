@@ -36,9 +36,9 @@ extract() {
   tar xzf "$TARBALL" --strip-components=1
   cd "$DIR/$SRCDIR"
 
-  sed -i 's/gcc/$CC/g' src/find-systype.sh
-  sed -i 's/gcc/$CC $CFLAGS/g' src/conf-cc
-  sed -i 's/gcc/$CC $LDFLAGS/g' src/conf-ld
+  sed -i "s/gcc/\$CC/g" src/find-systype.sh
+  sed -i "s/gcc/\$CC \$CFLAGS/g" src/conf-cc
+  sed -i "s/gcc/\$CC \$LDFLAGS/g" src/conf-ld
 }
 
 makeinstall() {
@@ -51,13 +51,13 @@ makeinstall() {
 
   # FORCE static linking everything
   LDFLAGS="$LDFLAGS" package/compile
-  install -Dm755 command/runit-init   $ROOTFS/sbin/init
-  install -Dm755 command/*            $ROOTFS/sbin/
+  install -Dm755 command/runit-init   "$ROOTFS/sbin/init"
+  install -Dm755 command/*            "$ROOTFS/sbin/"
 }
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"

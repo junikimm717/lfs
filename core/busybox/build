@@ -24,9 +24,11 @@ download() {
   curl -LOf $BASEURL/$TARBALL
 }
 
+HOSTCC="$(PATH='/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin' command -v gcc)"
+export HOSTCC
+
 menuconfig() {
   cd "$DIR/$SRCDIR"
-  export HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"
   LD_LIBRARY_PATH=/lib:/usr/lib make menuconfig HOSTCC="$HOSTCC"
 }
 
@@ -56,7 +58,7 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
-  make -j${JOBS:-8} HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
+  make -j"${JOBS:-8}" HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
   # install to both dist (main system) and initramfs
@@ -65,7 +67,7 @@ makeinstall() {
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"

@@ -38,7 +38,7 @@ extract() {
   cd "$SRCDIR"
   # monkey patched for now, but bad idea to hard code /usr/bin
   # ideal scenario, we just never search for g++ because IT's NOT NEEDED
-  ./configure --prefix="/" --exec-prefix="/" --host=$TARGET\
+  ./configure --prefix="/" --exec-prefix="/" --host="$TARGET"\
     --with-sysroot="${ROOTFS:-/}"
 }
 
@@ -51,13 +51,13 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR"
 
-  make -j${JOBS:-8}
-  make DESTDIR=$ROOTFS install
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"

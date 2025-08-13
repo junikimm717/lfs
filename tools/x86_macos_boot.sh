@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DIR="$(realpath "$(dirname "$0" )" )"
+# DIR="$(realpath "$(dirname "$0" )" )"
 
 if test -z "${1:-}"; then
   echo "\$1 is undefined for x86 booter."

@@ -21,8 +21,8 @@ if arch | grep -E "arm|aarch" > /dev/null 2>&1; then
     -machine virt \
     -cpu cortex-a72 \
     -m 1024 \
-    -kernel $KERNEL \
-    -initrd $INITRD \
+    -kernel "$KERNEL" \
+    -initrd "$INITRD" \
     -nographic -append "console=ttyAMA0 panic=-1 root=/dev/vda rw" \
     -drive file=./rootfs.img,format=raw,if=virtio \
     -no-reboot \
@@ -31,8 +31,8 @@ elif arch | grep -E "x86" > /dev/null 2>&1; then
   qemu-system-x86_64\
     -machine q35 \
     -m 1024 \
-    -kernel $KERNEL \
-    -initrd $INITRD \
+    -kernel "$KERNEL" \
+    -initrd "$INITRD" \
     -nographic -append "console=ttyAMA0 panic=-1 root=/dev/vda rw" \
     -drive file=./rootfs.img,format=raw,if=virtio \
     -no-reboot \

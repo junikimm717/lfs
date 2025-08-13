@@ -74,8 +74,8 @@ makeinstall() {
   fi
 
   cd "$DIR/$BUILDDIR"
-  make -j${JOBS:-8}
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {

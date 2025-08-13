@@ -79,18 +79,18 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
-  export INSTALLSITELIB=$ROOTFS/usr/lib/perl5/site_perl
-  export INSTALLSITEARCH=$ROOTFS/usr/lib/perl5/site_perl/arch
-  export INSTALLSITEMAN1DIR=$ROOTFS/usr/share/man/man1
+  export INSTALLSITELIB="$ROOTFS/usr/lib/perl5/site_perl"
+  export INSTALLSITEARCH="$ROOTFS/usr/lib/perl5/site_perl/arch"
+  export INSTALLSITEMAN1DIR="$ROOTFS/usr/share/man/man1"
 
   sed \
     -e "s|CROSS_ROOT|$CROSS_ROOT|g"\
     "$DIR/skibidi_template.Makefile"\
     > "$MAKEFILE"
   echo "==========================make running==========================="
-  make -f $MAKEFILE -j${JOBS:-8}
+  make -f "$MAKEFILE" -j"${JOBS:-8}"
   echo "==========================make Install==========================="
-  make -f $MAKEFILE -j${JOBS:-8} DESTDIR=$ROOTFS install
+  make -f "$MAKEFILE" -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
   mkdir -p "$ROOTFS/usr/lib/perl5/core_perl/"
 
   find ./lib -type f | grep -E '\.t$' | xargs rm

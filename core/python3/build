@@ -60,8 +60,9 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
-  make -j${JOBS:-8}
-  make -j${JOBS:-8} DESTDIR=$ROOTFS install
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
+
   MAJORMINOR="$(echo "$VERSION" | cut -d '.' -f 1-2)"
   ln -sfn "python$MAJORMINOR" "$ROOTFS/usr/bin/python3"
   ln -sfn "pip3" "$ROOTFS/usr/bin/pip"

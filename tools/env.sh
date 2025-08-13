@@ -5,7 +5,7 @@
 DIR="$(realpath "$(dirname "$0" )" )/.."
 DIR="$(realpath "$DIR" )"
 
-if uname -m | grep -E 'arm|aarch' 2>&1 > /dev/null; then
+if uname -m | grep -E 'arm|aarch' > /dev/null 2>&1; then
   TARGET="aarch64-linux-musl"
   BUILDTRIPLE="aarch64-linux-musl"
 else

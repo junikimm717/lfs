@@ -49,13 +49,13 @@ makeinstall() {
   fi
   cd "$DIR/$SRCDIR/build"
 
-  cmake --build . -j ${JOBS:-8} --target fastfetch
-  install -Dm755 fastfetch $ROOTFS/usr/bin
+  cmake --build . -j "${JOBS:-8}" --target fastfetch
+  install -Dm755 fastfetch "$ROOTFS/usr/bin"
 }
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz *.tar.bz2 *.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"
