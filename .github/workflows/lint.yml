@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install python, jq and curl
+      - name: Install jq and curl
         run: |
           sudo apt-get update
           sudo apt-get install -y jq curl gzip
@@ -24,4 +24,21 @@ jobs:
 
       - name: Run versions checker
         run: |
+          python ./tools/versions.py
+  shellcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run versions checker
+        run: |
+          shellcheck ./tools/*.sh ./core/*/build ./misc/*\
+          ./init/*/build ./cross/build ./buildall.sh
           python ./tools/versions.py

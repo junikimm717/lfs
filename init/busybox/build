@@ -49,7 +49,7 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
-  make -j${JOBS:-8} HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
+  make -j"${JOBS:-8}" HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
   make CONFIG_PREFIX="$DIST/initramfs" install
@@ -57,7 +57,7 @@ makeinstall() {
 
 clear() {
   cd "$DIR"
-  rm -rf *.tgz *.tar.xz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz "$SRCDIR" "$TARBALL"
 }
 
 cd "$DIR"
