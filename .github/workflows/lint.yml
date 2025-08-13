@@ -2,7 +2,7 @@ name: Linting-ish Tasks
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   check-versions:
