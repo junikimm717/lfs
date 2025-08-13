@@ -18,6 +18,9 @@ for vscript in version_scripts:
         print(f"version script invoked at {vscript} encountered an exit code of {res.returncode}")
         continue
     latest = res.stdout.strip()
+    if not latest:
+        print(f"Invoked {vscript} has an empty output, skipping: {res.stderr}")
+        continue
 
     # Try to extract a VERSION="xyz" declaration from the build script.
     build = (vscript.parent / "build").read_text(encoding="utf-8")

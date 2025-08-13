@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl https://gmplib.org/download/gmp/ 2> /dev/null \
+curl --retry-connrefused --retry 5 https://gmplib.org/download/gmp/ 2> /dev/null \
   | grep '.tar.xz"' \
   | grep -v 'gold' \
   | sed \
