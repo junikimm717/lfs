@@ -19,13 +19,14 @@ build() {
 mkdir -p "$ROOTFS/root" \
   "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" \
   "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run" "$ROOTFS/usr/lib" \
-  "$ROOTFS/boot/efi"
-  "$ROOTFS/tmp"
+  "$ROOTFS/boot/efi" "$ROOTFS/tmp"
 
 chmod 700 "$ROOTFS/root"
+
 chmod 755 "$ROOTFS/run" "$ROOTFS/home" "$ROOTFS/proc" "$ROOTFS/sys" \
-  "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run" "$ROOTFS/boot/efi"\
+  "$ROOTFS/dev/pts" "$ROOTFS/dev/shm" "$ROOTFS/dev/run" "$ROOTFS/boot/efi" \
   "$ROOTFS/usr/lib"
+
 chmod 777 "$ROOTFS/tmp"
 
 # MAKE sure to not run lib64
