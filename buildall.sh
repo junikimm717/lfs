@@ -5,7 +5,7 @@ set -eu
 DIR="$(realpath "$(dirname "$0" )" )"
 
 
-if uname -m | grep -E 'arm|aarch' 2>&1 > /dev/null; then
+if uname -m | grep -E 'arm|aarch' > /dev/null 2>&1; then
   export TARGET="aarch64-linux-musl"
   export BUILDTRIPLE="aarch64-linux-musl"
 else
@@ -29,9 +29,9 @@ export ROOTFS="$DIR/dist/rootfs"
 export CFLAGS="-O2 -pipe -fPIC -w -I$ROOTFS/usr/include -I$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export CXXFLAGS="-O2 -pipe -fPIC -w -I$ROOTFS/usr/include -I$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="-s -L$ROOTFS/lib -L$ROOTFS/usr/lib -L$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
-export PKG_CONFIG_SYSROOT_DIR=$ROOTFS
-export PKG_CONFIG_LIBDIR=$ROOTFS/usr/lib/pkgconfig
-export PKG_CONFIG_PATH=$ROOTFS/usr/share/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR="$ROOTFS"
+export PKG_CONFIG_LIBDIR="$ROOTFS/usr/lib/pkgconfig"
+export PKG_CONFIG_PATH="$ROOTFS/usr/share/pkgconfig"
 
 export ESP_SIZE=64
 export ROOT_SIZE=3072
