@@ -20,7 +20,7 @@ upper and lower case files names)
 
 ## Download (CI-Built)
 
-All bootable images assume precisely 3gb of storage.
+All provided images here consist of a 2GB rootfs.
 
 x86_64:
 
