@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # just rip the latest stable version from home LOL.
-curl "https://www.python.org/" 2> /dev/null \
-  | gunzip \
+curl -fsSL --compressed "https://www.python.org/" 2> /dev/null \
   | grep '<p>Latest: <a' \
   | sed "s/^.*Python \([0-9,\.]*\).*$/\1/g"

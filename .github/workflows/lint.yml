@@ -15,7 +15,7 @@ jobs:
       - name: Install python, jq and curl
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq curl
+          sudo apt-get install -y jq curl gzip
 
       - name: Set up Python
         uses: actions/setup-python@v5
