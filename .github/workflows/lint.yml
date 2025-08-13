@@ -1,0 +1,27 @@
+name: Linting-ish Tasks
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install python, jq and curl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run versions checker
+        run: |
+          python ./tools/versions.py
