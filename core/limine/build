@@ -10,12 +10,19 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-# upgrading to 9.6 causes build issues I DO NOT want to be fixing for now.
-# what the hell are those stupid _FOR_TARGET variables gahhhh
-VERSION="9.5.0"
+VERSION="9.6.0"
 BASEURL="https://github.com/limine-bootloader/limine/releases/download/v$VERSION"
 SRCDIR="limine-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
+
+# Unbelievable that 9.6.0 actually requires these???
+# gcc, ld, and friends should all be pointing to the musl cross toolchain
+# because of work done in /tools/env.sh tho
+export CC_FOR_TARGET="gcc"
+export LD_FOR_TARGET="ld"
+export OBJCOPY_FOR_TARGET="objcopy"
+export OBJDUMP_FOR_TARGET="objdump"
+export READELF_FOR_TARGET="readelf"
 
 download() {
   cd "$DIR"

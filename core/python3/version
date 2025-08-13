@@ -1,11 +1,7 @@
 #!/bin/sh
 
-curl "https://www.python.org/ftp/python/" 2> /dev/null \
-  | grep '3.1[0-9]' \
-  | sed \
-    -e 's/^.*href="\([0-9\.]*\)\/\".*$/\1/gp'\
-  | awk -F. '{printf "%02d.%03d.%03d %d.%d.%d\n", $1, $2, $3, $1, $2, $3 }' \
-  | sort -n \
-  | uniq \
-  | awk '{print $2}' \
-  | tail -n 1
+# just rip the latest stable version from home LOL.
+curl "https://www.python.org/" 2> /dev/null \
+  | gunzip \
+  | grep '<p>Latest: <a' \
+  | sed "s/^.*Python \([0-9,\.]*\).*$/\1/g"

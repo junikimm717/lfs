@@ -36,6 +36,6 @@ for vscript in version_scripts:
 
 print("Note that perl, tzinfo, make, and other packages require manual updating")
 if updates:
-    print(f"{updates}/{len(version_scripts)} packages require updating. "
+    print(f"{updates}/{len(version_scripts)} package{'' if updates == 1 else '1'} seem out-of-date. "
         "Please update the $VERSION variable as specified in each package's ./build script.")
     sys.exit(1)
