@@ -39,5 +39,5 @@ jobs:
 
       - name: Run versions checker
         run: |
-          shellcheck ./tools/*.sh ./core/*/build ./misc/* ./init/*/build ./cross/build ./buildall.sh
+          shellcheck ./tools/*.sh ./core/*/version ./core/*/build ./misc/* ./init/*/build ./cross/build ./buildall.sh
           python ./tools/versions.py

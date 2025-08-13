@@ -11,6 +11,7 @@ updates = 0
 version_scripts = list(COREDIR.glob("*/version"))
 
 for vscript in version_scripts:
+    # run the ./version script to extract the latest version of our package.
     pkg = vscript.parent.name
     res = subprocess.run([vscript], capture_output=True, text=True, encoding="utf-8", check=False)
     if res.returncode != 0:
@@ -18,6 +19,7 @@ for vscript in version_scripts:
         continue
     latest = res.stdout.strip()
 
+    # Try to extract a VERSION="xyz" declaration from the build script.
     build = (vscript.parent / "build").read_text(encoding="utf-8")
     version = re.search(r'VERSION\=\"(.*)\"', build)
     if version is None:
@@ -27,12 +29,14 @@ for vscript in version_scripts:
     assert version is not None
     current = version.group(1)
 
+    # some packages download from Juni's mirror (bc gnu mirrors suck occasionally)
+    # These should be highlighted, as there is no guarantee the tarballs will actually be there.
     devpkg = re.search(r'https://dev\.mit\.junic\.kim/pkgs', build) is not None
-
     if latest != current:
         updates += 1
         print(f"The package {pkg} {'(installs from dev.mit.junic.kim!!) ' if devpkg else ''}"
             f"is set to {current} (Expected {latest})")
+
 
 print("Note that perl, tzinfo, make, and other packages require manual updating")
 if updates:

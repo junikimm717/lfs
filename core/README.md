@@ -83,6 +83,11 @@ SRCDIR="curl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 ```
 
+**Important**: The `$VERSION` declaration must be done in **double quotes** as
+shown above. This is so that the extremely stupid regex used in
+`/tools/versions.py` (used to check whether all packages are actually
+up-to-date) can extract the version numbers correctly :).
+
 ## Environment Variables
 
 The tight coupling between the build script and the dev container means many
