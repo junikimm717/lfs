@@ -1,11 +1,8 @@
 #!/bin/sh
 
-VER=6.14
-
-curl "https://cdn.kernel.org/pub/linux/kernel/v$(echo $VER | cut -d. -f 1).x/" 2> /dev/null \
-  | grep '.tar.xz"' \
-  | grep "$VER." \
-  | sed 's/^.*href="linux-\([0-9\.]*\)\.tar.xz\".*$/\1/g' \
+curl https://www.kernel.org/releases.json 2>/dev/null \
+  | jq -rc '.releases[] | select(.moniker=="stable") | .source' \
+  | sed 's/^.*linux-\([0-9\.]*\)\.tar.xz.*$/\1/g' \
   | awk -F. '{printf "%02d.%03d.%03d %d.%d.%d\n", $1, $2, $3, $1, $2, $3 }' \
   | sort -n \
   | uniq \

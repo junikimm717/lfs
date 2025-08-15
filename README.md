@@ -1,17 +1,20 @@
 # Mimux
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). A complete build system to
-bootstrap a hobby Linux "distribution" supporting x86_64 and aarch64.
+![License](https://img.shields.io/github/license/junikimm717/lfs)
+
+Named in memory of our cat Mimi (1/1/2022-5/13/2025). A complete system to
+bootstrap a from-scratch Linux-based OS with complete toolchain and runtime
+(musl libc, gcc, chrony, runit), packaging 30+ core utilities (busybox, openssl,
+perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 
 ![Mimi](./mimi.jpg)
 
-This is **very much** WIP and is absolutely NOT ready for use unless you wish to
-contribute (if so, welcome :)). Development is standardized around the Alpine
-Linux Docker image defined in the Dockerfile. For further documentation on the
-mimux build process, check out the README's at [tools](./tools/) or [core](./core/).
+Development is standardized around the Alpine Linux Docker image defined in the
+Dockerfile. For further documentation on the mimux build process, check out the
+README's at [tools](./tools/) or [core](./core/).
 
-I cannot believe I chose to undertake this project, but it's quite instructional
-and fun so far.
+I cannot believe I chose to undertake this project, but it's been quite
+instructional and fun so far.
 
 After two months of suffering, I also have personal beef against the perl build
 system asdlfjas;lkdfjals;df (Also imagine goofy ahhh APFS not distinguishing
@@ -40,7 +43,7 @@ bc of tightly controlled dependencies and environment variables.
 To launch into a dev shell, run `docker-compose up -d && ./tools/dev.sh`.
 
 If you insist on a local environment (note COMPLETELY unsupported), install the
-dependencies listed in ./Dockerfile and then run
+dependencies listed in `./Dockerfile` and then run
 
 ```sh
 eval "$(./tools/env.sh)"
@@ -55,7 +58,12 @@ Execute the `./buildall.sh` with no arguments inside the dev container.
 All final build artifacts will be located in `./dist/`.
 
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
-complete.
+complete. The GitHub CI takes around an hour to build each image.
+
+## Version Checks
+
+To ensure that packages with supported version checking are all up-to-date, you
+should run the `./tools/versions.py` script.
 
 ## Virtual Machines
 
