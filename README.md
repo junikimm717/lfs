@@ -60,11 +60,6 @@ All final build artifacts will be located in `./dist/`.
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete. The GitHub CI takes around an hour to build each image.
 
-## Version Checks
-
-To ensure that packages with supported version checking are all up-to-date, you
-should run the `./tools/versions.py` script.
-
 ## Virtual Machines
 
 The kernel has been maximally stripped and has no module support. There is no
@@ -97,3 +92,12 @@ The default timezone is US Eastern Time. To change, run
 ln -sfn /usr/share/zoneinfo/{whatever} /etc/localtime
 ```
 like you would for any other barebones distro.
+
+## Version Checks
+
+To ensure that packages with supported version checking are all up-to-date, you
+should run the `./tools/versions.py` script. This script gets automatically run
+by the CI on each commit as well.
+
+Since build scripts may be incompatible across different package
+versions/require tweaking to run, actual package bumps will be done manually.
