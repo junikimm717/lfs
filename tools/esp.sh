@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -eux
 
 # DIR="$(realpath "$(dirname "$0" )" )"
 
