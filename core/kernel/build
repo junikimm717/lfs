@@ -58,7 +58,9 @@ makeinstall() {
   if [ "$(arch)" = "x86_64" ]; then
     install -D ./arch/x86/boot/bzImage "$DIST/rootfs/boot/vmlinuz-$VERSION"
   else
-    make -j"${JOBS:-8}" INSTALL_PATH="$DIST/rootfs/boot install"
+    # new way to do things when moving to 6.14.11
+    install -D ./arch/arm64/boot/Image "$DIST/rootfs/boot/vmlinuz-$VERSION"
+    # make -j"${JOBS:-8}" INSTALL_PATH="$DIST/rootfs/boot install"
   fi
 }
 
