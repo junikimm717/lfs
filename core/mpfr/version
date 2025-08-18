@@ -1,0 +1,10 @@
+#!/bin/sh
+
+curl -s https://ftp.gnu.org/gnu/mpfr/ --retry 5 \
+  | grep -oE 'mpfr-[0-9,\.]*\.tar\.xz' \
+  | sed 's/mpfr-\([0-9,\.]*\)\.tar\.xz/\1/g' \
+  | awk -F. '{printf "%03d%03d%03d %s\n", $1, $2, $3, $0}' \
+  | uniq \
+  | sort -n \
+  | tail -n 1 \
+  | cut -d ' ' -f 2

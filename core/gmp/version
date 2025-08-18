@@ -1,5 +1,5 @@
 #!/bin/sh
 
-curl -s https://gmplib.org/ \
+curl -s https://gmplib.org/ --retry 5 \
   | grep -Eo 'The current stable release is [0-9]+\.[0-9]+\.[0-9]+' \
   | cut -d' ' -f 6

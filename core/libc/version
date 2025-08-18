@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl -s https://musl.libc.org/ \
+  | grep "Latest release:" \
+  | sed 's/^.*musl-\([0-9,\.]*\)\.tar\.gz.*$/\1/g'
