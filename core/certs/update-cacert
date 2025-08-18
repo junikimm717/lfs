@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if test "$(id -u)" -ne 0; then
+  echo "update-cacert must be run as root!"
+  exit 1
+fi
+
+/bin/busybox wget https://curl.se/ca/cacert.pem -O /etc/ssl/cert.pem

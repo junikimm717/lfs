@@ -36,11 +36,13 @@ extract() {
 
 makeinstall() {
   echo "building certs..."
+  cd "$DIR"
   if ! test -f "$DIR/$TARBALL"; then
     echo "No source directory to operate on!"
     exit 1
   fi
   install -m755 "$TARBALL" "$ROOTFS/etc/ssl/cert.pem"
+  install -m755 "$DIR/update-cacert" "$ROOTFS/usr/bin/"
   ln -sfn /etc/ssl/cert.pem "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
 }
 
