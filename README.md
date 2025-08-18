@@ -2,15 +2,15 @@
 
 ![License](https://img.shields.io/github/license/junikimm717/lfs)
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). A complete system to
-bootstrap a from-scratch Linux-based OS with complete toolchain and runtime
-(musl libc, gcc, chrony, runit), packaging 30+ core utilities (busybox, openssl,
-perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025).
+Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
+(musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
+openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 
 ![Mimi](./mimi.jpg)
 
 Development is standardized around the Alpine Linux Docker image defined in the
-Dockerfile. For further documentation on the mimux build process, check out the
+Dockerfile. For further documentation on the Mimux build process, check out the
 README's at [tools](./tools/) or [core](./core/).
 
 I cannot believe I chose to undertake this project, but it's been quite
@@ -75,10 +75,12 @@ with something like Virt-manager, UTM, etc.
 1. The bootable image is located in `./dist/bootable.img`
 2. Select the options that allow you to directly import a disk
 3. **YOU MUST USE UEFI**!! This may be slightly tricky, but make sure you have
-   vm firmware installed for this. The reason this is enforced is because it is
-   desired to have a consistent boot environment across all cpu architectures.
+   vm firmware installed for this. This is enforced because I want a consistent
+   boot environment across all cpu architectures.
 
 ## Default OS Environment
+
+When the VM boots, you will get dropped into a getty session.
 
 The default user is `mimi` and the password is `george` (his favorite chipmunk).
 Root login is disabled by default; you can perform root commands via `doas`.
