@@ -67,7 +67,7 @@ intention to support bare metal hardware.
 
 If you're on Apple Silicon with Homebrew, congrats. Just run
 `./tools/macos_boot.sh`; this should immediately boot up a working vm given you
-installed qemu and efi firmware properly.
+installed qemu and efi firmware in the standard homebrew way.
 
 Otherwise, the setup is a big clunky, but here are some pointers for configuring
 with something like Virt-manager, UTM, etc.
@@ -80,7 +80,13 @@ with something like Virt-manager, UTM, etc.
 
 ## Default OS Environment
 
-When the VM boots, you will get dropped into a getty session.
+The default configured bootloader will supply you with three boot modes:
+
+1. *Mimux \$kernel* - Normal booting, normal init runs and you get dropped into a
+   getty session
+2. *Mimux \$kernel (logs)* - Same as above, except that kernel and init logs
+   will be visible in the same tty where you log in.
+3. *Mimux \$kernel (debug shell)* - You get dropped into an initramfs shell.
 
 The default user is `mimi` and the password is `george` (his favorite chipmunk).
 Root login is disabled by default; you can perform root commands via `doas`.

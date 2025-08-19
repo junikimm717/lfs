@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl -s https://smarden.org/runit/install \
+  | grep -o 'runit-[0-9,\.]*.tar.gz' \
+  | uniq \
+  | sed 's/runit-\([0-9,\.]*\)\.tar\.gz/\1/g'

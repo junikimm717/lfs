@@ -11,7 +11,6 @@ test -z "$INOSENV" && \
   exit 1
 
 build() {
-  mkdir -p "$CORE/log"
   echo "========= Building $1... ==========="
   "$CORE/$1/build" a
 }

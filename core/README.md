@@ -88,6 +88,16 @@ shown above. This is so that the extremely stupid regex used in
 `/tools/versions.py` (used to check whether all packages are actually
 up-to-date) can extract the version numbers correctly :).
 
+The packages that currently do not have version scripts attached are:
+
+- `certs` - certificates get continually updated, a script called `update-cacert`
+  is also provided within the mimux env
+- `perl` - I have yet to figure how to package perl reliably across different
+  versions. The current packaging system only works for 5.40.2 because we inject
+  a version-specific Makefile.
+- `tzdata`
+- `gcc`
+
 ## Environment Variables
 
 The tight coupling between the build script and the dev container means many

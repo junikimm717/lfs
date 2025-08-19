@@ -12,7 +12,7 @@ These are tools that should be run on your local machine when necessary.
   further information.
 - [./dev.sh](./dev.sh) - Launches a shell into the dev container (assuming that
   you started that first)
-- `./versions.py` - Inspects whether all our packages are up to date.
+- [./versions.py](./versions.py) - Inspects whether all our packages are up to date.
 
 The following scripts may only be used on M-series macs and are used to test
 various components of mimux. All tools below **require qemu** to be installed via
@@ -53,7 +53,7 @@ docker-compose build && docker-compose up -d
   the above two scripts, then stitching them together.
 
 - [./re_initramfs.sh](./re_initramfs.sh) and
-  [./setup_initramfs.sh](./setup_initramfs.sh) - sets up a compressed initramfs
+  [./setup_initramfs.sh](./setup_initramfs.sh) - creates a compressed initramfs
   image at `/dist/rootfs/boot/initramfs.cpio.gz`
 - [./etc_update.sh](./etc_update.sh) - called by `./userspace.sh`. Basically an
   rsync wrapper to copy over the etc files in `/etc` to the rootfs.
