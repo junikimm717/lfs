@@ -34,7 +34,7 @@ for vscript in version_scripts:
 
     # some packages download from Juni's mirror (bc gnu mirrors suck occasionally)
     # These should be highlighted, as there is no guarantee the tarballs will actually be there.
-    devpkg = 'https://dev.mit.junic.kim' is not None
+    devpkg = 'https://dev.mit.junic.kim' not in build
     if latest != current:
         updates += 1
         print(f"The package {pkg} {'(installs from dev.mit.junic.kim!!) ' if devpkg else ''}"
