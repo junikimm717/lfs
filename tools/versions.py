@@ -4,22 +4,40 @@ from pathlib import Path
 import subprocess
 import re
 import sys
+from dataclasses import dataclass
 
 COREDIR = Path(__file__).parent.parent / "core"
 
-updates = 0
+@dataclass
+class OutOfDate:
+    name: str
+    devmit: bool
+    current: str
+    expected: str
+    
+    def msg(self):
+        return f"{self.name} {'(installs from dev.mit.junic.kim!!) ' if self.devmit else ''}"\
+            f"is set to {self.current} (Expected {self.expected})"
+
+updates: 'list[OutOfDate]' = []
 version_scripts = list(COREDIR.glob("*/version"))
 
 for vscript in version_scripts:
     # run the ./version script to extract the latest version of our package.
     pkg = vscript.parent.name
+    sys.stderr.write(f"Checking that {pkg} is up-to-date...")
     res = subprocess.run([vscript], capture_output=True, text=True, encoding="utf-8", check=False)
     if res.returncode != 0:
-        print(f"version script invoked at {vscript} encountered an exit code of {res.returncode}")
+        sys.stderr.write(f"\033[1;33mINCOMPLETE\033[0m ")
+        sys.stderr.write(f"version script invoked at {vscript} encountered an exit code of {res.returncode}")
+        sys.stderr.write("\n")
         continue
+
     latest = res.stdout.strip()
     if not latest:
-        print(f"Invoked {vscript} has an empty output, skipping: {res.stderr}")
+        sys.stderr.write(f"\033[1;33mINCOMPLETE\033[0m ")
+        sys.stderr.write(f"Invoked {vscript} has an empty output, skipping: {res.stderr}")
+        sys.stderr.write("\n")
         continue
 
     # Try to extract a VERSION="xyz" declaration from the build script.
@@ -34,15 +52,23 @@ for vscript in version_scripts:
 
     # some packages download from Juni's mirror (bc gnu mirrors suck occasionally)
     # These should be highlighted, as there is no guarantee the tarballs will actually be there.
-    devpkg = 'https://dev.mit.junic.kim' not in build
+    devmit = 'https://dev.mit.junic.kim' not in build
     if latest != current:
-        updates += 1
-        print(f"The package {pkg} {'(installs from dev.mit.junic.kim!!) ' if devpkg else ''}"
-            f"is set to {current} (Expected {latest})")
+        updates.append(OutOfDate(
+            name=pkg,
+            devmit=devmit,
+            current=current,
+            expected=latest
+        ))
+        sys.stderr.write(f"\033[1;31mNo\033[0m\n")
+    else:
+        sys.stderr.write(f"\033[1;32mYes\033[0m\n")
 
-
-print("Note that perl, tzinfo, make, and other packages require manual updating")
 if updates:
-    print(f"{updates}/{len(version_scripts)} packages seem out-of-date. "
+    print(f"{len(updates)}/{len(version_scripts)} packages seem out-of-date. "
         "Please update the $VERSION variable as specified in each package's ./build script.")
+    for ood in updates:
+        print(ood.msg())
     sys.exit(1)
+else:
+    print("No out-of-date packages have been found.")
