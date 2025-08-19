@@ -88,7 +88,26 @@ shown above. This is so that the extremely stupid regex used in
 `/tools/versions.py` (used to check whether all packages are actually
 up-to-date) can extract the version numbers correctly :).
 
-The packages that currently do not have version scripts attached are:
+### Dev.mit.junic.kim??
+
+This is a VPS hosted by Juni, the creator of Mimux, that contains tarballs for
+select tarballs for which the download process is occasionally unstable. It also
+hosts the musl toolchains used to bootstrap Mimux.
+
+Please do note that using self-hosted tarballs like this is not usually desired.
+Updating these package versions requires manually updating the dev.mit.junic.kim
+mirror to include those tarballs.
+
+The following packages use dev.mit.junic.kim:
+
+- busybox
+- ncurses
+- gcc
+
+### Manual Version Management
+
+The packages that currently do not have version scripts attached (and therefore
+require manually checking for updates) are:
 
 - `certs` - certificates get continually updated, a script called `update-cacert`
   is also provided within the mimux env
