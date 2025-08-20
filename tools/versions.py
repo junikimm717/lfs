@@ -26,10 +26,10 @@ class OutOfDate:
 updates: "list[OutOfDate]" = []
 version_scripts = list(COREDIR.glob("*/version"))
 
-for vscript in version_scripts:
+for idx, vscript in enumerate(version_scripts):
     # run the ./version script to extract the latest version of our package.
     pkg = vscript.parent.name
-    sys.stderr.write(f"Checking that {pkg} is up-to-date...")
+    sys.stderr.write(f"[{idx+1:>2}/{len(version_scripts)}] Checking that {pkg:<11} is up-to-date...")
     sys.stderr.flush()
     res = subprocess.run(
         [vscript], capture_output=True, text=True, encoding="utf-8", check=False
@@ -84,5 +84,3 @@ if updates:
     for ood in updates:
         print(ood.msg())
     sys.exit(1)
-else:
-    print("No out-of-date packages have been found.")
