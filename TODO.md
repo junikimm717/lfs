@@ -14,6 +14,9 @@
   SOOOOO much stuff depends on it and the build for that is quite skibidi :/)
   LET'S GOOOOOOOOO THIS IS FINALLY DONE I AM FREE
 
+- [ ] Make ACTUAL TESTS!!! Like surely it is important to make sure the
+  operating system is actually functional.
+
 - [ ] Figure out cross-compilation (can we do this?? hmm...)
 
 - [ ] Long-term Project: Get a GUI running with a browser
