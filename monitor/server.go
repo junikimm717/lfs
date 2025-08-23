@@ -21,9 +21,19 @@ type MimuxServer struct {
 	SavePath string
 }
 
+// struct for data to be sent to https://img.shields.io/endpoint
+type BadgeData struct {
+	SchemaVersion int    `json:"schemaVersion"`
+	Label         string `json:"label"`
+	Message       string `json:"message"`
+	Color         string `json:"color"`
+	IsError       bool   `json:"isError"`
+}
+
 func (m *MimuxServer) authenticate(r *http.Request) bool {
 	correctKey := APIKEY
-	supplied := r.Header["MIMUX_API_KEY"]
+	// WHAT why does the capitalization get auto adjusted :/
+	supplied := r.Header["Mimux_api_key"]
 	return len(supplied) > 0 && supplied[0] == correctKey
 }
 
@@ -91,17 +101,19 @@ func (m *MimuxServer) handleJson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MimuxServer) handleRoot(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		// failed authentication logic
 		if !m.authenticate(r) {
 			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("You are not authorized to access this endpoint."))
 			return
 		}
 
-		body, err := io.ReadAll(r.Response.Body)
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
 			log.Println("Got an error from reading in request body:", err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -110,22 +122,25 @@ func (m *MimuxServer) handleRoot(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			log.Println("Got an error from reading in packagedb json in body:", err)
+			return
 		}
 		for key := range *data {
 			m.packages[key] = (*data)[key]
 		}
 		m.writeSave()
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Ok Updated"))
 	}
 }
 
 func (m *MimuxServer) handleDel(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if !m.authenticate(r) {
 		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("You are not authorized to access this endpoint."))
 		return
 	}
 	body, err := io.ReadAll(r.Body)
@@ -143,10 +158,16 @@ func (m *MimuxServer) handleDel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	messages := make([]string, 0, 5)
 	for _, key := range data {
-		delete(m.packages, key)
+		if _, ok := m.packages[key]; !ok {
+			messages = append(messages, fmt.Sprintf("%v not found", key))
+		} else {
+			delete(m.packages, key)
+		}
 	}
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Ok Deleted\n" + strings.Join(messages, "\n")))
 }
 
 func (m *MimuxServer) getUpdated() UpdatedInfo {
@@ -160,8 +181,31 @@ func (m *MimuxServer) getUpdated() UpdatedInfo {
 	return res
 }
 
+func (m *MimuxServer) handleBadge(w http.ResponseWriter, r *http.Request) {
+	info := m.getUpdated()
+	badge := BadgeData{
+		SchemaVersion: 1,
+		Label:         "Mimux Core",
+		Message:       "Up to Date",
+		Color:         "green",
+	}
+	if info.Total > info.UpToDate {
+		badge.Color = "red"
+		badge.Message = fmt.Sprintf(
+			"%v/%v Out of Date",
+			info.Total-info.UpToDate,
+			info.Total,
+		)
+		badge.IsError = true
+	}
+	data, _ := json.Marshal(badge)
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(data)
+}
+
 func InitMimuxServer(port int, savePath string) MimuxServer {
 	m := MimuxServer{}
+	m.packages = make(PackageDB)
 	m.SavePath = savePath
 	m.mux = http.NewServeMux()
 	m.server = &http.Server{
@@ -177,6 +221,7 @@ func InitMimuxServer(port int, savePath string) MimuxServer {
 	m.readSave()
 	m.mux.HandleFunc("/", m.handleRoot)
 	m.mux.HandleFunc("/json", m.handleJson)
+	m.mux.HandleFunc("/badge", m.handleBadge)
 	m.mux.HandleFunc("/delete", m.handleDel)
 
 	return m

@@ -4,9 +4,11 @@ from pathlib import Path
 import subprocess
 import re
 import sys
+import json
 from dataclasses import dataclass
 
 COREDIR = Path(__file__).parent.parent / "core"
+DISTDIR = Path(__file__).parent.parent / "dist"
 
 
 @dataclass
@@ -25,11 +27,14 @@ class OutOfDate:
 
 updates: "list[OutOfDate]" = []
 version_scripts = list(COREDIR.glob("*/version"))
+cidata: dict[str, dict[str, str]] = {}
 
 for idx, vscript in enumerate(version_scripts):
     # run the ./version script to extract the latest version of our package.
     pkg = vscript.parent.name
-    sys.stderr.write(f"[{idx+1:>2}/{len(version_scripts)}] Checking that {pkg:<11} is up-to-date...")
+    sys.stderr.write(
+        f"[{idx+1:>2}/{len(version_scripts)}] Checking that {pkg:<11} is up-to-date..."
+    )
     sys.stderr.flush()
     res = subprocess.run(
         [vscript], capture_output=True, text=True, encoding="utf-8", check=False
@@ -63,6 +68,8 @@ for idx, vscript in enumerate(version_scripts):
     assert version is not None
     current = version.group(1)
 
+    cidata[pkg] = {"current": current, "latest": latest}
+
     # some packages download from Juni's mirror (bc gnu mirrors suck occasionally)
     # These should be highlighted, as there is no guarantee the tarballs will actually be there.
     devmit = "https://dev.mit.junic.kim" not in build
@@ -75,6 +82,9 @@ for idx, vscript in enumerate(version_scripts):
     else:
         sys.stderr.write("\033[1;32mYes\033[0m\n")
         sys.stderr.flush()
+
+
+(DISTDIR / "mimux_updates.json").write_text(json.dumps(cidata, indent=2), encoding="utf-8")
 
 if updates:
     print(

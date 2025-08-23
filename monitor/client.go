@@ -39,7 +39,7 @@ func (c *MimuxClient) sendJson(path string) {
 
 func (c *MimuxClient) deleteRequest(keys []string) {
 	body, _ := json.Marshal(keys)
-	request, _ := http.NewRequest(http.MethodPost, c.BaseURL, bytes.NewBuffer(body))
+	request, _ := http.NewRequest(http.MethodPost, c.BaseURL+"/delete", bytes.NewBuffer(body))
 	request.Header.Set("MIMUX_API_KEY", APIKEY)
 	request.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(request)
