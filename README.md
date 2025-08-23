@@ -1,5 +1,7 @@
 # Mimux
 
+
+![Mimux Core](https://img.shields.io/endpoint?url=https%3A%2F%2Fmxm.mit.junic.kim%2Fbadge)
 ![License](https://img.shields.io/github/license/junikimm717/lfs)
 
 Named in memory of our cat Mimi (1/1/2022-5/13/2025).
@@ -12,6 +14,9 @@ openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 Development is standardized around the Alpine Linux Docker image defined in the
 Dockerfile. For further documentation on the Mimux build process, check out the
 README's at [tools](./tools/) or [core](./core/).
+
+Package Status is also published at
+[mxm.mit.junic.kim](https://mxm.mit.junic.kim)
 
 I cannot believe I chose to undertake this project, but it's been quite
 instructional and fun so far.
