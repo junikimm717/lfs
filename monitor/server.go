@@ -33,11 +33,8 @@ type BadgeData struct {
 func (m *MimuxServer) authenticate(r *http.Request) bool {
 	correctKey := APIKEY
 	// WHAT why does the capitalization get auto adjusted :/
-	supplied := r.Header["Mimux_api_key"]
+	supplied := r.Header["Mimux-Api-Key"]
 	authorized := len(supplied) > 0 && supplied[0] == correctKey
-	if ! authorized {
-		log.Println("Unauthorized Keys:", supplied)
-	}
 	return authorized
 }
 
