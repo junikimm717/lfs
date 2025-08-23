@@ -3,20 +3,24 @@
 
 ![Mimux Core](https://img.shields.io/endpoint?url=https%3A%2F%2Fmxm.mit.junic.kim%2Fbadge)
 ![License](https://img.shields.io/github/license/junikimm717/lfs)
+[![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
+[![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
 Named in memory of our cat Mimi (1/1/2022-5/13/2025).
 Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
 (musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
 openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 
+Mimux aims to be up-to-date with its core packages as possible. Packages are
+kept up-to-date with the latest stable release; rc's, alpha's, and beta's will
+not be accepted. Statuses are publicly available at
+[mxm.mit.junic.kim](https://mxm.mit.junic.kim)
+
 ![Mimi](./mimi.jpg)
 
 Development is standardized around the Alpine Linux Docker image defined in the
 Dockerfile. For further documentation on the Mimux build process, check out the
 README's at [tools](./tools/) or [core](./core/).
-
-Package Status is also published at
-[mxm.mit.junic.kim](https://mxm.mit.junic.kim)
 
 I cannot believe I chose to undertake this project, but it's been quite
 instructional and fun so far.
