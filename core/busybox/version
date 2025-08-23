@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl https://busybox.net/downloads/ 2> /dev/null \
+curl -fLs https://busybox.net/downloads/ 2> /dev/null \
   | grep 'busybox-\([0-9]*\.[0-9]*[0,2,4,6,8]\.[0-9]*\)\.tar\.bz2"' \
   | sed \
     -e 's/^.*href="busybox-\([0-9]*\.[0-9]*[0,2,4,6,8]\.[0-9]*\)\.tar.bz2\".*$/\1/g'\

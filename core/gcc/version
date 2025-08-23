@@ -1,0 +1,10 @@
+#!/bin/sh
+
+curl -fLs https://ftpmirror.gnu.org/gcc/ \
+  | grep -oE 'gcc-14\.[0-9,\.]*/' \
+  | sed 's/gcc-\([0-9,\.]*\)\//\1/g' \
+  | awk -F. '{printf "%03d%03d%03d %s\n", $1, $2, $3, $0}' \
+  | uniq \
+  | sort -n \
+  | tail -n 1 \
+  | cut -d ' ' -f 2

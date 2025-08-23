@@ -101,8 +101,6 @@ mirror to include those tarballs.
 The following packages use dev.mit.junic.kim:
 
 - busybox
-- ncurses
-- gcc
 
 ### Manual Version Management
 
@@ -115,7 +113,6 @@ require manually checking for updates) are:
   versions. The current packaging system only works for 5.40.2 because we inject
   a version-specific Makefile.
 - `tzdata`
-- `gcc`
 
 ## Environment Variables
 
