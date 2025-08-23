@@ -27,6 +27,7 @@ func main() {
 			loadEnv()
 			port, _ := cmd.Flags().GetInt("port")
 			savePath, _ := cmd.Flags().GetString("save")
+			log.Println("Usig API Key", APIKEY, "...")
 			server := InitMimuxServer(port, savePath)
 			server.Serve()
 		},
