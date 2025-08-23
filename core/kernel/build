@@ -17,7 +17,7 @@ CC="$(command -v gcc)"
 unset CFLAGS LDFLAGS CPPFLAGS
 export CFLAGS LDFLAGS CPPFLAGS CC
 
-VERSION="6.16.2"
+VERSION="6.16.3"
 BASEURL="cdn.kernel.org/pub/linux/kernel/v$(echo "$VERSION" | cut -d'.' -f 1 ).x"
 SRCDIR="linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
