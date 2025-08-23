@@ -33,6 +33,9 @@ func (c *MimuxClient) sendJson(path string) {
 	if err != nil {
 		log.Printf("Got an error reading from respBody: %v\n", err)
 	}
+	if resp.StatusCode / 100 != 2 {
+		log.Fatalln("Got a non-200 status code", resp.StatusCode, ":", string(respBody))
+	}
 	fmt.Println("Response:")
 	fmt.Println(string(respBody))
 }
@@ -55,6 +58,9 @@ func (c *MimuxClient) deleteRequest(keys []string) {
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Got an error reading from respBody: %v\n", err)
+	}
+	if resp.StatusCode / 100 != 2 {
+		log.Fatalln("Got a non-200 status code", resp.StatusCode, ":", string(respBody))
 	}
 	fmt.Println("Response:")
 	fmt.Println(string(respBody))
