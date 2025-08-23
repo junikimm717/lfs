@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="8.3"
-BASEURL="https://ftp.gnu.org/gnu/readline"
+BASEURL="https://ftpmirror.gnu.org/readline"
 SRCDIR="readline-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 

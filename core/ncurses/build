@@ -10,9 +10,8 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-#BASEURL="https://ftp.gnu.org/gnu/ncurses"
+BASEURL="https://ftpmirror.gnu.org/ncurses"
 VERSION="6.5"
-BASEURL="https://dev.mit.junic.kim/pkgs"
 SRCDIR="ncurses-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 

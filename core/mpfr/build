@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="4.2.2"
-BASEURL="https://ftp.gnu.org/gnu/mpfr"
+BASEURL="https://ftpmirror.gnu.org/mpfr"
 SRCDIR="mpfr-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 

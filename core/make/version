@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl -s https://ftp.gnu.org/gnu/make/ --retry 5 \
+curl -fLs https://ftpmirror.gnu.org/make/ --retry 5 \
   | grep -oE 'make-[0-9,\.]*\.tar\.gz' \
   | sed 's/make-\([0-9,\.]*\)\.tar\.gz/\1/g' \
   | awk -F. '{printf "%03d%03d%03d %s\n", $1, $2, $3, $0}' \

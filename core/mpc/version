@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl -s https://ftp.gnu.org/gnu/mpc/ --retry 5 \
+curl -fLs https://ftpmirror.gnu.org/mpc/ --retry 5 \
   | grep -oE 'mpc-[0-9,\.]*\.tar\.gz' \
   | sed 's/mpc-\([0-9,\.]*\)\.tar\.gz/\1/g' \
   | awk -F. '{printf "%03d%03d%03d %s\n", $1, $2, $3, $0}' \

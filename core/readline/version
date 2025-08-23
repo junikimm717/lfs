@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl --retry 10 --retry-delay 5 --retry-connrefused "https://ftp.gnu.org/gnu/readline/" 2> /dev/null \
+curl -fLs "https://ftpmirror.gnu.org/readline/" 2> /dev/null \
   | grep -E '\"readline-[0-9,\.]*\.tar\.gz\"' \
   | sed \
     -e 's/^.*href="readline-\([0-9\.]*\)\.tar\.gz\".*$/\1/gp'\

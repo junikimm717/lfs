@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="6.3.0"
-BASEURL="https://ftp.gnu.org/gnu/gmp"
+BASEURL="https://ftpmirror.gnu.org/gmp"
 SRCDIR="gmp-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
