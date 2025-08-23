@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mimux</title>
+    <link rel="icon" href="https://fav.farm/cat" />
+    <link href="css/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <div class="mx-auto w-[clamp(0%,50%,600px)] shadow-md border border-gray-300 p-4 m-3">
+      <h1 class="my-2 font-bold text-3xl">
+        Mimux Packages
+      </h1>
+      <p class="my-2">
+        <a
+          href="https://junic.kim"
+          class="underline decoration-blue-700 hover:font-bold"
+        >
+          Juni Kim's
+        </a>
+        personal experiment with writing a from-scratch Linux-based OS
+        bootstrapper. See the source code on
+        <a
+          href="https://github.com/junikimm717/lfs" 
+          class="underline decoration-blue-700 hover:font-bold"
+        >
+          GitHub.
+        </a>
+      </p>
+      <h2 class="my-2 text-xl">
+        {{with .Updated}}
+          {{if eq .UpToDate .Total}}
+          <strong class="text-green-800">{{.UpToDate}}/{{.Total}}</strong>
+          {{else}}
+          <strong class="text-red-800">{{.UpToDate}}/{{.Total}}</strong>
+          {{end}}
+          Packages Updated
+        {{end}}
+      </h2>
+      <table class="rounded-lg my-2 text-md table-auto p-2">
+        <thead class="font-bold text-lg">
+          <tr>
+            <td class="p-1">Package</td>
+            <td class="p-1">Version</td>
+            <td class="p-1"></td>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Packages}}
+          <tr class="font-mono">
+            <td class="border p-1">{{.Name}}</td>
+            {{if .Updated}}
+            <td class="border p-1 text-green-800">{{.Current}}</td>
+            <td class="p-1 min-w-[40px]"></td>
+            {{else}}
+            <td class="border p-1 text-red-800">{{.Current}}</td>
+            <td class="p-1 min-w-[40px]">&rarr; {{.Latest}}</td>
+            {{end}}
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
