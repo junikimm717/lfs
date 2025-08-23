@@ -1,5 +1,10 @@
 #!/bin/sh
 
-curl -s https://gmplib.org/ --retry 5 \
-  | grep -Eo 'The current stable release is [0-9]+\.[0-9]+\.[0-9]+' \
-  | cut -d' ' -f 6
+curl -s https://mirrors.ocf.berkeley.edu/gnu/gmp/ \
+  | grep -oE 'gmp-[0-9,\.]*\.tar\.gz' \
+  | sed 's/gmp-\([0-9,\.]*\)\.tar\.gz/\1/g' \
+  | awk -F. '{printf "%03d%03d%03d %s\n", $1, $2, $3, $0}' \
+  | uniq \
+  | sort -n \
+  | tail -n 1 \
+  | cut -d ' ' -f 2
