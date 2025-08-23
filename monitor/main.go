@@ -11,7 +11,7 @@ import (
 
 var APIKEY string
 
-func init() {
+func loadEnv() {
 	// we do not care about whether godotenv fails.
 	godotenv.Load()
 	APIKEY = os.Getenv("MIMUX_API_KEY")
@@ -24,6 +24,7 @@ func main() {
 	serveCmd := &cobra.Command{
 		Use: "serve",
 		Run: func(cmd *cobra.Command, args []string) {
+			loadEnv()
 			port, _ := cmd.Flags().GetInt("port")
 			savePath, _ := cmd.Flags().GetString("save")
 			server := InitMimuxServer(port, savePath)
@@ -36,6 +37,7 @@ func main() {
 	sendCmd := &cobra.Command{
 		Use: "send",
 		Run: func(cmd *cobra.Command, args []string) {
+			loadEnv()
 			path, _ := cmd.Flags().GetString("path")
 			baseUrl, _ := cmd.Flags().GetString("baseurl")
 			if len(path) == 0 || len(baseUrl) == 0 {
@@ -57,6 +59,7 @@ func main() {
 	deleteCmd := &cobra.Command{
 		Use: "delete",
 		Run: func(cmd *cobra.Command, args []string) {
+			loadEnv()
 			baseUrl, _ := cmd.Flags().GetString("baseurl")
 			if len(baseUrl) == 0 {
 				fmt.Println("You must provide a nonempty base url (CLI option or MIMUX_BASE_URL env).")

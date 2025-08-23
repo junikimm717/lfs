@@ -7,7 +7,6 @@
 *.tar.xz
 *.zip
 *.log
-*.html
 *.fd
 ./misc/edk2-arm-vars.fd
 *.pem

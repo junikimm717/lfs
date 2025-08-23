@@ -101,7 +101,9 @@ func (m *MimuxServer) handleJson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *MimuxServer) handleRoot(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
+	if r.Method == http.MethodGet {
+		m.renderFrontPage(w)
+	} else if r.Method == http.MethodPost {
 		// failed authentication logic
 		if !m.authenticate(r) {
 			w.WriteHeader(http.StatusUnauthorized)

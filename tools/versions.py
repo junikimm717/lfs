@@ -84,6 +84,7 @@ for idx, vscript in enumerate(version_scripts):
         sys.stderr.flush()
 
 
+DISTDIR.mkdir(parents=True, exist_ok=True)
 (DISTDIR / "mimux_updates.json").write_text(json.dumps(cidata, indent=2), encoding="utf-8")
 
 if updates:
