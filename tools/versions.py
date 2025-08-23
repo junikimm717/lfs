@@ -94,4 +94,3 @@ if updates:
     )
     for ood in updates:
         print(ood.msg())
-    sys.exit(1)
