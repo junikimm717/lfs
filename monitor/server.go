@@ -17,7 +17,7 @@ type MimuxServer struct {
 	server   *http.Server
 	mux      *http.ServeMux
 	Port     int
-	packages PackageDB
+	Data ServerData
 	SavePath string
 }
 
@@ -38,17 +38,60 @@ func (m *MimuxServer) authenticate(r *http.Request) bool {
 	return authorized
 }
 
+// 초기화때만 사용됨
+func ReadServerDataFromPath(savePath string) (*ServerData, error) {
+	body, err := os.ReadFile(savePath)
+	if err != nil {
+		return nil, err
+	}
+	data := &ServerData{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
+	if data.LastUpdated == 0 {
+		return nil, errors.New("LastUpdated is zero, maybe we're on a legacy format.")
+	}
+
+	validationErrors := []string{}
+	for key := range data.Packages {
+		if len(data.Packages[key].Current) == 0 {
+			validationErrors = append(validationErrors, fmt.Sprintf(
+				"field \"%v\" lacks a field current", key,
+			))
+		}
+		if len(data.Packages[key].Latest) == 0 {
+			validationErrors = append(validationErrors, fmt.Sprintf(
+				"field \"%v\" lacks a field latest", key,
+			))
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return nil, errors.New(
+			strings.Join(validationErrors, "\n"),
+		)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+
 func (m *MimuxServer) readSave() {
-	db, err := ReadPackageDBFromPath(m.SavePath)
+	db, err := ReadServerDataFromPath(m.SavePath)
 	if err != nil {
 		log.Printf("Starting with empty package DB. Failed to read in package db at %v: %v\n", m.SavePath, err.Error())
 		return
 	}
-	m.packages = *db
+	m.Data = *db
 }
 
 func (m *MimuxServer) writeSave() {
-	body, err := json.Marshal(m.packages)
+	// this is where we get last updated stuff going.
+	m.Data.LastUpdated = time.Now().UnixMilli()
+	body, err := json.Marshal(m.Data)
 	if err != nil {
 		panic("Impossible. m.packages must always be marshalable")
 	}
@@ -58,37 +101,9 @@ func (m *MimuxServer) writeSave() {
 	}
 }
 
-func ReadPackageDB(body []byte) (*PackageDB, error) {
-	data := PackageDB{}
-	err := json.Unmarshal(body, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	validationErrors := []string{}
-	for key := range data {
-		if len(data[key].Current) == 0 {
-			validationErrors = append(validationErrors, fmt.Sprintf(
-				"field \"%v\" lacks a field current", key,
-			))
-		}
-		if len(data[key].Latest) == 0 {
-			validationErrors = append(validationErrors, fmt.Sprintf(
-				"field \"%v\" lacks a field latest", key,
-			))
-		}
-	}
-	if len(validationErrors) > 0 {
-		return nil, errors.New(
-			strings.Join(validationErrors, "\n"),
-		)
-	}
-	return &data, nil
-}
-
 func (m *MimuxServer) handleJson(w http.ResponseWriter, r *http.Request) {
 	if len(r.Method) == 0 || r.Method == http.MethodGet {
-		data, err := json.Marshal(m.packages)
+		data, err := json.Marshal(m.Data.Packages)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Println("Got an error from unmarshalling json:", err)
@@ -128,7 +143,7 @@ func (m *MimuxServer) handleRoot(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for key := range *data {
-			m.packages[key] = (*data)[key]
+			m.Data.Packages[key] = (*data)[key]
 		}
 		m.writeSave()
 		w.WriteHeader(http.StatusOK)
@@ -163,10 +178,10 @@ func (m *MimuxServer) handleDel(w http.ResponseWriter, r *http.Request) {
 
 	messages := make([]string, 0, 5)
 	for _, key := range data {
-		if _, ok := m.packages[key]; !ok {
+		if _, ok := m.Data.Packages[key]; !ok {
 			messages = append(messages, fmt.Sprintf("%v not found", key))
 		} else {
-			delete(m.packages, key)
+			delete(m.Data.Packages, key)
 		}
 	}
 	w.WriteHeader(http.StatusOK)
@@ -175,9 +190,9 @@ func (m *MimuxServer) handleDel(w http.ResponseWriter, r *http.Request) {
 
 func (m *MimuxServer) getUpdated() UpdatedInfo {
 	res := UpdatedInfo{}
-	for key, _ := range m.packages {
+	for key, _ := range m.Data.Packages {
 		res.Total++
-		if m.packages[key].Latest == m.packages[key].Current {
+		if m.Data.Packages[key].Latest == m.Data.Packages[key].Current {
 			res.UpToDate++
 		}
 	}
@@ -208,7 +223,10 @@ func (m *MimuxServer) handleBadge(w http.ResponseWriter, r *http.Request) {
 
 func InitMimuxServer(port int, savePath string) MimuxServer {
 	m := MimuxServer{}
-	m.packages = make(PackageDB)
+	m.Data = ServerData{
+		LastUpdated: time.Now().UnixMilli(),
+		Packages: make(PackageDB),
+	}
 	m.SavePath = savePath
 	m.mux = http.NewServeMux()
 	m.server = &http.Server{
