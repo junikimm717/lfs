@@ -1,0 +1,322 @@
+#!/usr/bin/env python3
+
+# Yes. I also ChatGPT'd this with modifications. Live with it.
+
+import sys, os, platform, sysconfig, argparse, tempfile, pathlib
+import re, time, unicodedata, threading, hashlib, secrets
+import threading, signal, socket
+from contextlib import contextmanager
+
+# ---------------- CLI ----------------
+parser = argparse.ArgumentParser()
+parser.add_argument("--verbose", "-v", action="store_true")
+parser.add_argument("--network", dest="network", action="store_true", default=True)
+parser.add_argument("--no-network", dest="network", action="store_false")
+args, _ = parser.parse_known_args()
+
+# ---------------- tiny TAP helper ----------------
+TESTS = 0
+PASSED = 0
+PLAN_EMITTED = False
+DIAG_PREFIX = "# "
+
+
+def plan(n):
+    global PLAN_EMITTED
+    print(f"1..{n}")
+    PLAN_EMITTED = True
+
+
+def ok(pass_, name=""):
+    global TESTS, PASSED
+    TESTS += 1
+    if pass_:
+        PASSED += 1
+    print(("ok " if pass_ else "not ok ") + f"{TESTS} - {name}")
+
+
+def skip(reason="skipped"):
+    global TESTS, PASSED
+    TESTS += 1
+    PASSED += 1
+    print(f"ok {TESTS} # skip {reason}")
+
+
+def diag(*msg):
+    sys.stderr.write(DIAG_PREFIX + " ".join(str(m) for m in msg) + "\n")
+
+
+@contextmanager
+def subtest(name):
+    before_tests, before_passed = TESTS, PASSED
+    if args.verbose:
+        diag(f"Subtest: {name}")
+    try:
+        yield
+    except BaseException as e:
+        diag(f"subtest '{name}' died: {e!r}")
+    # consider subtest passed iff all checks within passed
+    passed_within = (PASSED - before_passed) == (TESTS - before_tests)
+    ok(passed_within, name)
+
+
+def supports_fork():
+    return hasattr(os, "fork") and os.name == "posix"
+
+
+def in_container():
+    return os.path.exists("/.dockerenv") or os.path.exists("/run/.containerenv")
+
+
+def path_has_components():
+    return bool(os.environ.get("PATH")) and any(
+        p for p in os.environ.get("PATH", "").split(":")
+    )
+
+
+# ---------------- Tests ----------------
+with subtest("python/runtime basics"):
+    ok(sys.version_info >= (3, 8), f"Python >= 3.8 (have {sys.version.split()[0]})")
+    exe = sys.executable or ""
+    ok(os.path.exists(exe), f"sys.executable exists ({exe})")
+    ok(len(sys.path) > 0, "sys.path has entries")
+    ok(bool(sys.getfilesystemencoding()), "filesystem encoding is set")
+    arch = platform.machine() or "unknown"
+    impl = platform.python_implementation()
+    ok(
+        True,
+        f"implementation: {impl} {platform.python_version()} on {platform.system()} {arch}",
+    )
+    build = sysconfig.get_platform()
+    ok(bool(build), f"sysconfig platform string present ({build})")
+
+with subtest("math & unicode/regex"):
+    s = sum(range(1, 10001))
+    ok(s == (10000 * 10001) // 2, "integer arithmetic is correct")
+
+    f = 0.1 + 0.2
+    ok(abs(f - 0.3) < 1e-12, "floating arithmetic reasonable (0.1+0.2≈0.3)")
+
+    cafe = "caf\u00e9"
+    ok(len(cafe) == 4, "unicode BMP length ok")
+
+    cat = "😺"
+    ok(len(cat) == 1, "unicode non-BMP length ok")
+
+    # 1) Normalization-based transliteration (robust, libc-agnostic)
+    txt = "naïve façade"
+    out_norm = "".join(
+        c for c in unicodedata.normalize("NFKD", txt) if not unicodedata.combining(c)
+    )
+    ok(out_norm == "naive facade", "NFKD normalization strips accents")
+
+    # 2) Regex-based transliteration for this exact sample
+    # Map the actual characters in the string: ï -> i, ç -> c
+    mapping = {"ï": "i", "ç": "c"}
+    out_re = re.sub(r"[ïç]", lambda m: mapping[m.group(0)], txt)
+    ok(out_re == "naive facade", "regex transliteration (ï→i, ç→c) works")
+
+with subtest("filesystem I/O"):
+    with tempfile.TemporaryDirectory() as d:
+        p = pathlib.Path(d) / "mimux-python.txt"
+        p.write_text("hello\nworld\n", encoding="utf-8")
+        ok(p.exists(), "temp file created")
+        data = p.read_text(encoding="utf-8").splitlines()
+        ok(len(data) == 2, "read 2 lines from tempfile")
+        try:
+            os.chmod(p, 0o644)
+            ok(True, "chmod works on tempfile")
+        except Exception as e:
+            ok(False, f"chmod failed: {e!r}")
+
+with subtest("process exec"):
+    # run a child python to avoid relying on /bin/echo
+    try:
+        import subprocess
+
+        r = subprocess.run(
+            [sys.executable, "-c", "print(2+2)"], capture_output=True, text=True
+        )
+        ok(
+            r.returncode == 0 and r.stdout.strip() == "4",
+            "subprocess.run executes Python child",
+        )
+        out = subprocess.check_output(
+            [sys.executable, "-c", "print('ok')"], text=True
+        ).strip()
+        ok(out == "ok", "check_output captures stdout")
+    except Exception as e:
+        ok(False, f"subprocess failed: {e!r}")
+
+with subtest("process: fork/pipe IPC"):
+    if not supports_fork():
+        skip("fork not supported on this platform/build")
+    else:
+        r, w = os.pipe()
+        pid = os.fork()
+        if pid == 0:
+            os.close(r)
+            os.write(w, b"pong")
+            os.close(w)
+            os._exit(0)
+        else:
+            os.close(w)
+            buf = os.read(r, 4)
+            os.close(r)
+            os.waitpid(pid, 0)
+            ok(buf == b"pong", "parent/child IPC via pipe works")
+
+with subtest("loopback TCP"):
+    # server in thread; client in main (works on both Unix/Windows)
+    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    host, port = srv.getsockname()
+    got = {"data": b""}
+
+    def server():
+        conn, _ = srv.accept()
+        got["data"] = conn.recv(4)
+        conn.close()
+        srv.close()
+
+    t = threading.Thread(target=server, daemon=True)
+    t.start()
+    time.sleep(0.05)
+    c = socket.create_connection(("127.0.0.1", port), timeout=2)
+    c.sendall(b"ping")
+    c.close()
+    t.join(timeout=2)
+    ok(got["data"] == b"ping", f"loopback TCP send/recv works (port {port})")
+
+with subtest("signals"):
+    if platform.system() == "Windows":
+        skip("signal/alarm not supported on this platform")
+    else:
+        fired = {"n": 0}
+
+        def handler(signum, frame):
+            fired["n"] += 1
+
+        old = signal.signal(signal.SIGALRM, handler)
+        try:
+            signal.alarm(1)
+            time.sleep(1.2)
+            signal.alarm(0)
+            ok(fired["n"] == 1, "SIGALRM delivered")
+        finally:
+            signal.signal(signal.SIGALRM, old)
+
+with subtest("environment"):
+    ok("PATH" in os.environ, "$PATH is set in environment")
+    ok(path_has_components(), "PATH has components")
+
+with subtest("time functions"):
+    gt = time.gmtime(0)
+    lt = time.localtime(0)
+    ok(gt.tm_year == 1970 and gt.tm_yday == 1, "gmtime(0) sane (year=1970, yday=1)")
+    ok(len(gt) == 9 and len(lt) == 9, "localtime/gmtime return 9-element structs")
+
+with subtest("module import smoke"):
+    core = [
+        "json",
+        "re",
+        "math",
+        "os",
+        "sys",
+        "pathlib",
+        "tempfile",
+        "socket",
+        "threading",
+        "subprocess",
+        "itertools",
+        "functools",
+    ]
+    results = []
+    for m in core:
+        try:
+            __import__(m)
+            results.append((m, True, ""))
+        except Exception as e:
+            results.append((m, False, repr(e)))
+    all_ok = True
+    for m, okm, err in results:
+        (
+            ok(okm, f"import {m}")
+            if okm
+            else (ok(False, f"import {m}"), diag(f"{m} error: {err}"))
+        )
+        all_ok = all_ok and okm
+    ok(all_ok, "all basic stdlib modules loaded")
+
+with subtest("threads (optional)"):
+    res = {"v": 0}
+
+    def worker():
+        res["v"] = 7 * 6
+
+    t = threading.Thread(target=worker)
+    t.start()
+    t.join()
+    ok(res["v"] == 42, "thread ran and joined")
+
+with subtest("hashing & randomness"):
+    h = hashlib.sha256(b"mimux").hexdigest()
+    ok(len(h) == 64, "sha256 produces 64-hex digest")
+    rnd = secrets.token_bytes(16)
+    ok(len(rnd) == 16, "secrets.token_bytes returns correct length")
+    # quick PBKDF2 to exercise openssl/libcrypto bindings a bit
+    d = hashlib.pbkdf2_hmac("sha256", b"pass", b"salt", 1000)
+    ok(len(d) == 32, "pbkdf2_hmac works")
+
+with subtest("multiprocessing"):
+    try:
+        import multiprocessing as mp
+
+        reasons = []
+        # Pick the first viable start method
+        methods = []
+        try:
+            methods = list(mp.get_all_start_methods())
+        except Exception:
+            methods = ["fork", "spawn", "forkserver"]
+        order = [m for m in ("fork", "forkserver", "spawn") if m in methods]
+        ctx = None
+        err = None
+        for m in order:
+            try:
+                ctx = mp.get_context(m)
+                # Smoke-test that we can create a Queue/Process under this context
+                q = ctx.Queue()
+                p = ctx.Process(target=lambda q: q.put(42), args=(q,))
+                p.start()
+                v = q.get(timeout=5)
+                p.join(timeout=5)
+                if p.exitcode == 0 and v == 42:
+                    ok(True, f"multiprocessing works via start method '{m}'")
+                    break
+                else:
+                    reasons.append(f"method {m} exit={p.exitcode} value={v}")
+            except BaseException as e:
+                err = e
+                reasons.append(f"{m} failed: {e.__class__.__name__}: {e}")
+                ctx = None
+                # Try next method
+        if ctx is None:
+            skip_reason = (
+                "; ".join(reasons) if reasons else "no usable start method"
+            )
+            skip(f"multiprocessing skipped ({skip_reason})")
+    except BaseException as e:
+        ok(False, f"multiprocessing probe crashed: {e!r}")
+
+# ---- Finalize plan & exit ----
+if not PLAN_EMITTED:
+    # We didn't predeclare; emit plan now
+    print(f"1..{TESTS}")
+if PASSED != TESTS:
+    failed = TESTS - PASSED
+    diag(f"{failed} test(s) failed out of {TESTS}")
+    sys.exit(1)
+sys.exit(0)

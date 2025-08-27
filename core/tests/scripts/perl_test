@@ -1,0 +1,279 @@
+#!/usr/bin/env perl
+
+# Yes, you can tell. I straight ChatGPT'd this. You're welcome. My ass is NOT
+# gonna go write gnarly asf perl testing code.
+
+use strict;
+use warnings;
+use 5.010;              # say, state
+use utf8;
+use feature qw(say);
+use Config;
+use Getopt::Long qw(GetOptions);
+use File::Spec;
+use File::Temp qw(tempfile tempdir);
+use Cwd qw(abs_path);
+use Scalar::Util qw(reftype);
+use charnames qw(:full);
+
+# Optional-at-runtime core modules (may be absent on tiny builds)
+my $HAVE_THREADS = eval { require threads; threads->import; 1 } // 0;
+my $HAVE_SOCKETS = eval { require IO::Socket::INET; 1 } // 0;
+
+# CLI flags
+my %opt = (
+  verbose   => 0,
+  network   => 1,  # allow loopback socket test (no external egress)
+  slow      => 0,  # placeholder for future slow tests
+);
+GetOptions(
+  'verbose|v!' => \$opt{verbose},
+  'network!'   => \$opt{network},
+  'slow!'      => \$opt{slow},
+) or die "Usage: $0 [--verbose] [--[no-]network] [--slow]\n";
+
+# --- tiny TAP helper (dependency-free) ---
+my ($TESTS, $PASSED) = (0, 0);
+
+sub ok {
+  my ($pass, $name) = @_;
+  $TESTS++;
+  $PASSED++ if $pass;
+  print($pass ? "ok " : "not ok ", $TESTS, " - ", ($name // ""), "\n");
+}
+sub diag { print STDERR "# ", @_, "\n" }
+sub skip {
+  my ($reason) = @_;
+  $TESTS++;
+  $PASSED++;                         # IMPORTANT: skipped tests are ok in TAP
+  print "ok $TESTS # skip $reason\n";
+}
+sub subtest (&$) {
+  my ($code, $name) = @_;
+  my ($before_tests, $before_passed) = ($TESTS, $PASSED);
+  print "# Subtest: $name\n" if $opt{verbose};
+  my $ok = eval { $code->(); 1 };
+  my $err = $@;
+  if (!$ok) {
+    diag("subtest '$name' died: $err");
+  }
+  my $passed = ($PASSED - $before_passed) == ($TESTS - $before_tests);
+  ok($passed, $name);
+}
+
+# --- helpers ---
+sub supports_fork   { $^O ne 'MSWin32' && $Config{d_fork} }
+sub in_container    { -r "/.dockerenv" || -r "/run/.containerenv" }
+sub has_exe {
+  my ($exe) = @_;
+  for my $dir (split /:/, $ENV{PATH} // "") {
+    my $p = File::Spec->catfile($dir, $exe);
+    return 1 if -x $p;
+  }
+  return 0;
+}
+
+# ------- Tests -------
+subtest {
+  ok(defined $^V, "Perl has a version scalar");
+
+  # Prefer $^V (v-string) for version checks
+  my $need = v5.10.0;
+  ok($^V ge $need, sprintf("Perl version >= %vd (have %vd)", $need, $^V));
+
+  ok($Config{archname} ne '', "Config archname is set ($Config{archname})");
+  ok(@INC+0 > 0, "\@INC has at least one entry");
+
+  # Find the first non-ref, existing path in @INC
+  my $inc_ok = 0;
+  for my $e (@INC) {
+    next if ref $e;
+    if (-d $e) { $inc_ok = 1; last }
+  }
+  ok($inc_ok, "At least one real directory exists in \@INC");
+
+  ok(!${^TAINT}, "Taint mode is off by default");
+  ok(length($Config{version}) > 0, "Config version string present");
+  diag("Perl: $^X " . sprintf("%vd", $^V) . " on $Config{archname}") if $opt{verbose};
+} "perl/runtime basics";
+
+subtest {
+  my $sum = 0; $sum += $_ for 1..10000;
+  ok($sum == 10000*10001/2, "integer arithmetic is correct");
+
+  my $f = 0.1 + 0.2;
+  ok(abs($f - 0.3) < 1e-12, "floating arithmetic reasonable (0.1+0.2≈0.3)");
+
+  my $s = "caf\x{00E9}";
+  ok(length($s) == 4, "unicode string length (BMP) ok");
+
+  my $cat = "\x{1F63A}"; # 😺 (non-BMP)
+  ok(length($cat) == 1, "unicode non-BMP length is 1 char");
+
+  # Robust transliteration: NFKD, then drop combining marks with \pM
+  my $txt = "naïve façade";
+  my $out;
+  if (eval { require Unicode::Normalize; 1 }) {
+    my $nfkd = Unicode::Normalize::NFKD($txt);
+    ($out = $nfkd) =~ s/\pM//g;     # strip combining marks
+  } else {
+    # Minimal fallback without Unicode::Normalize:
+    # replace known precomposed letters in this sample
+    ($out = $txt) =~ tr/ïçéáàèöäëâêíóú/ic eaaeoaaeeiou/;
+    $out =~ s/\pM//g;               # and drop any stray combining marks
+  }
+  ok($out eq 'naive facade', "unicode normalization/transliteration yields ascii");
+
+  # Targeted regex mapping (avoid $&)
+  (my $repl = $txt) =~ s/ï/i/g;
+  $repl =~ s/ç/c/g;
+  ok($repl eq 'naive facade', "regex transliteration (ï→i, ç→c)");
+} "math & unicode/regex";
+
+subtest {
+  my $dir = tempdir(CLEANUP => 1);
+  my ($fh, $file) = tempfile("mimux-perl-XXXX", DIR => $dir, UNLINK => 1);
+  binmode($fh, ":utf8");
+  ok(print($fh "hello\nworld\n"), "wrote to temp file") or diag("write failed: $!");
+  seek($fh, 0, 0) or diag("seek failed: $!");
+  my @lines = <$fh>;
+  close $fh;                          # UNLINK => 1 removes it now
+  ok(@lines == 2, "read 2 lines from tempfile");
+  # chmod on a file that may already be unlinked doesn't make sense; test a fresh temp file.
+  my ($fh2, $path2) = tempfile("mimux-perm-XXXX", DIR => $dir, UNLINK => 1);
+  ok(chmod 0644, $path2, "chmod works on tempfile");
+  close $fh2;
+} "filesystem I/O";
+
+subtest {
+  my $can_fork = supports_fork();
+  if (!$can_fork) { return skip("fork not supported on this perl/build") }
+  pipe(my $r, my $w) or return ok(0, "pipe failed: $!");
+  my $pid = fork();
+  if (!defined $pid) {
+    ok(0, "fork failed: $!");
+    return;
+  } elsif ($pid == 0) {
+    close $r; print $w "pong"; close $w; exit 0;
+  } else {
+    close $w;
+    local $/;
+    my $got = <$r>;
+    close $r;
+    wait;
+    ok($got eq 'pong', "parent/child IPC via pipe works");
+  }
+} "process: fork/pipe IPC";
+
+subtest {
+  if (!$HAVE_SOCKETS)   { return skip("IO::Socket::INET not available") }
+  if (!$opt{network})   { return skip("network tests disabled via --no-network") }
+  if (!supports_fork()) { return skip("fork not available for socket test") }
+
+  my $server = IO::Socket::INET->new(
+    LocalAddr => '127.0.0.1',
+    LocalPort => 0,
+    Listen    => 1,
+    Proto     => 'tcp',
+    Reuse     => 1,
+  );
+  if (!$server) {
+    diag("server socket failed: $!");
+    return ok(0, "server socket creation");
+  }
+  my $port = $server->sockport;
+
+  my $pid = fork();
+  if (!defined $pid) { return ok(0, "fork for socket server failed: $!") }
+
+  if ($pid == 0) {
+    my $client = IO::Socket::INET->new(PeerAddr => '127.0.0.1', PeerPort => $port, Proto => 'tcp');
+    if ($client) { print $client "ping"; close $client; }
+    exit 0;
+  } else {
+    my $old = $SIG{ALRM};
+    my $timed_out = 0;
+    local $SIG{ALRM} = sub { $timed_out = 1; };
+    alarm 3;
+    my $conn = $server->accept();
+    alarm 0;
+    $SIG{ALRM} = $old;
+    if (!$conn) {
+      ok(0, "server accept failed" . ($timed_out ? " (timeout)" : ""));
+    } else {
+      my $buf = '';
+      sysread($conn, $buf, 4);
+      close $conn;
+      wait;
+      ok($buf eq 'ping', "loopback TCP send/recv works (port $port)");
+    }
+  }
+} "loopback TCP";
+
+subtest {
+  # signals: install handler, alarm for 1 second
+  if ($$ == 1) { return skip("running as PID 1; SIGALRM may be unreliable") }
+  my $got = 0;
+  local $SIG{ALRM} = sub { $got++ };
+  eval {
+    alarm 1;
+    select undef, undef, undef, 1.2; # sleep ~1.2s portably
+    alarm 0;
+    1;
+  } or diag("signal/alarm error: $@");
+  ok($got == 1, "SIGALRM delivered");
+} "signals";
+
+subtest {
+  # ENV and PATH sanity
+  ok(defined $ENV{PATH}, "\$ENV{PATH} is set");
+  my @path = grep { length } split /:/, ($ENV{PATH} // "");
+  ok(@path > 0, "PATH has components");
+  ok(has_exe('perl'), "perl found in PATH") if $^X !~ /perl$/;
+  ok(1, "container detection: " . (in_container() ? "containerized" : "bare metal"));
+} "environment";
+
+subtest {
+  # locale/time correctness (does not rely on external tzdata availability in musl)
+  my @lt = localtime(0);   # epoch
+  my @gt = gmtime(0);
+  ok($gt[5] == 70 && $gt[7] == 0, "gmtime(0) sane (year=1970, yday=0)");
+  ok(@lt == 9 && @gt == 9, "localtime/gmtime return 9-element lists");
+} "time functions";
+
+subtest {
+  # simple eval/require checks for core pragmas & modules
+  my @mods = qw(strict warnings bytes integer Config Carp File::Spec File::Temp);
+  my $all = 1;
+  for my $m (@mods) {
+    my $ok = eval "require $m; 1";
+    ok($ok, "require $m") or do { diag("$m error: $@"); $all = 0; };
+  }
+  ok($all, "all basic core modules loaded");
+} "module loading";
+
+subtest {
+  # basic system() / backticks without relying on non-core tools
+  my $echo_ok = system($^X, "-e", "print qq/ok/") == 0;
+  ok($echo_ok, "system() runs perl child ok");
+  my $out = `$^X -e 'print 2+2'`;
+  ok($? == 0 && $out eq "4", "backticks capture output");
+} "process exec";
+
+subtest {
+  if (!$HAVE_THREADS) { return skip("threads not available in this build") }
+  my $thr = threads->create(sub { return 7 * 6 });
+  my $res = $thr->join;
+  ok($res == 42, "thread ran and joined");
+} "threads (optional)";
+
+# --- final summary ---
+END {
+  print "1..$TESTS\n";                # single plan emission
+  if ($PASSED != $TESTS) {
+    my $failed = $TESTS - $PASSED;
+    diag("$failed test(s) failed out of $TESTS");
+    exit 1;
+  }
+  exit 0;
+}

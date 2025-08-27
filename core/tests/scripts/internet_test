@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+
+cd /tmp
+curl -fL https://mit.junic.kim/ -o mit.html
+wget https://mit.junic.kim/ -O mit.html
+rm -rf mit.html
