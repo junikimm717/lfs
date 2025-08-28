@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -eu
+
+find /usr/test -name '*-test' -exec {} \;

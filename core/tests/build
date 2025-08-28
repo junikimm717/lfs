@@ -25,7 +25,8 @@ extract() {
 makeinstall() {
   echo "installing tests..."
   install -d "$ROOTFS/usr/test"
-  install -m755 ./scripts/*_test "$ROOTFS/usr/test"
+  install -m755 ./scripts/*-test "$ROOTFS/usr/test"
+  install -Dm755 ./mimux-test "$ROOTFS/usr/bin/"
 }
 
 clear() {
