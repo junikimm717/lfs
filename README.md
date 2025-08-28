@@ -44,6 +44,10 @@ aarch64:
 
 ## Default OS Environment
 
+![login and fastfetch](./fastfetch.png)
+
+![bootloader screen](./limine.png)
+
 The default configured bootloader will supply you with three boot modes:
 
 1. *Mimux \$kernel* - Normal booting, normal init runs and you get dropped into a
