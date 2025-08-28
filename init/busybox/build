@@ -9,9 +9,10 @@ test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
   exit 1
 
-BASEURL="https://dev.mit.junic.kim/pkgs"
-SRCDIR="busybox-1.36.1"
-TARBALL="$SRCDIR.tar.bz2"
+VERSION="1.36.1"
+BASEURL="https://github.com/mirror/busybox/archive/refs/tags"
+SRCDIR="busybox-$(echo "$VERSION" | tr '.' '_')"
+TARBALL="$SRCDIR.tar.gz"
 
 download() {
   cd "$DIR"
@@ -20,7 +21,8 @@ download() {
     return
   fi
   echo "downloading busybox source"
-  curl -LOf $BASEURL/$TARBALL
+  set -x
+  curl -Lf "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
 }
 
 extract() {
@@ -30,7 +32,7 @@ extract() {
     exit 1
   fi
   echo "extracting busybox source and applying config..."
-  tar xjf "$TARBALL"
+  tar xzf "$TARBALL"
   cd "$SRCDIR"
   patch -p1 < "$DIR/net.patch"
   cd "$DIR"

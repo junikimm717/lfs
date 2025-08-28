@@ -10,9 +10,9 @@ test -z "$INOSENV" && \
   exit 1
 
 VERSION="1.36.1"
-BASEURL="https://dev.mit.junic.kim/pkgs"
-SRCDIR="busybox-$VERSION"
-TARBALL="$SRCDIR.tar.bz2"
+BASEURL="https://github.com/mirror/busybox/archive/refs/tags"
+SRCDIR="busybox-$(echo "$VERSION" | tr '.' '_')"
+TARBALL="$SRCDIR.tar.gz"
 
 download() {
   cd "$DIR"
@@ -21,7 +21,8 @@ download() {
     return
   fi
   echo "downloading busybox source"
-  curl -LOf $BASEURL/$TARBALL
+  set -x
+  curl -Lf "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
 }
 
 HOSTCC="$(PATH='/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin' command -v gcc)"
@@ -29,6 +30,7 @@ export HOSTCC
 
 menuconfig() {
   cd "$DIR/$SRCDIR"
+  # STUPID busybox and HOSTCC (same issues as kernel) GAHHHHHHHH
   LD_LIBRARY_PATH=/lib:/usr/lib make menuconfig HOSTCC="$HOSTCC"
 }
 
@@ -39,7 +41,7 @@ extract() {
     exit 1
   fi
   echo "extracting busybox source and applying config..."
-  tar xjf "$TARBALL"
+  tar xzf "$TARBALL"
   cd "$SRCDIR"
   patch -p1 < "$DIR/net.patch"
   cd "$DIR"

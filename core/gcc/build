@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eux
+set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIR"
@@ -11,8 +11,8 @@ test -z "$INOSENV" && {
 }
 
 VERSION="14.3.0"
-BASEURL="https://dev.mit.junic.kim/pkgs"
 SRCDIR="gcc-$VERSION"
+BASEURL="https://ftpmirror.gnu.org/gcc/$SRCDIR"
 TARBALL="$SRCDIR.tar.xz"
 
 BUILDDIR="dist"
@@ -25,7 +25,7 @@ download() {
     return
   fi
 
-  curl -LOf $BASEURL/$TARBALL
+  curl -LOf "$BASEURL/$TARBALL"
 }
 
 extract() {

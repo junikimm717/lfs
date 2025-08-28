@@ -98,9 +98,8 @@ Please do note that using self-hosted tarballs like this is not usually desired.
 Updating these package versions requires manually updating the dev.mit.junic.kim
 mirror to include those tarballs.
 
-The following packages use dev.mit.junic.kim:
-
-- busybox
+For now, only busybox and the custom cross compiling toolchain uses
+dev.mit.junic.kim. Most of the other packages now have different mirrors.
 
 ### Manual Version Management
 
