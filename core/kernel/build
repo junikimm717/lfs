@@ -32,6 +32,12 @@ download() {
   curl -LOf "$BASEURL/$TARBALL"
 }
 
+# this script involves injecting a logo into the mimux tree. To get the ascii
+# ppm logo from a jpeg, you need netpbm and imagemagick.
+
+# convert cat.jpg -resize 80x80 -colors 224 /tmp/cat.ppm
+# pnmnoraw /tmp/cat.ppm > ./cat.ppm
+
 extract() {
   cd "$DIR"
   echo "extracting kernel source and applying config..."
@@ -43,6 +49,11 @@ extract() {
   # config that is slimmed down and reduces used modules
   cp -p "./configs/nomodules.config" "$SRCDIR/.config"
   cd "$DIR/$SRCDIR"
+  # pnmtologo script
+  gcc "$DIR/pnmtologo.c" -o "$DIR/$SRCDIR/pnmtologo"
+  cp "$DIR/cat.ppm" drivers/video/logo/logo_linux_clut224.ppm
+  "$DIR/$SRCDIR/pnmtologo" -t clut224 "$DIR/cat.ppm" > "$DIR/$SRCDIR/drivers/video/logo/logo_linux_clut224.c"
+  #"$DIR/$SRCDIR/pnmtologo" -t clut224 "$DIR/cat.ppm" > "$DIR/modified_logo.c"
 }
 
 

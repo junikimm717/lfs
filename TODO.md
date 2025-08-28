@@ -2,6 +2,8 @@
 
 ## Priority
 
+- [ ] Mimi-themed stuff (fastfetch logo, maybe kernel stuff?, shell prompt, ...)
+
 - [ ] Please do checksums and gpg key things :)
 - [P] Get a meta-build system working (that works inside the chroot). The
   core is supposed to be stupid for a reason. Package management should be more
