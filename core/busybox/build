@@ -48,7 +48,7 @@ extract() {
   # actually skull emoji of a patch
   sed -i\
     -e "s|main|int main|g"\
-    ./$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh
+    "./$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh"
   cp -a ./config "$SRCDIR/.config"
 }
 
