@@ -76,3 +76,6 @@ build binutils
 build gcc
 build mandoc
 build kbd
+
+# install tests
+build tests
