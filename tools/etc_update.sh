@@ -15,3 +15,4 @@ DIR="$(realpath "$DIR" )"
 mkdir -p "$ROOTFS/home/mimi"
 rsync -a "$DIR/etc/" "$ROOTFS/etc/" || exit 1
 echo "Mimux 0.1-dev-$(git rev-parse HEAD) ($(arch))" > "$ROOTFS/etc/issue"
+echo "VERSION=\"0.1-dev-$(git rev-parse HEAD)\"" >> "$ROOTFS/etc/os-release"
