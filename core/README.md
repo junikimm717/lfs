@@ -107,11 +107,10 @@ The packages that currently do not have version scripts attached (and therefore
 require manually checking for updates) are:
 
 - `certs` - certificates get continually updated, a script called `update-cacert`
-  is also provided within the mimux env
+  is also provided within the mimux env.
 - `perl` - I have yet to figure how to package perl reliably across different
   versions. The current packaging system only works for 5.40.2 because we inject
   a version-specific Makefile.
-- `tzdata`
 
 ## Environment Variables
 

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+curl -fsL https://data.iana.org/time-zones/releases/ \
+  | grep -oE '[0-9]{4}[a-z].tar.gz' \
+  | sed 's/^\([0-9]\{4\}[a-z]\)\.tar\.gz$/\1/g' \
+  | sort -r \
+  | uniq \
+  | head -n 1
