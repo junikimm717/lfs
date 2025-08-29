@@ -64,6 +64,9 @@ makeinstall() {
 
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
+
+  # default timezone should be New York (AKA concretehouse's TZ)
+  ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
 }
 
 clear() {
