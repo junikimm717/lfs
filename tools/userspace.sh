@@ -32,6 +32,8 @@ chmod 777 "$ROOTFS/tmp"
 rm -rf "$ROOTFS/usr/lib64"
 ln -sfn lib "$ROOTFS/usr/lib64"
 
+ln -sfn bin "$ROOTFS/usr/sbin"
+
 "$DIR/etc_update.sh"
 ln -sfn /usr/share/zoneinfo/America/New_York "$ROOTFS/etc/localtime"
 

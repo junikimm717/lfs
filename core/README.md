@@ -94,12 +94,14 @@ This is a VPS hosted by Juni, the creator of Mimux, that contains tarballs for
 select tarballs for which the download process is occasionally unstable. It also
 hosts the musl toolchains used to bootstrap Mimux.
 
-Please do note that using self-hosted tarballs like this is not usually desired.
-Updating these package versions requires manually updating the dev.mit.junic.kim
-mirror to include those tarballs.
+I have been able to eliminate dependence on dev.mit.junic.kim for all packages
+in core by moving to mirrors. Using self-hosted tarballs is not usually desired
+since updating these package versions requires manually updating the
+dev.mit.junic.kim mirror to include those tarballs.
 
-For now, only busybox and the custom cross compiling toolchain uses
-dev.mit.junic.kim. Most of the other packages now have different mirrors.
+Currently, the only package using dev.mit.junic.kim is my custom cross compiling
+toolchain (ripped from
+[static-python](https://github.com/junikimm717/static-python)).
 
 ### Manual Version Management
 

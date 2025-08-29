@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -e
 
 DIR="$(realpath "$(dirname "$0" )" )"
 cd "$DIR"
@@ -15,16 +15,27 @@ test -z "$INOSENV" && {
 
 VERSION="2025b"
 BASEURL="https://data.iana.org/time-zones/releases"
-SRCDIR="tzdata$VERSION"
-TARBALL="$SRCDIR.tar.gz"
+SRCDIR="tz$VERSION"
+TARBALL="tzdata$VERSION.tar.gz"
+TARBALL2="tzcode$VERSION.tar.gz"
+
+export CFLAGS="$CFLAGS -static"
+export LDFLAGS="$LDFLAGS -static"
 
 download() {
   cd "$DIR"
   echo "downloading tzdata source..."
+
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
   else
     curl -LOf $BASEURL/$TARBALL
+  fi
+
+  if test -f "$TARBALL2"; then
+    echo "$TARBALL2 exists, skipping..."
+  else
+    curl -LOf $BASEURL/$TARBALL2
   fi
 
 }
@@ -37,8 +48,9 @@ extract() {
     exit 1
   fi
 
-  mkdir -p "$SRCDIR" && cd "$SRCDIR"
+  mkdir -p "$DIR/$SRCDIR" && cd "$DIR/$SRCDIR"
   tar xzf "$DIR/$TARBALL"
+  tar xzf "$DIR/$TARBALL2"
 }
 
 makeinstall() {
@@ -47,15 +59,17 @@ makeinstall() {
     echo "No source directory to operate on!"
     exit 1
   fi
+  set -x
   cd "$DIR/$SRCDIR"
-  mkdir -p "$ROOTFS/usr/share/zoneinfo"
-  zic -d "$ROOTFS/usr/share/zoneinfo" africa antarctica asia \
-    australasia backward backzone etcetera europe northamerica southamerica
+
+  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {
   cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz \
+    "$SRCDIR" "$TARBALL" "$TARBALL2"
 }
 
 cd "$DIR"
