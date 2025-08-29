@@ -26,7 +26,7 @@ test -z "$bootloader" && {
 }
 
 rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
-kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort | head -n 1)")"
+kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort -r | head -n 1)")"
 
 test -z "$kernel" -o -z "$rootuuid" && exit 1
 

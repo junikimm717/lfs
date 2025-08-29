@@ -21,7 +21,6 @@ download() {
     return
   fi
   echo "downloading busybox source"
-  set -x
   curl -Lf "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
 }
 
