@@ -14,5 +14,6 @@ DIR="$(realpath "$DIR" )"
 # copy over stuff in userspace
 mkdir -p "$ROOTFS/home/mimi"
 rsync -a "$DIR/etc/" "$ROOTFS/etc/" || exit 1
-echo "Mimux 0.1-dev-$(git rev-parse HEAD) ($(arch))" > "$ROOTFS/etc/issue"
-echo "VERSION=\"0.1-dev-$(git rev-parse HEAD)\"" >> "$ROOTFS/etc/os-release"
+VERSION="0.1-dev-$(git rev-parse HEAD | head -c 7)"
+echo "Mimux $VERSION ($(arch))" > "$ROOTFS/etc/issue"
+echo "VERSION=\"$VERSION\"" >> "$ROOTFS/etc/os-release"
