@@ -1,6 +1,6 @@
 #!/bin/sh
 
-curl -fsL https://codeberg.org/api/v1/repos/Limine/Limine/tags 2> /dev/null \
+curl -fsL "https://codeberg.org/api/v1/repos/Limine/Limine/tags?limit=10&page=1" 2> /dev/null \
   | jq -r '.[].name' \
   | grep -E '^v[0-9,\.]+$' \
   | grep -vE 'dev|rc|binary' \
