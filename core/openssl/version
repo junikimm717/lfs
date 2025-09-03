@@ -2,6 +2,7 @@
 
 curl 'https://api.github.com/repos/openssl/openssl/tags' 2> /dev/null \
   | jq -r '.[].name' \
+  | grep -vE 'alpha|beta' \
   | grep '^openssl-3' \
   | sed "s/^openssl-\([0-9,\.]*\)$/\1/g" \
   | head -n 1

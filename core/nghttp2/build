@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="1.66.0"
+VERSION="1.67.0"
 BASEURL="https://github.com/nghttp2/nghttp2/releases/download/v$VERSION"
 SRCDIR="nghttp2-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
