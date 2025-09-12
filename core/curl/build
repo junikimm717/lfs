@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="8.15.0"
+VERSION="8.16.0"
 TAG="curl-$(echo $VERSION | tr '.' '_')"
 BASEURL="https://github.com/curl/curl/releases/download/$TAG"
 SRCDIR="curl-$VERSION"
