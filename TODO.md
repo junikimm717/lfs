@@ -16,6 +16,7 @@
 
 - [ ] Figure out cross-compilation (can we do this?? hmm...)
 - [ ] Rewrite the init system in go (statically linked)?? hmm...
+- [ ] Create a container runtime for the mimux rootfs specifically?
 
 - [ ] Long-term Project: Get a GUI running with a browser
   - [ ] Firefox, Chromium, or something minimal with webkit?

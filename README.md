@@ -6,14 +6,19 @@
 [![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
 [![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025).
-Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
-(musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
-openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025). Bootstrapping a
+from-scratch Linux-based OS with complete toolchain and runtime (musl libc, gcc,
+chrony, runit), manually packaging 30+ core utilities (busybox, openssl, perl)
+into a <600 MB bootable image, supporting x86_64 and aarch64.
 
-Mimux aims to be up-to-date with its core packages as possible. Packages are
-kept up-to-date with the latest stable release. Statuses are publicly available
-at [mxm.mit.junic.kim](https://mxm.mit.junic.kim)
+The kernel has been manually configured to remove unnnecessary components and
+sits at around 25MB. It also shows pictures of Mimi instead of the canonical Tux
+:)
+
+Mimux aims to be up-to-date with its core packages as possible and has an
+automated CI-based system to aid in this. Packages are kept up-to-date with the latest
+stable release. Statuses are publicly available at
+[mxm.mit.junic.kim](https://mxm.mit.junic.kim)
 
 ![Mimi](./mimi.jpg)
 
