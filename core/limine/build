@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="9.6.7"
+VERSION="10.0.0"
 BASEURL="https://codeberg.org/Limine/Limine/releases/download/v$VERSION"
 SRCDIR="limine-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
