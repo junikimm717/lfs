@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="2.52.0"
+VERSION="2.53.0"
 BASEURL="https://github.com/fastfetch-cli/fastfetch/archive/refs/tags/"
 SRCDIR="fastfetch-$VERSION"
 TARBALL="$VERSION.tar.gz"

@@ -17,7 +17,7 @@ CC="$(command -v gcc)"
 unset CFLAGS LDFLAGS CPPFLAGS
 export CFLAGS LDFLAGS CPPFLAGS CC
 
-VERSION="6.16.7"
+VERSION="6.16.8"
 BASEURL="cdn.kernel.org/pub/linux/kernel/v$(echo "$VERSION" | cut -d'.' -f 1 ).x"
 SRCDIR="linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
@@ -64,7 +64,7 @@ makeinstall() {
   cd "$DIR/$SRCDIR"
   # this screws up the config
   make olddefconfig
-  make -j"${JOBS:-8}"
+  make -j"${JOBS:-8}" 2>&1 | tee build.log
   make -j"${JOBS:-8}" headers_install INSTALL_HDR_PATH="$ROOTFS/usr"
   if [ "$(arch)" = "x86_64" ]; then
     test -f ./arch/x86/boot/bzImage
