@@ -50,6 +50,7 @@ build readline
 # building dependencies, etc. for python3
 build bzip2
 build xz
+build zstd
 build libffi
 build sqlite
 build python3

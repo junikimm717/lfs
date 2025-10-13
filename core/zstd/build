@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
@@ -10,52 +11,38 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="10.1.1"
-BASEURL="https://codeberg.org/Limine/Limine/releases/download/v$VERSION"
-SRCDIR="limine-$VERSION"
+VERSION="1.5.7"
+BASEURL="https://github.com/facebook/zstd/releases/download"
+SRCDIR="zstd-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
-
-# Unbelievable that 9.6.0 actually requires these???
-# gcc, ld, and friends should all be pointing to the musl cross toolchain
-# because of work done in /tools/env.sh tho
-export CC_FOR_TARGET="gcc"
-export LD_FOR_TARGET="ld"
-export OBJCOPY_FOR_TARGET="objcopy"
-export OBJDUMP_FOR_TARGET="objdump"
-export READELF_FOR_TARGET="readelf"
 
 download() {
   cd "$DIR"
-  echo "downloading limine source..."
+  echo "downloading zstd source..."
   if test -f "$TARBALL"; then
     echo "$TARBALL exists, skipping..."
-    return
+  else
+    curl -LOf "$BASEURL/v$VERSION/$TARBALL"
   fi
 
-  curl -LOf $BASEURL/$TARBALL
 }
 
 extract() {
   cd "$DIR"
-  echo "extracting limine source..."
+  echo "extracting zstd source..."
   if ! test -f "$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  uefi_arch=aarch64
-  if echo "$TARGET" | grep 'x86' > /dev/null 2>&1; then
-    uefi_arch=x86-64
-  fi
-
   tar xzf "$TARBALL"
   cd "$SRCDIR"
-  ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
-    --enable-uefi-$uefi_arch --with-sysroot="${ROOTFS:-/}"
+  #./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
+  #  --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {
-  echo "building limine..."
+  echo "building zstd..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
@@ -63,7 +50,7 @@ makeinstall() {
   cd "$DIR/$SRCDIR"
 
   make -j"${JOBS:-8}"
-  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
+  make -j"${JOBS:-8}" DESTDIR="$ROOTFS" PREFIX="/usr" install
 }
 
 clear() {
@@ -90,7 +77,7 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for limine
+Build script for zstd
 
 download|d -> download the tarball
 extract|e -> extract and patch the tarball

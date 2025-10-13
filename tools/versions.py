@@ -72,7 +72,7 @@ for idx, vscript in enumerate(version_scripts):
 
     # some packages download from Juni's mirror (bc gnu mirrors suck occasionally)
     # These should be highlighted, as there is no guarantee the tarballs will actually be there.
-    devmit = "https://dev.mit.junic.kim" not in build
+    devmit = "https://dev.mit.junic.kim" in build
     if latest != current:
         updates.append(
             OutOfDate(name=pkg, devmit=devmit, current=current, expected=latest)
