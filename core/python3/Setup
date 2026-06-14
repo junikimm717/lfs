@@ -31,12 +31,17 @@
 array arraymodule.c
 _asyncio _asynciomodule.c
 _bisect _bisectmodule.c
-_contextvars _contextvarsmodule.c
+# _contextvars moved into the core interpreter in 3.14 (Python/_contextvars.c);
+# it is no longer a separate extension module, so it must not be listed here.
 _csv _csv.c
 _heapq _heapqmodule.c
 _json _json.c
 _lsprof _lsprof.c rotatingtree.c
-_opcode _opcode.c
+# _opcode is a bootstrap builtin (Modules/Setup.bootstrap.in) and must stay
+# builtin: it is imported extremely early (opcode -> dis -> inspect -> ...),
+# including by the new 3.14 build-details.json step which runs the freshly
+# built ./python mid-build. Forcing it *shared* here overrides the builtin and
+# makes that step fail with "ModuleNotFoundError: No module named '_opcode'".
 _pickle _pickle.c
 _queue _queuemodule.c
 _random _randommodule.c
@@ -54,8 +59,11 @@ math mathmodule.c
 cmath cmathmodule.c
 _statistics _statisticsmodule.c
 
-# needs libm and on some platforms librt
-_datetime _datetimemodule.c
+# _datetime moved into Modules/Setup.bootstrap.in (builtin) in 3.14 because the
+# core interpreter statically initializes the datetime types
+# (_PyDateTime_InitTypes, called from Python/pylifecycle.c). Listing it here
+# under *shared* overrides that builtin and leaves the symbol unresolved when
+# linking Programs/_freeze_module. Let the bootstrap builtin handle it.
 
 # _decimal uses libmpdec
 # either static libmpdec.a from Modules/_decimal/libmpdec or libmpdec.so
@@ -83,7 +91,12 @@ _md5 md5module.c -I$(srcdir)/Modules/_hacl/include _hacl/Hacl_Hash_MD5.c -D_BSD_
 _sha1 sha1module.c -I$(srcdir)/Modules/_hacl/include _hacl/Hacl_Hash_SHA1.c -D_BSD_SOURCE -D_DEFAULT_SOURCE
 _sha2 sha2module.c -I$(srcdir)/Modules/_hacl/include Modules/_hacl/libHacl_Hash_SHA2.a
 _sha3 sha3module.c -I$(srcdir)/Modules/_hacl/include _hacl/Hacl_Hash_SHA3.c -D_BSD_SOURCE -D_DEFAULT_SOURCE
-_blake2 _blake2/blake2module.c _blake2/blake2b_impl.c _blake2/blake2s_impl.c
+# blake2 was rewritten to use HACL* in 3.14 (was _blake2/*_impl.c in <=3.13).
+# Source moved to Modules/blake2module.c and links the prebuilt HACL archive,
+# mirroring the _sha2 entry above. The SIMD HACL objects require special CFLAGS
+# (-DHACL_CAN_COMPILE_VEC128/256) set by configure, so we link the static lib
+# rather than listing the SIMD sources directly.
+_blake2 blake2module.c -I$(srcdir)/Modules/_hacl/include Modules/_hacl/libHacl_Hash_BLAKE2.a
 
 ############################################################################
 # XML and text
@@ -161,24 +174,22 @@ _hashlib _hashopenssl.c
 
 ############################################################################
 # Test modules
-
-xxsubtype xxsubtype.c
-_xxtestfuzz _xxtestfuzz/_xxtestfuzz.c _xxtestfuzz/fuzzer.c
-_testbuffer _testbuffer.c
-_testinternalcapi _testinternalcapi.c _testinternalcapi/test_lock.c _testinternalcapi/pytime.c _testinternalcapi/set.c _testinternalcapi/test_critical_sections.c
-_testcapi _testcapimodule.c _testcapi/vectorcall.c _testcapi/heaptype.c _testcapi/abstract.c _testcapi/unicode.c _testcapi/dict.c _testcapi/set.c _testcapi/list.c _testcapi/tuple.c _testcapi/getargs.c _testcapi/datetime.c _testcapi/docstring.c _testcapi/mem.c _testcapi/watchers.c _testcapi/long.c _testcapi/float.c _testcapi/complex.c _testcapi/numbers.c _testcapi/structmember.c _testcapi/exceptions.c _testcapi/code.c _testcapi/buffer.c _testcapi/pyatomic.c _testcapi/run.c _testcapi/file.c _testcapi/codec.c _testcapi/immortal.c _testcapi/gc.c _testcapi/hash.c _testcapi/time.c _testcapi/bytes.c _testcapi/object.c _testcapi/monitoring.c
-_testlimitedcapi _testlimitedcapi.c _testlimitedcapi/abstract.c _testlimitedcapi/bytearray.c _testlimitedcapi/bytes.c _testlimitedcapi/complex.c _testlimitedcapi/dict.c _testlimitedcapi/eval.c _testlimitedcapi/float.c _testlimitedcapi/heaptype_relative.c _testlimitedcapi/import.c _testlimitedcapi/list.c _testlimitedcapi/long.c _testlimitedcapi/object.c _testlimitedcapi/pyos.c _testlimitedcapi/set.c _testlimitedcapi/sys.c _testlimitedcapi/tuple.c _testlimitedcapi/unicode.c _testlimitedcapi/vectorcall_limited.c _testlimitedcapi/file.c
-_testclinic _testclinic.c
-_testclinic_limited _testclinic_limited.c
-
-# Some testing modules MUST be built as shared libraries.
-*shared*
-_testimportmultiple _testimportmultiple.c
-_testmultiphase _testmultiphase.c
-_testsinglephase _testsinglephase.c
-_testexternalinspection _testexternalinspection.c
-_ctypes_test _ctypes/_ctypes_test.c
-
-# Limited API template modules; must be built as shared modules.
-xxlimited xxlimited.c
-xxlimited_35 xxlimited_35.c
+#
+# We intentionally do NOT list CPython's internal test/example modules here
+# (_testcapi, _testinternalcapi, _testlimitedcapi, _testbuffer, _testclinic*,
+# _testimportmultiple, _testmultiphase, _testsinglephase, _ctypes_test,
+# _xxtestfuzz, xxsubtype, xxlimited, xxlimited_35). The build already passes
+# --disable-test-modules; previously listing them here OVERRODE that flag and
+# forced them to build (the configure summary reported "0 disabled").
+#
+# In 3.14 this actively broke the install: the _testcapi/_testinternalcapi/
+# _testlimitedcapi source-file lists must be enumerated by hand and upstream
+# added new files (e.g. _testcapi/weakref.c -> _PyTestCapi_Init_Weakref,
+# _testinternalcapi/complex.c, _testlimitedcapi/version.c). With the stale
+# lists the .so linked but failed to import ("symbol not found"), so 3.14
+# renamed them <mod>_failed.so and `make sharedinstall` then died with
+# "cannot stat 'Modules/_testinternalcapi...so'".
+#
+# These modules have no place in a lean bootable rootfs, and hand-maintaining
+# their per-version source lists is exactly the kind of non-reproducible churn
+# we want to avoid. Letting --disable-test-modules do its job drops them all.

@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="FILE5_46"
+VERSION="FILE5_48"
 BASEURL="https://github.com/file/file/archive/refs/tags/"
 SRCDIR="file-$VERSION"
 TARBALL="$VERSION.tar.gz"

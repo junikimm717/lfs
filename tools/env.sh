@@ -102,7 +102,7 @@ export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"
 export DIST="$DIR/dist"
 export ROOTFS="$DIR/dist/rootfs"
-export CFLAGS="\$CFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
+export CFLAGS="\$CFLAGS -O2 -pipe -fPIC -w -std=gnu17 -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export CXXFLAGS="\$CXXFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
 

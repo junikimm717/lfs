@@ -51,6 +51,16 @@ extract() {
   sed '/thread_header =/s/@.*@/gthr-posix.h/' \
     -i libgcc/Makefile.in libstdc++-v3/include/Makefile.in
 
+  # gcc bundles the same libiberty as binutils, whose getopt1.c calls
+  # _getopt_internal() with no in-scope prototype under musl (musl's
+  # <getopt.h> predefines the _GETOPT_H guard, so libiberty's declaration is
+  # skipped). GCC 14+ treats implicit function declarations as a hard error,
+  # which breaks both the build-libiberty and host libiberty stages. The symbol
+  # is defined by libiberty's own getopt.c and links fine, so downgrade the
+  # diagnostic. Exporting it into CFLAGS (rather than only CC) ensures it also
+  # reaches CC_FOR_BUILD/CFLAGS_FOR_BUILD used for the build-side libiberty.
+  export CFLAGS="${CFLAGS:-} -Wno-error=implicit-function-declaration"
+
   mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR"
 
   # This gcc will be used when we are actually booted into our system.

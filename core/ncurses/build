@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 BASEURL="https://ftpmirror.gnu.org/ncurses"
-VERSION="6.5"
+VERSION="6.6"
 SRCDIR="ncurses-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
