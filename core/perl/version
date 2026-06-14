@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Latest stable perl release. Perl uses odd-numbered minor versions for
+# development releases (5.41.x, 5.43.x, ...), so we filter to even minors.
+
+curl -sL https://www.cpan.org/src/5.0/ \
+  | grep -oE 'perl-5\.[0-9]+\.[0-9]+\.tar\.xz' \
+  | sed 's/^perl-\(.*\)\.tar\.xz$/\1/' \
+  | awk -F. '$2 % 2 == 0' \
+  | sort -V \
+  | tail -n 1
