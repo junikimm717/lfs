@@ -45,6 +45,13 @@ extract() {
   tar xf "$TARBALL"
   chmod -R u+w "$SRCDIR"
   cd "$SRCDIR"
+  # -Dfirstmakefile=GNUmakefile: perl's `make depend` step does
+  # `cp Makefile $firstmakefile` (defaulting to `makefile`). On the
+  # case-insensitive macOS APFS volume that Orbstack exposes through the
+  # bind mount, `Makefile` and `makefile` are the same path, so cp aborts
+  # with "input and output are the same file". GNUmakefile is also
+  # preferred by GNU make ahead of Makefile, so subsequent `make` calls
+  # still pick up the dependency-enriched copy.
   ./Configure -des -Dprefix=/usr \
     -Dcflags="$CFLAGS $LDFLAGS" \
     -Dprefix=/usr \
@@ -60,6 +67,7 @@ extract() {
     -Dlocincpth=" " -Dloclibpth=" " \
     -Dcf_by="mimux" \
     -Dusedevel \
+    -Dfirstmakefile=GNUmakefile \
     -Dvendorprefix=/usr
 
   # musl compatibility: perl's eaccess()/uselocale() probes misfire against
