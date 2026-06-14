@@ -26,7 +26,15 @@ export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"
 export DIST="$DIR/dist"
 export ROOTFS="$DIR/dist/rootfs"
-export CFLAGS="-O2 -pipe -fPIC -w -I$ROOTFS/usr/include -I$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
+# Pin the userspace C standard to gnu17 (GCC <=14's default). GCC 15 defaults
+# to C23, under which an empty parameter list `f()` means `f(void)` (as in C++)
+# instead of "unspecified arguments". That breaks the K&R-style declarations and
+# definitions still present in several of our older sources and their bundled
+# gnulib/configure probes -- e.g. make-4.4.1's `extern char *getenv ();`
+# ("conflicting types for 'getenv'") and gmp-6.3.0's configure long-long
+# reliability test (`void g(){}` called with args -> "too many arguments"). This
+# is C-only, so CXXFLAGS is intentionally left at the compiler default.
+export CFLAGS="-O2 -pipe -fPIC -w -std=gnu17 -I$ROOTFS/usr/include -I$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export CXXFLAGS="-O2 -pipe -fPIC -w -I$ROOTFS/usr/include -I$ROOTFS/include -I$DIR/cross/$TARGET-native/$TARGET/include"
 export LDFLAGS="-s -L$ROOTFS/lib -L$ROOTFS/usr/lib -L$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
 export PKG_CONFIG_SYSROOT_DIR="$ROOTFS"

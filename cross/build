@@ -44,6 +44,23 @@ makeinstall() {
     ln -sf "$TARGET-$tool" $tool
   done
   ln -sf "$TARGET-gcc" cc
+
+  # EMERGENCY WORKAROUND (see static-python toolchain bug report).
+  # The tc-wrapper resolves its real binary via .real/$(basename argv[0]).
+  # The toolchain's post-install only shadows names that existed at its
+  # install time (the $TARGET-prefixed binaries + pre-existing aliases like
+  # cc), so the unprefixed aliases we create just above have no matching
+  # entry in .real/ and invoking them fails with
+  # "tc-wrapper: missing real binary: .../.real/<tool>".
+  # Mirror each unprefixed alias into .real/ so the wrapper can resolve it.
+  # Remove once static-python ships these aliases / the wrapper falls back.
+  if test -d .real; then
+    for tool in gcc gcc-ar gcc-nm gcc-ranlib ld nm objcopy objdump ranlib readelf\
+      size strings strip ar as cpp c++ g++; do
+      test -e ".real/$TARGET-$tool" && ln -sf "$TARGET-$tool" ".real/$tool"
+    done
+    test -e ".real/$TARGET-gcc" && ln -sf "$TARGET-gcc" .real/cc
+  fi
 }
 
 clear() {

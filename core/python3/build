@@ -10,8 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-# Don't upgrade to 3.14.0 this is an error from the version script.
-VERSION="3.13.7"
+VERSION="3.14.6"
 BASEURL="https://www.python.org/ftp/python/$VERSION"
 SRCDIR="Python-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
@@ -60,6 +59,13 @@ makeinstall() {
     exit 1
   fi
   cd "$DIR/$SRCDIR"
+  # In 3.14 the HACL* rewrite means _sha2 and _blake2 link against the prebuilt
+  # static archives (Modules/_hacl/libHacl_Hash_{SHA2,BLAKE2}.a) we reference in
+  # Setup.local. The makesetup-generated link rules name those archives on the
+  # link line but do NOT list them as prerequisites (the module LDEPS point at
+  # the shared .o object list instead), so make never builds them and the link
+  # dies with "cannot find .../libHacl_Hash_SHA2.a". Build the archives first.
+  make -j"${JOBS:-8}" Modules/_hacl/libHacl_Hash_SHA2.a Modules/_hacl/libHacl_Hash_BLAKE2.a
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 

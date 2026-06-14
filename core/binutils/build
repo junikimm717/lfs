@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="2.45.1"
+VERSION="2.46.1"
 BASEURL="https://sourceware.org/pub/binutils/releases"
 SRCDIR="binutils-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
@@ -61,10 +61,18 @@ extract() {
     --disable-libmudflap \
     --disable-libsanitizer \
     --disable-libctf \
-    CC="$CC $CFLAGS -fPIC"\
+    CC="$CC $CFLAGS -Wno-error=implicit-function-declaration -fPIC"\
     CXX="$CXX $CXXFLAGS -fPIC"\
-   
+
 }
+# NOTE on -Wno-error=implicit-function-declaration above:
+# binutils' bundled libiberty/getopt1.c calls _getopt_internal(), whose
+# prototype lives in libiberty's include/getopt.h behind a guard that musl's
+# system <getopt.h> trips (it predefines the _GETOPT_H include guard), so the
+# declaration is skipped and the call is implicit. GCC 14+ makes implicit
+# function declarations a hard error by default, which aborts the libiberty
+# build. The symbol is still defined by libiberty's own getopt.c and resolves
+# fine at link time, so we only need to downgrade the diagnostic for binutils.
 
 makeinstall() {
   echo "building binutils..."
