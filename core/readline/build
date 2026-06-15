@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="8.3"
-BASEURL="https://ftpmirror.gnu.org/readline"
+BASEURL="https://ftp.gnu.org/gnu/readline"
 SRCDIR="readline-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
@@ -23,7 +23,7 @@ download() {
     return
   fi
 
-  curl -LOf $BASEURL/$TARBALL
+  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
 }
 
 extract() {

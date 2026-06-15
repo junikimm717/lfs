@@ -21,7 +21,7 @@ download() {
     return
   fi
   echo "downloading busybox source"
-  curl -Lf "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
 }
 
 HOSTCC="$(PATH='/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin' command -v gcc)"

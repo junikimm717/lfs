@@ -19,7 +19,7 @@ download() {
   if test -f "$TARBALL"; then
     return
   fi
-  curl -LOf "https://dev.mit.junic.kim/cross/$(uname -m)/$TARBALL"
+  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "https://dev.mit.junic.kim/cross/$(uname -m)/$TARBALL"
 }
 
 extract() {

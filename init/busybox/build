@@ -22,7 +22,7 @@ download() {
   fi
   echo "downloading busybox source"
   set -x
-  curl -Lf "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
 }
 
 extract() {

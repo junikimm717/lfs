@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="4.2.2"
-BASEURL="https://ftpmirror.gnu.org/mpfr"
+BASEURL="https://www.mpfr.org/mpfr-$VERSION"
 SRCDIR="mpfr-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
@@ -23,7 +23,7 @@ download() {
     return
   fi
 
-  curl -LOf $BASEURL/$TARBALL
+  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
 }
 
 extract() {

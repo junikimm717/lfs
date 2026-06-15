@@ -29,7 +29,7 @@ download() {
     return
   fi
   echo "downloading kernel source"
-  curl -LOf "$BASEURL/$TARBALL"
+  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
 }
 
 # this script involves injecting a logo into the mimux tree. To get the ascii
