@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="1.3.2"
-BASEURL="http://zlib.net"
+BASEURL="https://github.com/madler/zlib/releases/download/v$VERSION"
 SRCDIR="zlib-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
