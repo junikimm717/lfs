@@ -2,7 +2,6 @@
 
 
 ![Mimux Core](https://img.shields.io/endpoint?url=https%3A%2F%2Fmxm.mit.junic.kim%2Fbadge)
-![License](https://img.shields.io/github/license/junikimm717/lfs)
 [![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
 [![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
