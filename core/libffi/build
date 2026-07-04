@@ -10,7 +10,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="3.5.2"
+VERSION="3.6.0"
 BASEURL="https://github.com/libffi/libffi/releases/download/v$VERSION"
 SRCDIR="libffi-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
