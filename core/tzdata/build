@@ -13,7 +13,7 @@ test -z "$INOSENV" && {
 
 # tzdata requires explicit updates.
 
-VERSION="2026b"
+VERSION="2026c"
 BASEURL="https://data.iana.org/time-zones/releases"
 SRCDIR="tz$VERSION"
 TARBALL="tzdata$VERSION.tar.gz"
