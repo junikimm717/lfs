@@ -1,16 +1,8 @@
 #!/bin/sh
 
-# just wait until we actually get internet?
-BLOCKED=0
-while ! ping -c1 -W1 time.google.com >/dev/null 2>&1; do
-  echo "chronyd: waiting for DNS..."
-  BLOCKED=1
-  sleep 1
-done
-
 echo "starting chronyd..."
 
-mkdir -p "/var/lib/chrony" "/var/log/chrony"
-rm -rf /var/run/chrony/chronyd.pid
-pkill chronyd
+# chronyd exits at startup if these are missing.
+mkdir -p /var/lib/chrony /var/log/chrony /run/chrony
+
 exec chronyd -n -s
