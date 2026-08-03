@@ -29,13 +29,14 @@ rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
 kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort -r | head -n 1)")"
 
 # x86_64 serial is 8250/ttyS0, aarch64 virt is PL011/ttyAMA0; both drivers are
-# built into the kernel. The last console= becomes /dev/console, so tty0 goes
-# last to keep interactive shells on the display.
+# built into the kernel. The last console= becomes /dev/console, so serial goes
+# last: printk reaches both, but init output and the initramfs debug shell stay
+# visible on a headless boot.
 case "${TARGET:-$(arch)}" in
   aarch64*|arm*) serialconsole="ttyAMA0" ;;
   *)             serialconsole="ttyS0" ;;
 esac
-console="console=$serialconsole,115200 console=tty0"
+console="console=tty0 console=$serialconsole,115200"
 
 test -z "$kernel" -o -z "$rootuuid" && exit 1
 

@@ -35,6 +35,28 @@ msg "udevd settle"
 /sbin/udevadm settle
 msg_ok
 
+msg "configuring serial gettys..."
+# The serial console device varies by arch and VM config (ttyS0, ttyAMA0, hvc0,
+# ...), so take it from whatever the kernel activated rather than guessing at
+# build time. VT gettys are shipped statically since /dev/tty1 always exists
+# under CONFIG_VT. Runs before stage 2 starts runsvdir, so /etc/service is
+# free to mutate. A whole-dir symlink would break getty-generic's ${PWD##*-}.
+for svc in /etc/service/getty-*; do
+    [ -e "$svc/.generated" ] && rm -rf "$svc"
+done
+for tty in $(cat /sys/class/tty/console/active 2>/dev/null); do
+    [ "$tty" = tty0 ] && continue
+    [ -c "/dev/$tty" ] || continue
+    [ -d "/etc/service/getty-$tty" ] && continue
+    mkdir -p "/etc/service/getty-$tty"
+    ln -sf ../../sv/getty-generic/run "/etc/service/getty-$tty/run"
+    ln -sf ../../sv/getty-generic/finish "/etc/service/getty-$tty/finish"
+    # Matches the baud in the console= cmdline set by tools/esp.sh.
+    printf 'BAUD_RATE=115200\nTERM_NAME=vt100\n' > "/etc/service/getty-$tty/conf"
+    : > "/etc/service/getty-$tty/.generated"
+done
+msg_ok
+
 msg "Setting up loopback interface..."
 ip link set up dev lo
 msg_ok
