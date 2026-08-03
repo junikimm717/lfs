@@ -34,6 +34,11 @@ ln -sfn lib "$ROOTFS/usr/lib64"
 
 ln -sfn bin "$ROOTFS/usr/sbin"
 
+# Daemons default their pidfile paths to /var/run.
+mkdir -p "$ROOTFS/var"
+rm -rf "$ROOTFS/var/run"
+ln -sfn ../run "$ROOTFS/var/run"
+
 "$DIR/etc_update.sh"
 
 # libraries required by everything.

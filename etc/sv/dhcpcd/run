@@ -1,4 +1,8 @@
 #!/bin/sh
 
-mkdir -p /var/run/dhcpcd
-exec dhcpcd -q
+mkdir -p /run/dhcpcd
+
+# -B stays in the foreground for runit. -C resolv.conf disables the bundled
+# hook, which is hardcoded in dhcpcd's hooks/Makefile and overwrites
+# /etc/resolv.conf from the lease.
+exec dhcpcd -B -q -C resolv.conf

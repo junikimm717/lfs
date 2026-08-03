@@ -33,7 +33,7 @@ elif arch | grep -E "x86" > /dev/null 2>&1; then
     -m 1024 \
     -kernel "$KERNEL" \
     -initrd "$INITRD" \
-    -nographic -append "console=ttyAMA0 panic=-1 root=/dev/vda rw" \
+    -nographic -append "console=ttyS0 panic=-1 root=/dev/vda rw" \
     -drive file=./rootfs.img,format=raw,if=virtio \
     -no-reboot \
     -netdev user,id=net0 \
