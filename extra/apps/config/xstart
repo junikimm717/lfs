@@ -2,6 +2,8 @@
 # Minimal X session launcher for mimux.
 #
 # Deliberately avoids startx/xauth (and their libXmu/libXt/libICE/libSM
-# dependency chain): it just runs xinit with the system xinitrc, starting the
-# server on display :0 / vt1. Run this from a tty after logging in as mimi.
-exec xinit /etc/X11/xinit/xinitrc -- :0 vt1
+# dependency chain): it runs xinit with the system xinitrc, starting the X
+# server on display :0 on the VT you are logged in on. Run this as mimi.
+n=$(tty 2>/dev/null | sed -n 's|^/dev/tty||p')
+[ -n "$n" ] || n=1
+exec xinit /etc/X11/xinit/xinitrc -- /usr/bin/Xorg :0 "vt$n"

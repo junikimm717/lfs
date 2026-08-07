@@ -24,6 +24,10 @@ chmod 4755 "$ROOTFS/usr/bin/doas"\
   "$ROOTFS/bin/ping"\
   "$ROOTFS/bin/ping6"
 
+# The optional graphical layer (extra/) ships a setuid-root X server. The
+# chown -R 0:0 above stripped its suid bit, so restore it when present.
+[ -e "$ROOTFS/usr/bin/Xorg" ] && chmod 4755 "$ROOTFS/usr/bin/Xorg"
+
 chown -R 0:22 "$ROOTFS/etc/shadow"
 chown -R 1000:1000 "$ROOTFS/home/mimi"
 cd "$ROOTFS" || exit 1
@@ -67,5 +71,14 @@ set_inode_field /bin/ping6 mode 0104755
 
 quit
 EOF
+
+# Re-assert the X server's suid inside the image too (needed when the image is
+# built under fakeroot, e.g. aarch64, which does not preserve suid via mke2fs).
+if [ -e "$ROOTFS/usr/bin/Xorg" ]; then
+  debugfs -w rootfs.img <<EOF
+set_inode_field /usr/bin/Xorg mode 0104755
+quit
+EOF
+fi
 
 printf "\n"

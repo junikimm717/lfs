@@ -30,8 +30,10 @@ build() {
 
 install_config() {
   echo "========= Installing session config... ==========="
-  # System launcher + session.
+  # System launcher + session. Also install it as `startx`, overriding xinit's
+  # xauth-dependent wrapper so the familiar command works out of the box.
   install -Dm755 "$CFG/xstart"           "$ROOTFS/usr/bin/xstart"
+  install -Dm755 "$CFG/xstart"           "$ROOTFS/usr/bin/startx"
   install -Dm755 "$CFG/xinitrc"          "$ROOTFS/etc/X11/xinit/xinitrc"
   install -Dm644 "$CFG/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
   # Per-user bspwm/sxhkd config for the default user (mimi, uid/gid 1000).
