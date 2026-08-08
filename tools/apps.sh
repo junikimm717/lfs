@@ -48,12 +48,19 @@ build dejavu-fonts
 # ---- session launcher ----
 build xinit
 
+# ---- imaging libraries (Imlib2 stack for the wallpaper setter) ----
+build libjpeg
+build imlib2
+
 # ---- terminal ----
 build st
 
 # ---- window manager + hotkey daemon ----
 build bspwm
 build sxhkd
+
+# ---- wallpaper setter ----
+build feh
 
 # ---- default session configuration ----
 install_config
