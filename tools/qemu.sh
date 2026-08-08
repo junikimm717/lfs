@@ -22,6 +22,12 @@ IMG="${IMG:-$DIST/bootable.img}"
 MEM="${MEM:-2048}"
 SMP="${SMP:-2}"
 DISPLAY_BACKEND="${DISPLAY_BACKEND:-gtk}"
+XRES="${XRES:-1280}"
+YRES="${YRES:-720}"
+# GL=on routes the guest scanout through the host's OpenGL for a lower-latency
+# present path (helps the fbdev software cursor feel less laggy). Off by default
+# since it needs working host GL; flip to on if your host supports it.
+GL="${GL:-off}"
 
 test -f "$IMG" || {
   echo "No bootable image at $IMG."
@@ -73,7 +79,10 @@ else
   ACCEL="-cpu max"
 fi
 
-echo "Booting $IMG  (${MEM}MB, ${SMP} vCPU, display=$DISPLAY_BACKEND)"
+DISP="$DISPLAY_BACKEND"
+[ "$GL" = "on" ] && DISP="$DISP,gl=on"
+
+echo "Booting $IMG  (${MEM}MB, ${SMP} vCPU, display=$DISP)"
 echo "Firmware: $OVMF_CODE"
 echo "Log in as mimi / george, then run 'xstart' to launch bspwm."
 
@@ -86,9 +95,9 @@ exec qemu-system-x86_64 \
   -drive if=pflash,format=raw,unit=0,readonly=on,file="$OVMF_CODE" \
   -drive if=pflash,format=raw,unit=1,file="$OVMF_VARS" \
   -drive file="$IMG",format=raw,if=virtio \
-  -vga virtio \
-  -display "$DISPLAY_BACKEND" \
-  -device qemu-xhci -device usb-kbd -device usb-tablet \
+  -device virtio-vga,edid=on,xres="$XRES",yres="$YRES" \
+  -display "$DISP" \
+  -device virtio-keyboard-pci -device virtio-tablet-pci \
   -netdev user,id=net0 -device virtio-net-pci,netdev=net0 \
   -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci \
   -serial mon:stdio \

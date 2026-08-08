@@ -1,29 +1,47 @@
 # mimux default keybindings (bspwm + sxhkd).
+#
+# The modifier is Alt (mod1), not Super: under a Wayland host (e.g. Hyprland)
+# the compositor grabs Super globally, so it never reaches the guest. The layout
+# below mirrors the user's Hyprland binds, with Super swapped for Alt.
 
-# terminal emulator
-super + Return
+# terminal (your Super+Shift+A; Return also works)
+alt + shift + a
+	st
+alt + Return
 	st
 
-# reload sxhkd configuration
-super + Escape
-	pkill -USR1 -x sxhkd
-
-# quit / restart bspwm
-super + alt + {q,r}
-	bspc {quit,wm -r}
-
-# close focused window
-super + w
+# close focused window (your Super+Shift+Q)
+alt + shift + q
 	bspc node -c
 
-# toggle fullscreen / floating
-super + {f,space}
-	bspc node -t {fullscreen,floating}
+# quit / restart bspwm (your Super+Shift+E exits)
+alt + shift + e
+	bspc quit
+alt + shift + r
+	bspc wm -r
 
-# focus the node in the given direction
-super + {h,j,k,l}
+# reload sxhkd configuration
+alt + shift + c
+	pkill -USR1 -x sxhkd
+
+# toggle floating (your Super+V) / fullscreen
+alt + v
+	bspc node -t ~floating
+alt + f
+	bspc node -t ~fullscreen
+
+# focus the node in the given direction (your Super+h/j/k/l)
+alt + {h,j,k,l}
 	bspc node -f {west,south,north,east}
 
-# focus (or send the focused node to) the given desktop
-super + {_,shift + }{1-5}
-	bspc {desktop -f,node -d} '^{1-5}'
+# swap the focused node in the given direction (your Super+Shift+h/j/k/l)
+alt + shift + {h,j,k,l}
+	bspc node -s {west,south,north,east}
+
+# focus the given desktop (your Super+1..0, 0 -> desktop 10)
+alt + {1-9,0}
+	bspc desktop -f '^{1-9,10}'
+
+# send the focused node to the given desktop (your Super+Shift+1..0)
+alt + shift + {1-9,0}
+	bspc node -d '^{1-9,10}'
