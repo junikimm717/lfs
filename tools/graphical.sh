@@ -51,6 +51,9 @@ build libxcb
 build xcb-util
 build xcb-util-keysyms
 build xcb-util-wm
+# xcb-image + xcb-renderutil are used by the picom compositor (extra/apps).
+build xcb-util-image
+build xcb-util-renderutil
 
 # ---- Xlib client libraries ----
 build xtrans

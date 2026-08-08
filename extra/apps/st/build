@@ -36,13 +36,20 @@ extract() {
   tar xf "$TARBALL"
   cd "$SRCDIR"
 
-  # st builds config.h from config.def.h on first build. Generate it here so
-  # we can pin the default font to DejaVu Sans Mono, which the mimux graphical
-  # layer ships. Doing this in extract keeps the build reproducible.
+  # Apply the mimux combined patch. It folds three upstream suckless patches
+  # (scrollback + scrollback-mouse + alpha) plus our config defaults into one
+  # deterministic diff against pristine st-0.9.3:
+  #   - alpha:      32-bit ARGB visual so picom can make the background
+  #                 transparent (float alpha = 0.85 in config.def.h)
+  #   - scrollback: Shift+PageUp/PageDown and Shift+MouseWheel history
+  #                 (HISTSIZE = 10000 lines in st.c)
+  #   - font:       default pinned to DejaVu Sans Mono (shipped by mimux)
+  # Vendored (rather than fetched from st.suckless.org at build time) so the
+  # build stays reproducible and the three patches never re-conflict on apply.
+  patch -p1 < "$DIR/mimux.diff"
+
+  # st builds config.h from config.def.h; generate it up front for determinism.
   cp config.def.h config.h
-  sed -i \
-    's|^static char \*font = ".*";|static char *font = "DejaVu Sans Mono:pixelsize=14:antialias=true:autohint=true";|' \
-    config.h
 }
 
 makeinstall() {

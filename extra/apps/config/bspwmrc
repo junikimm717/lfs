@@ -5,6 +5,10 @@
 pkill -x sxhkd >/dev/null 2>&1
 sxhkd &
 
+# Compositor: transparency/shadows (-b daemonizes). Restart cleanly on reload.
+pkill -x picom >/dev/null 2>&1
+picom -b
+
 bspc monitor -d 1 2 3 4 5 6 7 8 9 10
 
 bspc config border_width         2

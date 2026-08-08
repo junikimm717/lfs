@@ -58,7 +58,9 @@ packages now ship one).
 ### `extra/xorg/` — build order (see `tools/graphical.sh`)
 
 Protocol + base libs: `util-macros`, `xorgproto`, `xcb-proto`, `libXau`,
-`libXdmcp`, `libxcb`, `xcb-util`, `xcb-util-keysyms`, `xcb-util-wm`, `xtrans`.
+`libXdmcp`, `libxcb`, `xcb-util`, `xcb-util-keysyms`, `xcb-util-wm`,
+`xcb-util-image`, `xcb-util-renderutil` (the last two feed the picom
+compositor), `xtrans`.
 
 Xlib client libs: `libX11`, `libXext`, `libXrender`, `libXfixes`, `libXi`,
 `libXrandr`, `libXcursor`, `libXinerama`.
@@ -83,17 +85,27 @@ preferred wherever a `configure` ships.
 - `libjpeg` (IJG) → `imlib2` → `feh` — the wallpaper stack (feh renders the
   background; imlib2 needs a JPEG loader, hence libjpeg). Only PNG+JPEG imlib2
   loaders are enabled; feh is built `curl=0` (no libcurl).
-- `st` — suckless terminal, pinned to DejaVu Sans Mono.
+- `st` — suckless terminal, pinned to DejaVu Sans Mono. A single vendored diff
+  (`extra/apps/st/mimux.diff`) folds in the suckless **scrollback**,
+  **scrollback-mouse**, and **alpha** patches: `Shift+PageUp`/`Shift+PageDown`
+  and `Shift+MouseWheel` scroll a 10000-line history, and a 32-bit ARGB visual
+  gives the background transparency that picom composites.
 - `bspwm` + `sxhkd` — the window manager and its hotkey daemon.
+- `uthash` → `libev` → `libconfig` → `picom` — the compositor stack. picom is
+  built on the **XRender** backend only (`-Dopengl=false -Ddbus=false
+  -Dregex=false`), so no mesa/libepoxy, dbus, or pcre2 are pulled in. It draws
+  the transparency (st's ARGB background), shadows, and fading.
 
 ## Session config (`extra/apps/config/`, installed by `tools/apps.sh`)
 
 - **`xstart`** — the launcher; runs `xinit` on the current VT. Installed to
   `/usr/bin/xstart` and also as `/usr/bin/startx`. Log in as `mimi` and run it.
 - **`xinitrc`** → `exec bspwm`.
-- **`bspwmrc`** — 10 desktops, borders/gaps, focus-follows-pointer, and sets the
-  wallpaper (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via
-  `feh --bg-fill`.
+- **`bspwmrc`** — 10 desktops, borders/gaps, focus-follows-pointer, launches the
+  compositor (`picom -b`), and sets the wallpaper
+  (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via `feh --bg-fill`.
+- **`picom.conf`** — XRender backend, shadows + fade on, opacity left at 1.0 so
+  only st's own background is see-through (forcing opacity would dim text too).
 - **`sxhkdrc`** — keybindings. The modifier is **Alt** (`mod1`), not Super: a
   Wayland host such as Hyprland grabs Super globally, so it never reaches the
   guest. Layout mirrors a typical Hyprland setup — `Alt+Return`/`Alt+Shift+A`

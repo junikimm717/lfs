@@ -36,9 +36,10 @@ install_config() {
   install -Dm755 "$CFG/xstart"           "$ROOTFS/usr/bin/startx"
   install -Dm755 "$CFG/xinitrc"          "$ROOTFS/etc/X11/xinit/xinitrc"
   install -Dm644 "$CFG/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
-  # Per-user bspwm/sxhkd config for the default user (mimi, uid/gid 1000).
+  # Per-user bspwm/sxhkd/picom config for the default user (mimi, uid/gid 1000).
   install -Dm755 "$CFG/bspwmrc"          "$ROOTFS/home/mimi/.config/bspwm/bspwmrc"
   install -Dm644 "$CFG/sxhkdrc"          "$ROOTFS/home/mimi/.config/sxhkd/sxhkdrc"
+  install -Dm644 "$CFG/picom.conf"       "$ROOTFS/home/mimi/.config/picom/picom.conf"
   chown -R 1000:1000 "$ROOTFS/home/mimi/.config"
 }
 
@@ -58,6 +59,12 @@ build st
 # ---- window manager + hotkey daemon ----
 build bspwm
 build sxhkd
+
+# ---- compositor (transparency) + its libraries ----
+build uthash
+build libev
+build libconfig
+build picom
 
 # ---- wallpaper setter ----
 build feh
