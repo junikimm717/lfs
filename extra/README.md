@@ -88,13 +88,14 @@ preferred wherever a `configure` ships.
 - `st` — suckless terminal, pinned to DejaVu Sans Mono. A single vendored diff
   (`extra/apps/st/mimux.diff`) folds in the suckless **scrollback**,
   **scrollback-mouse**, and **alpha** patches: `Shift+PageUp`/`Shift+PageDown`
-  and `Shift+MouseWheel` scroll a 10000-line history, and a 32-bit ARGB visual
-  gives the background transparency that picom composites.
+  and `Shift+MouseWheel` scroll a 10000-line history, a 32-bit ARGB visual
+  gives the background transparency that picom composites, and the 16-color
+  palette is themed to match the wallpaper (Mimicoco).
 - `bspwm` + `sxhkd` — the window manager and its hotkey daemon.
 - `lemonbar` + `slstatus` + `xtitle` + `dmenu` — the status bar + launcher.
   lemonbar (Xft fork) renders the panel; slstatus feeds cpu/mem/clock; xtitle
   streams the focused window title; dmenu is the `Alt+Space` launcher. The
-  `mimux-panel` script (below) wires them together, Nord-themed.
+  `mimux-panel` script (below) wires them together, in the Mimicoco theme.
 - `uthash` → `libev` → `libconfig` → `picom` — the compositor stack. picom is
   built on the **XRender** backend only (`-Dopengl=false -Ddbus=false
   -Dregex=false`), so no mesa/libepoxy, dbus, or pcre2 are pulled in. It draws
@@ -120,10 +121,12 @@ drops the files below into the rootfs. `tools/apps.sh` runs it last.
   wallpaper (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via
   `feh --bg-fill`.
 - **`mimux-panel`** — the lemonbar panel script (installed to `/usr/bin`).
-  Nord-themed: clickable bspwm desktops on the left (focused = frost accent,
-  occupied = bright, empty = dim, urgent = red), the focused window title in the
-  center, and slstatus (cpu/mem/clock) on the right. The alpha in its background
-  colour makes it translucent through picom.
+  In the **Mimicoco** theme (colours matched to the wallpaper — warm charcoal
+  base, sage-green accent from the plant, amber from the warm light): clickable
+  bspwm desktops on the left (focused = sage, occupied = cream, empty = dim,
+  urgent = terracotta), the focused window title in the center, and slstatus
+  (cpu/mem/clock) on the right. The alpha in its background colour makes it
+  translucent through picom.
 - **`picom.conf`** — XRender backend, shadows + fade on, opacity left at 1.0 so
   only st's own background is see-through (forcing opacity would dim text too).
 - **`sxhkdrc`** — keybindings. The modifier is **Alt** (`mod1`), not Super: a

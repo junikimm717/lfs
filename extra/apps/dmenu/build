@@ -45,8 +45,8 @@ extract() {
   cp config.def.h config.h
   sed -i \
     -e 's|"monospace:size=10"|"DejaVu Sans Mono:size=11"|' \
-    -e 's|\[SchemeNorm\] = { "#bbbbbb", "#222222" }|[SchemeNorm] = { "#d8dee9", "#2e3440" }|' \
-    -e 's|\[SchemeSel\] = { "#eeeeee", "#005577" }|[SchemeSel] = { "#2e3440", "#88c0d0" }|' \
+    -e 's|\[SchemeNorm\] = { "#bbbbbb", "#222222" }|[SchemeNorm] = { "#ebe3d5", "#262320" }|' \
+    -e 's|\[SchemeSel\] = { "#eeeeee", "#005577" }|[SchemeSel] = { "#262320", "#a6b385" }|' \
     config.h
 }
 

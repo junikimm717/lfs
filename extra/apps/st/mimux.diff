@@ -1,6 +1,6 @@
 diff -ruN a/config.def.h b/config.def.h
---- a/config.def.h	2026-08-08 16:58:00.930622301 +0000
-+++ b/config.def.h	2026-08-08 16:58:32.053932851 +0000
+--- a/config.def.h	2026-08-08 17:41:37.337561592 +0000
++++ b/config.def.h	2026-08-08 17:41:38.561876966 +0000
 @@ -5,7 +5,7 @@
   *
   * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
@@ -10,7 +10,7 @@ diff -ruN a/config.def.h b/config.def.h
  static int borderpx = 2;
  
  /*
-@@ -93,6 +93,9 @@
+@@ -93,35 +93,38 @@
   */
  unsigned int tabspaces = 8;
  
@@ -20,6 +20,55 @@ diff -ruN a/config.def.h b/config.def.h
  /* Terminal colors (16 first used in escape sequence) */
  static const char *colorname[] = {
  	/* 8 normal colors */
+-	"black",
+-	"red3",
+-	"green3",
+-	"yellow3",
+-	"blue2",
+-	"magenta3",
+-	"cyan3",
+-	"gray90",
++	"#262320", /* black   */
++	"#c65f52", /* red     */
++	"#a6b385", /* green   */
++	"#d0a96a", /* yellow  */
++	"#7e9ca8", /* blue    */
++	"#b08aa6", /* magenta */
++	"#8aa89b", /* cyan    */
++	"#d8d0c2", /* white   */
+ 
+ 	/* 8 bright colors */
+-	"gray50",
+-	"red",
+-	"green",
+-	"yellow",
+-	"#5c5cff",
+-	"magenta",
+-	"cyan",
+-	"white",
++	"#4a443d", /* black   */
++	"#d47a63", /* red     */
++	"#b6c295", /* green   */
++	"#e0bd82", /* yellow  */
++	"#96b0bb", /* blue    */
++	"#c4a0b6", /* magenta */
++	"#9dbcae", /* cyan    */
++	"#ebe3d5", /* white   */
+ 
+ 	[255] = 0,
+ 
+ 	/* more colors can be added after 255 to use with DefaultXX */
+-	"#cccccc",
+-	"#555555",
+-	"gray90", /* default foreground colour */
+-	"black", /* default background colour */
++	"#d0a96a", /* 256 cursor      */
++	"#262320", /* 257 rev cursor  */
++	"#ebe3d5", /* 258 default fg  */
++	"#262320", /* 259 default bg  */
+ };
+ 
+ 
 @@ -176,6 +179,8 @@
   */
  static MouseShortcut mshortcuts[] = {
@@ -39,8 +88,8 @@ diff -ruN a/config.def.h b/config.def.h
  
  /*
 diff -ruN a/st.c b/st.c
---- a/st.c	2026-08-08 16:58:00.931622279 +0000
-+++ b/st.c	2026-08-08 16:59:18.526903373 +0000
+--- a/st.c	2026-08-08 17:41:37.338561570 +0000
++++ b/st.c	2026-08-08 17:41:38.539534885 +0000
 @@ -35,6 +35,7 @@
  #define ESC_ARG_SIZ   16
  #define STR_BUF_SIZ   ESC_BUF_SIZ
@@ -363,8 +412,8 @@ diff -ruN a/st.c b/st.c
  	term.ocy = term.c.y;
  	xfinishdraw();
 diff -ruN a/st.h b/st.h
---- a/st.h	2026-08-08 16:58:00.930622301 +0000
-+++ b/st.h	2026-08-08 16:58:01.295506199 +0000
+--- a/st.h	2026-08-08 17:41:37.337561592 +0000
++++ b/st.h	2026-08-08 17:41:37.825437548 +0000
 @@ -81,6 +81,8 @@
  void redraw(void);
  void draw(void);
@@ -375,8 +424,8 @@ diff -ruN a/st.h b/st.h
  void printsel(const Arg *);
  void sendbreak(const Arg *);
 diff -ruN a/x.c b/x.c
---- a/x.c	2026-08-08 16:58:00.931622279 +0000
-+++ b/x.c	2026-08-08 16:58:02.016598244 +0000
+--- a/x.c	2026-08-08 17:41:37.338561570 +0000
++++ b/x.c	2026-08-08 17:41:38.531535063 +0000
 @@ -105,6 +105,7 @@
  	XSetWindowAttributes attrs;
  	int scr;

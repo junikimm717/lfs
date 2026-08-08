@@ -12,15 +12,15 @@ FIFO="/tmp/mimux-panel.fifo"
 FONT="DejaVu Sans Mono:size=11"
 HEIGHT=24
 
-# --- Nord palette ---
-BG="#cc2e3440"   # polar night, ~80% opaque (composited by picom)
-FG="#d8dee9"     # snow storm
-ACC="#88c0d0"    # frost  (focused desktop background)
-ACC_FG="#2e3440" # dark text on the accent
-OCC="#e5e9f0"    # bright (occupied desktop)
-IDLE="#4c566a"   # dim    (empty desktop)
-URG="#bf616a"    # aurora red (urgent)
-TITLE_FG="#81a1c1"
+# --- Mimicoco palette (matched to the wallpaper) ---
+BG="#cc262320"   # warm charcoal, ~80% opaque (composited by picom)
+FG="#ebe3d5"     # cream (tiles / silver fur)
+ACC="#a6b385"    # sage plant  (focused desktop background)
+ACC_FG="#262320" # dark text on the accent
+OCC="#ebe3d5"    # bright cream (occupied desktop)
+IDLE="#8b8378"   # warm grey    (empty desktop)
+URG="#c17a54"    # terracotta   (urgent)
+TITLE_FG="#d0a96a" # amber (warm wood light)
 
 # Clean up any previous instance, then make a fresh fifo.
 pkill -x lemonbar  >/dev/null 2>&1
