@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,27 +15,32 @@ BASEURL="https://github.com/eudev-project/eudev/releases/download/v$VERSION"
 SRCDIR="eudev-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
   echo "downloading eudev source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting eudev source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xzf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xzf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   # monkey patched for now, but bad idea to hard code /usr/bin
   # ideal scenario, we just never search for g++ because IT's NOT NEEDED
   # kmod stays off (the kernel is CONFIG_MODULES=n). blkid is ON: userspace.sh
@@ -51,22 +56,20 @@ extract() {
 
 makeinstall() {
   echo "building eudev..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download

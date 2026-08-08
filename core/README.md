@@ -29,16 +29,22 @@ The mimux core build process is designed for both standardization and maximum
 flexibility. All package builds are based on a standalone, working-directory
 agnostic `./build` script that can be arbitrarily hacked.
 
+Builds are **out of tree**: nothing is written into the package directory. A
+package only holds its `build` script and any vendored inputs it ships
+(patches, `config.h`, ...). Tarballs are cached in `$TARBALLS` and each package
+is unpacked and built under `$WORK` (`$BUILDDIR/<package>`). See the Environment
+Variables section below.
+
 All `build` scripts currently in the source tree have four main functions:
 
-1. download - downloads the source tarball. By precedent, the source tarball
-  should be downloaded into `{package}/`.
-2. extract - extracts the tarball, may apply some patches, and maybe runs
-   `./configure`. You may add any additional patches into the 
+1. download - downloads the source tarball into the shared cache `$TARBALLS`.
+2. extract - unpacks the tarball into a fresh `$WORK` (it is `rm -rf`'d first),
+   may apply some patches, and maybe runs `./configure`. Vendored inputs are
+   read from `$DIR` (the package dir); the source tree lives under `$WORK`.
 3. makeinstall - generally just runs `make && make install`, although can easily
    accommodate additional steps as required.
-4. clear - removes all build artifacts in the `{package}` dir. This is nice for
-   when you want to do clean builds/test whether build processes work correctly.
+4. clear - removes the out-of-tree build dir (`$WORK`); the cached tarball in
+   `$TARBALLS` is kept. Nice for clean-build/test-the-build-process runs.
 
 ## Executing the build script
 
@@ -118,6 +124,13 @@ environment variables can be provided for convenience. These should be used inst
 of hardcoding any paths.
 
 - `$ROOTFS` - The root directory of the rootfs that is getting constructed.
+- `$TARBALLS` - Shared cache directory for downloaded source tarballs (default
+  `dist/cache`). Every `build` downloads into here, so a tarball is fetched once
+  and reused. Override to relocate the cache.
+- `$BUILDDIR` - Root of the out-of-tree build trees (default `dist/build`). Each
+  package is unpacked and built under `$BUILDDIR/<package>` (its `$WORK`), so the
+  package directory in the source tree stays clean. Override to relocate (e.g.
+  onto tmpfs).
 - `$JOBS` - The number of processes that the build process should spawn. Almost
   always used as `make -j${JOBS:-8}`. `JOBS` is usually configured as some
   number slightly less than `$(nproc)`.
@@ -135,7 +148,7 @@ The starter code for the build script will have a header that looks like this:
 
 ```sh
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -147,6 +160,9 @@ VERSION="3.13.3"
 BASEURL="https://www.python.org/ftp/python/$VERSION"
 SRCDIR="Python-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
+
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
 ```
 
 VERSION, BASEURL, SRCDIR, and TARBALL are convenience variables defined on the
@@ -154,8 +170,9 @@ spot for you to modify as appropriate. They reflect the fact that for most
 regular packages, the build process starts by grabbing a tarball from GitHub or
 some other mirror.
 
-`$SRCDIR` is the name of the directory that should pop out when you run `tar xf
-$TARBALL`.
+`$NAME` is the package's directory name; `$WORK` (`$BUILDDIR/$NAME`) is the
+per-package out-of-tree build directory. `$SRCDIR` is the name of the directory
+that pops out when you run `tar xf $TARBALL -C "$WORK"`.
 
 If, for whatever stupid reason, the tarball just spews its build contents out
 into `/core/{package}` directly, just modify the build script to `mkdir -p

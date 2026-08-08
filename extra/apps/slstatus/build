@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -18,36 +18,40 @@ BASEURL="https://dl.suckless.org/tools"
 SRCDIR="slstatus-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
   echo "downloading slstatus source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
+  curl -Lfo "$TARBALLS/$TARBALL" --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting slstatus source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
   # Drop in the mimux config (cpu/mem/clock).
-  cp "$DIR/config.h" "$DIR/$SRCDIR/config.h"
+  cp "$DIR/config.h" "$WORK/$SRCDIR/config.h"
 }
 
 makeinstall() {
   echo "building slstatus..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   # config.mk hard-assigns X11INC/X11LIB (/usr/X11R6) and LDFLAGS, ignoring the
   # env. Point them at the sysroot and re-add -rpath-link so libX11's indirect
@@ -62,11 +66,9 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d) download ;;
   extract|e) extract ;;

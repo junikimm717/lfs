@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -14,51 +14,55 @@ BASEURL="https://github.com/mirror/busybox/archive/refs/tags"
 SRCDIR="busybox-$(echo "$VERSION" | tr '.' '_')"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK. The
+# .config and net.patch are vendored inputs kept in $DIR.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
   echo "downloading busybox source"
-  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    "$BASEURL/$(echo "$VERSION" | tr '.' '_').tar.gz" -o "$TARBALLS/$TARBALL"
 }
 
 HOSTCC="$(PATH='/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin' command -v gcc)"
 export HOSTCC
 
 menuconfig() {
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
   # STUPID busybox and HOSTCC (same issues as kernel) GAHHHHHHHH
   LD_LIBRARY_PATH=/lib:/usr/lib make menuconfig HOSTCC="$HOSTCC"
 }
 
 extract() {
-  cd "$DIR"
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
   echo "extracting busybox source and applying config..."
-  tar xzf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xzf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   patch -p1 < "$DIR/net.patch"
-  cd "$DIR"
   # actually skull emoji of a patch
   sed -i\
     -e "s|main|int main|g"\
-    "./$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh"
-  cp -a ./config "$SRCDIR/.config"
+    "$WORK/$SRCDIR/scripts/kconfig/lxdialog/check-lxdialog.sh"
+  cp -a "$DIR/config" "$WORK/$SRCDIR/.config"
 }
 
 makeinstall() {
-  cd "$DIR"
   echo "building busybox"
-  if ! test -d "$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
   make -j"${JOBS:-8}" HOSTCC="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v gcc)"\
     HOSTCXX="$(PATH=/bin:/usr/bin:/usr/local/bin:/usr/sbin:/sbin command -v g++)" \
     CC="$CC" AR="$AR" LD="$LD"
@@ -67,11 +71,10 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz "$SRCDIR" "$TARBALL"
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download
@@ -93,14 +96,14 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for musl-cross-make on macos
+Build script for busybox
 
-download|d -> download the tarball
-extract|e -> extract and patch the tarball
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract and patch the tarball under \$BUILDDIR
 menu -> create a menuconfig
-makeinstall|mi -> make and install the tarball into ../gcc
-clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
-all|a -> clean, and then go through everything.
+makeinstall|mi -> make and install busybox into the rootfs
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;

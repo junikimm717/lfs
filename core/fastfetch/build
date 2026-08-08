@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,27 +15,32 @@ BASEURL="https://github.com/fastfetch-cli/fastfetch/archive/refs/tags/"
 SRCDIR="fastfetch-$VERSION"
 TARBALL="$VERSION.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
   echo "downloading fastfetch source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting fastfetch source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xzf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xzf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   mkdir -p build
   cd build
   cmake -DENABLE_ELF=OFF -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath-link=$ROOTFS/usr/lib" ..
@@ -43,22 +48,20 @@ extract() {
 
 makeinstall() {
   echo "building fastfetch..."
-  if ! test -d "$DIR/$SRCDIR/build"; then
+  if ! test -d "$WORK/$SRCDIR/build"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR/build"
+  cd "$WORK/$SRCDIR/build"
 
   cmake --build . -j "${JOBS:-8}" --target fastfetch
   install -Dm755 fastfetch "$ROOTFS/usr/bin"
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download

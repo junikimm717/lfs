@@ -3,7 +3,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
@@ -22,14 +22,19 @@ BASEURL="cdn.kernel.org/pub/linux/kernel/v$(echo "$VERSION" | cut -d'.' -f 1 ).x
 SRCDIR="linux-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK. The
+# kernel config, boot logo (cat.ppm) and pnmtologo.c are vendored inputs in $DIR.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
   echo "downloading kernel source"
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 # this script involves injecting a logo into the mimux tree. To get the ascii
@@ -39,29 +44,28 @@ download() {
 # pnmnoraw /tmp/cat.ppm > ./cat.ppm
 
 extract() {
-  cd "$DIR"
   echo "extracting kernel source and applying config..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL does not exist!!"
     exit 1
   fi
-  tar xf "$TARBALL"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
   # config that is slimmed down and reduces used modules
-  cp -p "./configs/nomodules.config" "$SRCDIR/.config"
-  cd "$DIR/$SRCDIR"
+  cp -p "$DIR/configs/nomodules.config" "$WORK/$SRCDIR/.config"
+  cd "$WORK/$SRCDIR"
   # pnmtologo script
-  gcc "$DIR/pnmtologo.c" -o "$DIR/$SRCDIR/pnmtologo"
+  gcc "$DIR/pnmtologo.c" -o "$WORK/$SRCDIR/pnmtologo"
   cp "$DIR/cat.ppm" drivers/video/logo/logo_linux_clut224.ppm
-  "$DIR/$SRCDIR/pnmtologo" -t clut224 "$DIR/cat.ppm" > "$DIR/$SRCDIR/drivers/video/logo/logo_linux_clut224.c"
-  #"$DIR/$SRCDIR/pnmtologo" -t clut224 "$DIR/cat.ppm" > "$DIR/modified_logo.c"
+  "$WORK/$SRCDIR/pnmtologo" -t clut224 "$DIR/cat.ppm" > "$WORK/$SRCDIR/drivers/video/logo/logo_linux_clut224.c"
 }
 
 
 makeinstall() {
-  cd "$DIR"
-  ! test -e "$SRCDIR" && { echo "You must have $SRCDIR prepared first!" && exit 1; }
+  ! test -e "$WORK/$SRCDIR" && { echo "You must have $SRCDIR prepared first!" && exit 1; }
   echo "compiling and installing header"
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
   # this screws up the config
   make olddefconfig
   make -j"${JOBS:-8}" 2>&1 | tee build.log
@@ -78,11 +82,10 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz "$SRCDIR" "$TARBALL"
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download
@@ -104,14 +107,14 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for musl-cross-make on macos
+Build script for the linux kernel
 
-download|d -> download the tarball
-extract|e -> extract and patch the tarball
-de -> download and extract (installs headers)
-makeinstall|mi -> make and install the tarball into ../gcc
-clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
-all|a -> clean, and then go through everything.
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract, patch, and inject the boot logo under \$BUILDDIR
+de -> download and extract
+makeinstall|mi -> compile the kernel, install headers + vmlinuz
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;

@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -14,32 +14,37 @@ VERSION="2.47"
 BASEURL="https://sourceware.org/pub/binutils/releases"
 SRCDIR="binutils-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
-BUILDDIR="dist"
+OBJDIR="dist"
+
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
 
 download() {
-  cd "$DIR"
   echo "downloading binutils source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting binutils source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
 
-  mkdir -p "$DIR/$BUILDDIR"
-  cd "$DIR/$BUILDDIR"
-  "$DIR/$SRCDIR/configure" \
+  mkdir -p "$WORK/$OBJDIR"
+  cd "$WORK/$OBJDIR"
+  "$WORK/$SRCDIR/configure" \
     --prefix="/usr" \
     --exec-prefix="/usr" \
     --target="$TARGET" \
@@ -76,22 +81,20 @@ extract() {
 
 makeinstall() {
   echo "building binutils..."
-  if ! test -d "$DIR/$BUILDDIR" -a -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$OBJDIR" -a -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
 
-  cd "$DIR/$BUILDDIR"
+  cd "$WORK/$OBJDIR"
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL" "$BUILDDIR"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download

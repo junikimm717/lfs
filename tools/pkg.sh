@@ -17,4 +17,4 @@ mkdir "$1"
 cd "$1" || exit 1
 
 sed "s/PACKAGE/$NAME/g" "$DIR/../misc/build.template" > "build" && chmod +x build
-echo "$NAME-*" > ".gitignore"
+# No per-package .gitignore needed: out-of-tree builds keep this dir clean.

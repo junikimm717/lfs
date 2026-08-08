@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -18,34 +18,38 @@ BASEURL="https://github.com/drscream/lemonbar-xft/archive/refs/tags"
 SRCDIR="lemonbar-xft-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="$BUILDDIR/$NAME"
+
 download() {
-  cd "$DIR"
   echo "downloading lemonbar source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
-  curl -Lfo "$TARBALL" --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/v$VERSION.tar.gz"
+  curl -Lfo "$TARBALLS/$TARBALL" --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/v$VERSION.tar.gz"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting lemonbar source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
 }
 
 makeinstall() {
   echo "building lemonbar..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   # The Makefile hardcodes -I/usr/include/freetype2 (the builder's, not the
   # sysroot's); feed it the real freetype2/xft include paths via pkg-config so
@@ -59,11 +63,10 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d) download ;;
   extract|e) extract ;;
@@ -74,11 +77,11 @@ case "$1" in
     cat <<EOF
 Build script for lemonbar (xft fork)
 
-download|d -> download the tarball
-extract|e -> extract the tarball
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract the tarball under \$BUILDDIR
 makeinstall|mi -> make and install the binary
-clear|clean|c -> clean all artifacts
-all|a -> clean, and then go through everything.
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;
