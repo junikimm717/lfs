@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -fLs https://www.x.org/releases/individual/lib/ \
+  | grep -oE 'libXfixes-[0-9.]+\.tar\.xz' \
+  | sed -E 's/^libXfixes-([0-9.]+)\.tar\.xz$/\1/' \
+  | sort -V \
+  | tail -n1

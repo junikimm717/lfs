@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -fLs https://www.x.org/releases/individual/lib/ \
+  | grep -oE 'libXfont2-[0-9.]+\.tar\.xz' \
+  | sed -E 's/^libXfont2-([0-9.]+)\.tar\.xz$/\1/' \
+  | sort -V \
+  | tail -n1

@@ -107,9 +107,9 @@ export CXXFLAGS="\$CXXFLAGS -O2 -pipe -fPIC -w -I\$ROOTFS/usr/include -I\$ROOTFS
 export LDFLAGS="\$LDFLAGS -s -L\$ROOTFS/lib -L\$ROOTFS/usr/lib -L\$ROOTFS/usr/lib64 -L$DIR/cross/$TARGET-native/$TARGET/lib"
 
 export VIRTUAL_ENV="mimux"
-export PKG_CONFIG_SYSROOT_DIR=$ROOTFS
-export PKG_CONFIG_LIBDIR=$ROOTFS/usr/lib/pkgconfig
-export PKG_CONFIG_PATH=$ROOTFS/usr/share/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=\$ROOTFS
+export PKG_CONFIG_LIBDIR=\$ROOTFS/usr/lib/pkgconfig
+export PKG_CONFIG_PATH=\$ROOTFS/usr/share/pkgconfig
 
 JOBS=$(($(nproc)-2))
 if [ \$JOBS -lt 0 ]; then

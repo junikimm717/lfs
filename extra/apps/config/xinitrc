@@ -1,0 +1,6 @@
+#!/bin/sh
+# mimux default X session.
+#
+# bspwm reads ~/.config/bspwm/bspwmrc on startup, which is where sxhkd (the
+# hotkey daemon) and the desktop layout are configured.
+exec bspwm

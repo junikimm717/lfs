@@ -61,6 +61,9 @@ build sqlite
 build python3
 # tools
 build runit
+# util-linux before eudev: eudev's blkid builtin links util-linux's libblkid,
+# so it must already be installed in the sysroot when eudev configures.
+build util-linux
 build eudev
 build chrony
 build dhcpcd
@@ -68,7 +71,6 @@ build opendoas
 build fastfetch
 build file
 build make
-build util-linux
 # curl depends on nghttp2
 build nghttp2
 build curl

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -fLs https://www.x.org/releases/individual/data/xkeyboard-config/ \
+  | grep -oE 'xkeyboard-config-[0-9.]+\.tar\.xz' \
+  | sed -E 's/^xkeyboard-config-([0-9.]+)\.tar\.xz$/\1/' \
+  | sort -V \
+  | tail -n1

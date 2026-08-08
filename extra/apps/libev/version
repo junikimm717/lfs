@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -fLs http://dist.schmorp.de/libev/ \
+  | grep -oE 'libev-[0-9.]+\.tar\.gz' \
+  | sed -E 's/^libev-([0-9.]+)\.tar\.gz$/\1/' \
+  | sort -V \
+  | tail -n1

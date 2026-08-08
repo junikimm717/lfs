@@ -1,0 +1,119 @@
+#!/bin/sh
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+cd "$DIR"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+VERSION="0.9.3"
+BASEURL="https://dl.suckless.org/st"
+SRCDIR="st-$VERSION"
+TARBALL="$SRCDIR.tar.gz"
+
+download() {
+  cd "$DIR"
+  echo "downloading st source..."
+  if test -f "$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+    return
+  fi
+  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
+}
+
+extract() {
+  cd "$DIR"
+  echo "extracting st source..."
+  if ! test -f "$TARBALL"; then
+    echo "No tarball to operate on!"
+    exit 1
+  fi
+
+  tar xf "$TARBALL"
+  cd "$SRCDIR"
+
+  # Apply the mimux combined patch. It folds three upstream suckless patches
+  # (scrollback + scrollback-mouse + alpha) plus our config defaults into one
+  # deterministic diff against pristine st-0.9.3:
+  #   - alpha:      32-bit ARGB visual so picom can make the background
+  #                 transparent (float alpha = 0.85 in config.def.h)
+  #   - scrollback: Shift+PageUp/PageDown and Shift+MouseWheel history
+  #                 (HISTSIZE = 10000 lines in st.c)
+  #   - font:       default pinned to DejaVu Sans Mono (shipped by mimux)
+  # Vendored (rather than fetched from st.suckless.org at build time) so the
+  # build stays reproducible and the three patches never re-conflict on apply.
+  patch -p1 < "$DIR/mimux.diff"
+
+  # st builds config.h from config.def.h; generate it up front for determinism.
+  cp config.def.h config.h
+}
+
+makeinstall() {
+  echo "building st..."
+  if ! test -d "$DIR/$SRCDIR"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  cd "$DIR/$SRCDIR"
+
+  # st has no ./configure; it uses config.mk. Override the X11 paths (which
+  # default to the wrong /usr/X11R6/{include,lib}) to point at the sysroot,
+  # and use our cross compiler. fontconfig/freetype2 flags come from
+  # pkg-config, which already resolves the TARGET libs.
+  make -j"${JOBS:-8}" \
+    CC="$CC" \
+    X11INC="$ROOTFS/usr/include" \
+    X11LIB="$ROOTFS/usr/lib" \
+    PKG_CONFIG=pkg-config
+
+  # `make install` runs `tic -sx st.info`, which writes the compiled terminfo
+  # to $TERMINFO (defaulting to the builder's ~/.terminfo). Point it into the
+  # target rootfs so st and st-256color land there.
+  mkdir -p "$ROOTFS/usr/share/terminfo"
+  export TERMINFO="$ROOTFS/usr/share/terminfo"
+
+  make PREFIX=/usr DESTDIR="$ROOTFS" \
+    X11INC="$ROOTFS/usr/include" \
+    X11LIB="$ROOTFS/usr/lib" \
+    install
+}
+
+clear() {
+  cd "$DIR"
+  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+}
+
+cd "$DIR"
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for st
+
+download|d -> download the tarball
+extract|e -> extract and patch the tarball
+makeinstall|mi -> make and install the build artifacts
+clear|clean|c -> clean all artifacts
+all|a -> clean, and then go through everything.
+EOF
+    exit 1
+    ;;
+esac
