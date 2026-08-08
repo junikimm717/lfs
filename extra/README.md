@@ -103,16 +103,17 @@ preferred wherever a `configure` ships.
 
 ## Testing
 
-`tools/qemu.sh` boots `dist/bootable.img` in a graphical QEMU window via
-OVMF/UEFI (it runs on the **host**, not in the container). Defaults to 1280×720
-(`XRES`/`YRES` overridable) and uses **paravirtualized virtio input**
-(`virtio-keyboard-pci`/`virtio-tablet-pci`) for low pointer latency. `GL=on`
-routes the scanout through host OpenGL for a lower-latency present path.
+`tools/linux_boot.sh` boots `dist/bootable.img` in a graphical QEMU window via
+OVMF/UEFI (it runs on the **host**, not in the container; the Linux counterpart
+to `tools/macos_boot.sh`). Defaults to 1280×720 (`XRES`/`YRES` overridable) and
+uses **paravirtualized virtio input** (`virtio-keyboard-pci`/`virtio-tablet-pci`)
+for low pointer latency. `GL=on` routes the scanout through host OpenGL for a
+lower-latency present path.
 
 ```sh
-./tools/qemu.sh                 # boot, then log in as mimi / george, run xstart
-GL=on ./tools/qemu.sh           # optional host-GL present path
-XRES=1600 YRES=900 ./tools/qemu.sh
+./tools/linux_boot.sh                 # boot, then log in as mimi / george, run xstart
+GL=on ./tools/linux_boot.sh           # optional host-GL present path
+XRES=1600 YRES=900 ./tools/linux_boot.sh
 ```
 
 ## Kernel / build-env status (already satisfied — no changes needed)

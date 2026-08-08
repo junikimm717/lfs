@@ -1,5 +1,6 @@
 #!/bin/sh
-# qemu.sh -- boot the mimux bootable image in a GRAPHICAL QEMU window (UEFI).
+# linux_boot.sh -- boot the mimux bootable image in a GRAPHICAL QEMU window
+# (UEFI). The Linux counterpart to tools/macos_boot.sh.
 #
 # Unlike tools/emulator.sh (which does a headless -nographic direct-kernel
 # boot for quick console testing), this boots the real dist/bootable.img
@@ -12,7 +13,7 @@
 #
 # Overridable via env: IMG, MEM (MB), SMP, DISPLAY_BACKEND (gtk|sdl).
 # Any extra args are passed straight through to qemu, e.g.:
-#   ./tools/qemu.sh -snapshot
+#   ./tools/linux_boot.sh -snapshot
 set -eu
 
 DIR="$(realpath "$(dirname "$0")")"

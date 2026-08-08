@@ -105,6 +105,25 @@ All final build artifacts will be located in `./dist/`.
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete. The GitHub CI takes around an hour to build each image.
 
+### Optional graphical layer (Xorg + bspwm)
+
+The core image is headless. An **opt-in** graphical environment (Xorg, the bspwm
+window manager, st, and a wallpaper) lives under [`extra/`](./extra/) and is
+**not** part of `buildall.sh` or the CI images. To add it, build the two extra
+stacks on top of the already-built rootfs, then repackage the image:
+
+```sh
+./tools/graphical.sh   # the X11 stack (extra/xorg)
+./tools/apps.sh        # bspwm/sxhkd/st + fonts + wallpaper + session config
+./tools/bootable.sh    # fold the new rootfs contents into dist/bootable.img
+```
+
+Both scripts run inside the dev container (like everything else) and expect a
+completed `./buildall.sh` first. Once booted, log in as `mimi` and run `xstart`
+to launch bspwm. See [`extra/README.md`](./extra/README.md) for the package
+list, keybindings, and `tools/linux_boot.sh` (a graphical QEMU launcher for
+testing).
+
 ## Virtual Machines
 
 The kernel has been maximally stripped and has no module support. There is no

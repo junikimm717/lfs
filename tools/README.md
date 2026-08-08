@@ -24,6 +24,10 @@ homebrew.
   images.
 - [./macos_boot.sh](./macos_boot.sh) - tests the bootable image at
   `/dist/bootable.img` by launching a qemu virtual machine.
+- [./linux_boot.sh](./linux_boot.sh) - the Linux counterpart to
+  `macos_boot.sh`; boots `/dist/bootable.img` in a graphical QEMU window (UEFI)
+  so you can see the optional Xorg/bspwm layer. Defaults to 1280x720 with
+  paravirtualized virtio input; `XRES`/`YRES`/`GL`/`MEM`/`SMP` are overridable.
 - `./x86_macos_boot.sh {image path}` - tests an bootable x86 qemu virtual
   machine image at the specified path. These are almost always images generated
   by the CI.
