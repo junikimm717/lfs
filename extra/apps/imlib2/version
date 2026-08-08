@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Note: there is no enlightenment/imlib2 repo on GitHub (upstream only ships
+# tarballs via SourceForge, which blocks scripted requests). Use Repology's
+# aggregated "newest" status across distro repos instead.
+curl -s -A "mimux-version-checker" https://repology.org/api/v1/project/imlib2 \
+  | jq -r '.[] | select(.status == "newest") | .version' \
+  | grep -E '^[0-9.]+$' \
+  | sort -V \
+  | tail -n 1

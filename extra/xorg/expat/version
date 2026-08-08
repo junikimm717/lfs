@@ -1,0 +1,8 @@
+#!/bin/sh
+
+curl https://api.github.com/repos/libexpat/libexpat/tags 2> /dev/null \
+  | jq -r '.[].name' \
+  | grep -E '^R_[0-9_]+$' \
+  | sed -e 's/^R_//' -e 's/_/./g' \
+  | sort -V \
+  | tail -n 1

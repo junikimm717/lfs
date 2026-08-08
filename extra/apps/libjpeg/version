@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -s https://www.ijg.org/files/ \
+  | grep -oE 'jpegsrc\.v[0-9]+[a-z]?\.tar\.gz' \
+  | sed -E 's/^jpegsrc\.v([0-9]+[a-z]?)\.tar\.gz$/\1/' \
+  | sort -V \
+  | tail -n 1

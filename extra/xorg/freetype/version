@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl https://download.savannah.gnu.org/releases/freetype/ 2> /dev/null \
+  | grep -oE 'freetype-[0-9][0-9.]*\.tar\.xz' \
+  | sed -e 's/^freetype-\(.*\)\.tar\.xz$/\1/' \
+  | sort -V \
+  | tail -n 1

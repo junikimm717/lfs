@@ -1,108 +1,125 @@
 # Mimux Extra
 
-Non-essential, opt-in packages that are **not** part of the core bootable rootfs.
-These build on top of `core/` and are intended for a graphical environment.
+Non-essential, opt-in packages that are **not** part of the core bootable
+rootfs. These build on top of `core/` and provide a minimal graphical
+environment: **Xorg + the bspwm window manager + a terminal**. Unlike `core/`,
+nothing here is installed by the base `tools/userspace.sh` run — you opt in by
+running the graphical build scripts against an already-built rootfs.
 
-Nothing here is implemented yet — this document is the scouting output that
-scopes the work.
+## Layout
 
-## Scope (current milestone)
+```
+extra/
+  xorg/        the X11 stack (protocol libs, Xlib/xcb, fonts, drivers, server)
+  apps/        the session: bspwm, sxhkd, st, xinit, fonts, feh wallpaper
+    config/    session config installed into the rootfs (see below)
+```
 
-A minimal **Xorg + floating window manager + terminal emulator** stack. A
-browser is deliberately deferred until the X stack is proven to boot (it forces
-a choice between the lightweight own-engine route and the heavy GTK/mesa route).
+Two orchestrators drive the build, mirroring `tools/userspace.sh`:
 
-### Design decisions that keep this small
+- **`tools/graphical.sh`** — builds every package in `extra/xorg/` in dependency
+  order.
+- **`tools/apps.sh`** — builds the `extra/apps/` layer on top and installs the
+  default session config.
+
+Both must run **inside the dev container** (they guard on `$INOSENV`) against a
+rootfs that already has `core/` built. Typical flow:
+
+```sh
+./tools/graphical.sh   # X11 stack
+./tools/apps.sh        # WM + terminal + fonts + wallpaper + config
+./tools/bootable.sh    # repackage dist/bootable.img
+```
+
+Individual packages use the same standalone `./build` contract as `core/`
+(`download` / `extract` / `makeinstall` / `clear`, plus `all`). See
+[`../core/README.md`](../core/README.md) for the details — everything there
+applies here too, including the `version` script convention (all `extra/`
+packages now ship one).
+
+## Design decisions that keep this small
 
 - **Video via `xf86-video-fbdev`** (writes to `/dev/fb0`, which the shipped
-  kernel exposes through `CONFIG_DRM_FBDEV_EMULATION=y` over virtio-gpu). This
-  lets us **skip mesa / libdrm / libgbm / LLVM entirely** — no GL.
-- **Suckless apps (st, cwm/dwm)** so we **skip the entire GLib / GTK / Cairo /
-  Pango / gdk-pixbuf stack**.
-- Reuse from `core/`: zlib, openssl, ncurses, libffi, python3, perl, eudev
-  (input hotplug).
+  kernel exposes over virtio-gpu). This lets us **skip mesa / libgbm / LLVM
+  entirely** — there is **no GL**. `xorg-server` is built with glamor, GLX and
+  DRI disabled; the `modesetting` DDX auto-disables (it needs gbm). The cost is
+  a software-only render path.
+- **Suckless st** for the terminal, so we **skip the entire GLib / GTK / Cairo /
+  Pango stack**.
+- **Reuse from `core/`**: zlib, openssl, ncurses, libffi, python3, perl, eudev
+  (input hotplug), util-linux (libblkid).
+- **No display manager / logind.** X is started by hand from a VT via `xinit`
+  (not startx/xauth, avoiding the libXmu/libXt/libICE/libSM chain). The server
+  is installed **setuid root** so it can touch DRM/fb/input/VT under the runit
+  init with no seat manager.
 
-### Kernel / build-env status (already satisfied — no changes needed)
+## Packages
 
-- `nomodules.config` already has: `DRM=y`, `DRM_KMS_HELPER=y`,
-  `DRM_VIRTIO_GPU_KMS=y`, `DRM_QXL=y`, `DRM_SIMPLEDRM=y`,
-  `DRM_FBDEV_EMULATION=y`, `INPUT_EVDEV=y`, `VT=y`.
-- Docker build image already has `pkg-config`, `meson`, `ninja`, autotools.
-  Only NLS/docs tooling (`gettext`, `xmlto`) is absent — disable those like the
-  rest of mimux does.
+### `extra/xorg/` — build order (see `tools/graphical.sh`)
 
-## Package list (build order — deps first)
+Protocol + base libs: `util-macros`, `xorgproto`, `xcb-proto`, `libXau`,
+`libXdmcp`, `libxcb`, `xcb-util`, `xcb-util-keysyms`, `xcb-util-wm`, `xtrans`.
 
-### X protocol + base libraries
-1. util-macros        (build-time autoconf macros)
-2. xorgproto          (protocol headers)
-3. libXau
-4. libXdmcp
-5. xcb-proto          (python-generated)
-6. libxcb
-7. xtrans             (headers/build dep)
+Xlib client libs: `libX11`, `libXext`, `libXrender`, `libXfixes`, `libXi`,
+`libXrandr`, `libXcursor`, `libXinerama`.
 
-### Xlib client libraries
-8.  libX11
-9.  libXext
-10. libXrender
-11. libXfixes
-12. libXi
-13. libXrandr
-14. libXcursor
-15. libXinerama
+Fonts / text: `libpng`, `freetype`, `expat`, `fontconfig`, `libXft`,
+`font-util`, `libfontenc`, `libXfont2`.
 
-### Fonts / text rendering
-16. freetype          (build first without harfbuzz to break the cycle)
-17. libpng
-18. expat             (XML backend for fontconfig)
-19. fontconfig
-20. libXft
-21. font-util
-22. dejavu (or similar TTF)   (at least one real font for st/WM)
+Keyboard: `libxkbfile`, `xkeyboard-config`, `xkbcomp`.
 
-### X server support libraries + data
-23. pixman
-24. libpciaccess
-25. libxshmfence
-26. libfontenc
-27. libXfont2
-28. libxkbfile
-29. xkeyboard-config  (keymap data)
-30. xkbcomp
+Server support + drivers: `libpciaccess`, `libxcvt`, `libdrm`, `pixman`,
+`libevdev`, then `xorg-server`, then the drivers `mtdev`, `xf86-input-evdev`,
+`xf86-video-fbdev` (drivers build against the server's SDK, so they come last).
 
-### Input + video drivers
-31. libevdev
-32. xf86-input-evdev
-33. xf86-video-fbdev
+Most are small autotools builds. A handful are meson-only (`xorgproto`,
+`xkeyboard-config`, `libpciaccess`, `libxcvt`, `libdrm`, `pixman`); autotools is
+preferred wherever a `configure` ships.
 
-### The server
-34. xorg-server
+### `extra/apps/` — build order (see `tools/apps.sh`)
 
-### Applications
-35. st                (suckless terminal; deps = libX11, libXft, fontconfig, freetype)
-36. cwm  *(recommended, true floating)*  OR  dwm *(tiling-first, has floating layer)*
-    - cwm deps: libX11, libXft, libXinerama, libXrandr
-    - dwm deps: libX11, libXft, libXinerama
+- `dejavu-fonts` — one real TTF so st/WM can render text.
+- `xinit` — the session launcher.
+- `libjpeg` (IJG) → `imlib2` → `feh` — the wallpaper stack (feh renders the
+  background; imlib2 needs a JPEG loader, hence libjpeg). Only PNG+JPEG imlib2
+  loaders are enabled; feh is built `curl=0` (no libcurl).
+- `st` — suckless terminal, pinned to DejaVu Sans Mono.
+- `bspwm` + `sxhkd` — the window manager and its hotkey daemon.
 
-**Total: ~36 packages**, almost all small autotools/meson builds (the modular
-libX* libs compile in seconds each).
+## Session config (`extra/apps/config/`, installed by `tools/apps.sh`)
 
-## Deferred: browser
+- **`xstart`** — the launcher; runs `xinit` on the current VT. Installed to
+  `/usr/bin/xstart` and also as `/usr/bin/startx`. Log in as `mimi` and run it.
+- **`xinitrc`** → `exec bspwm`.
+- **`bspwmrc`** — 10 desktops, borders/gaps, focus-follows-pointer, and sets the
+  wallpaper (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via
+  `feh --bg-fill`.
+- **`sxhkdrc`** — keybindings. The modifier is **Alt** (`mod1`), not Super: a
+  Wayland host such as Hyprland grabs Super globally, so it never reaches the
+  guest. Layout mirrors a typical Hyprland setup — `Alt+Return`/`Alt+Shift+A`
+  terminal, `Alt+Shift+Q` close, `Alt+V`/`Alt+F` float/fullscreen, `Alt+hjkl`
+  focus, `Alt+Shift+hjkl` swap, `Alt+1..0` desktops, `Alt+Shift+1..0` send.
+- **`00-keyboard.conf`** — `us` XkbLayout.
 
-Revisit after the X stack boots. Options, cheapest to heaviest:
+## Testing
 
-- **links -g** — renders straight to X. ~1-2 pkgs (add libjpeg-turbo). No JS.
-- **NetSurf (fb/X frontend)** — own engine, basic CSS + limited JS (Duktape).
-  ~11-13 tiny NetSurf libs, still **no GTK/mesa**.
-- **Firefox/Chromium** — needs rust+clang+nodejs in the build image plus the
-  full GTK+mesa+LLVM stack; multi-GB/multi-hour. Ruled out for a <600MB distro.
+`tools/qemu.sh` boots `dist/bootable.img` in a graphical QEMU window via
+OVMF/UEFI (it runs on the **host**, not in the container). Defaults to 1280×720
+(`XRES`/`YRES` overridable) and uses **paravirtualized virtio input**
+(`virtio-keyboard-pci`/`virtio-tablet-pci`) for low pointer latency. `GL=on`
+routes the scanout through host OpenGL for a lower-latency present path.
 
-## Open questions before implementation
+```sh
+./tools/qemu.sh                 # boot, then log in as mimi / george, run xstart
+GL=on ./tools/qemu.sh           # optional host-GL present path
+XRES=1600 YRES=900 ./tools/qemu.sh
+```
 
-- WM pick: **cwm** (true floating) vs **dwm** (tiling with floating layer).
-- Fonts: ship DejaVu only, or add a cursor/bitmap font too.
-- Video: stick with `fbdev` (no GL), or later invest in mesa+libdrm for the
-  `modesetting` DDX (needed if we ever want GL apps / a real browser).
-- Startup: how X gets launched (xinit/startx vs a runit service) and whether
-  it's opt-in at boot.
+## Kernel / build-env status (already satisfied — no changes needed)
+
+- `core/kernel/configs/nomodules.config` already has `DRM=y`,
+  `DRM_VIRTIO_GPU_KMS=y`, `DRM_SIMPLEDRM=y`, `DRM_FBDEV_EMULATION=y`,
+  `INPUT_EVDEV=y`, `VIRTIO_INPUT=y`, `VT=y`.
+- The Docker build image has `pkg-config`, `meson`, `ninja`, autotools and
+  `gettext`; NLS/docs tooling like `xmlto` is absent, so those are disabled the
+  way the rest of mimux does.

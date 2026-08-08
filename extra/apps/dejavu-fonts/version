@@ -1,0 +1,9 @@
+#!/bin/sh
+
+curl -s https://api.github.com/repos/dejavu-fonts/dejavu-fonts/tags \
+  | jq -r '.[].name' \
+  | grep -E '^version_[0-9_]+$' \
+  | sed -E 's/^version_//' \
+  | tr '_' '.' \
+  | sort -V \
+  | tail -n 1
