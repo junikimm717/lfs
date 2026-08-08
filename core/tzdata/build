@@ -3,7 +3,7 @@
 set -e
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -19,48 +19,53 @@ SRCDIR="tz$VERSION"
 TARBALL="tzdata$VERSION.tar.gz"
 TARBALL2="tzcode$VERSION.tar.gz"
 
+# Out-of-tree: tarballs cached in $TARBALLS, unpacked/built under $WORK.
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
 export CFLAGS="$CFLAGS -static"
 export LDFLAGS="$LDFLAGS -static"
 
 download() {
-  cd "$DIR"
   echo "downloading tzdata source..."
+  mkdir -p "$TARBALLS"
 
-  if test -f "$TARBALL"; then
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
   else
-    curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+    curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+      -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
   fi
 
-  if test -f "$TARBALL2"; then
+  if test -f "$TARBALLS/$TARBALL2"; then
     echo "$TARBALL2 exists, skipping..."
   else
-    curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL2
+    curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+      -o "$TARBALLS/$TARBALL2" "$BASEURL/$TARBALL2"
   fi
 
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting tzdata source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  mkdir -p "$DIR/$SRCDIR" && cd "$DIR/$SRCDIR"
-  tar xzf "$DIR/$TARBALL"
-  tar xzf "$DIR/$TARBALL2"
+  rm -rf "$WORK"
+  mkdir -p "$WORK/$SRCDIR" && cd "$WORK/$SRCDIR"
+  tar xzf "$TARBALLS/$TARBALL"
+  tar xzf "$TARBALLS/$TARBALL2"
 }
 
 makeinstall() {
   echo "building tzdata..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
   set -x
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
@@ -70,12 +75,9 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz \
-    "$SRCDIR" "$TARBALL" "$TARBALL2"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download
@@ -96,11 +98,11 @@ case "$1" in
     cat <<EOF
 Build script for tzdata
 
-download|d -> download the tarball
-extract|e -> extract and patch the tarball
+download|d -> download the tarballs into \$TARBALLS
+extract|e -> extract the tarballs under \$BUILDDIR
 makeinstall|mi -> make and install the build artifacts
-clear|clean|c -> clean all artifacts
-all|a -> clean, and then go through everything.
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;

@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -14,27 +14,32 @@ VERSION="2.3.1"
 SRCDIR="runit-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
 download() {
-  cd "$DIR"
   echo "downloading runit source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors https://smarden.org/runit/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "https://smarden.org/runit/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting runit source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xzf "$TARBALL" --strip-components=1
-  cd "$DIR/$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xzf "$TARBALLS/$TARBALL" --strip-components=1 -C "$WORK"
+  cd "$WORK/$SRCDIR"
 
   sed -i "s/gcc/\$CC/g" src/find-systype.sh
   sed -i "s/gcc/\$CC \$CFLAGS/g" src/conf-cc
@@ -43,11 +48,11 @@ extract() {
 
 makeinstall() {
   echo "building runit..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   # FORCE static linking everything
   LDFLAGS="$LDFLAGS" package/compile
@@ -56,11 +61,9 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download
@@ -81,11 +84,11 @@ case "$1" in
     cat <<EOF
 Build script for runit on macos
 
-download|d -> download the tarball
-extract|e -> extract and patch the tarball
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract the tarball under \$BUILDDIR
 makeinstall|mi -> make and install the tarball into ../gcc
-clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
-all|a -> clean, and then go through everything.
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;

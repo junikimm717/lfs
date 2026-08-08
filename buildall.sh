@@ -26,6 +26,9 @@ export RANLIB="$DIR/cross/$TARGET-native/bin/$TARGET-ranlib"
 export LD="$DIR/cross/$TARGET-native/bin/$TARGET-ld"
 export DIST="$DIR/dist"
 export ROOTFS="$DIR/dist/rootfs"
+# Out-of-tree build locations, shared by every package build script.
+export TARBALLS="${TARBALLS:-$DIST/cache}"
+export BUILDDIR="${BUILDDIR:-$DIST/build}"
 # Pin the userspace C standard to gnu17 (GCC <=14's default). GCC 15 defaults
 # to C23, under which an empty parameter list `f()` means `f(void)` (as in C++)
 # instead of "unspecified arguments". That breaks the K&R-style declarations and

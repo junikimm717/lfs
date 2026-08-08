@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,30 +15,35 @@ BASEURL="https://www.python.org/ftp/python/$VERSION"
 SRCDIR="Python-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK. Setup is
+# a vendored input kept in $DIR.
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
 # python actually just shits itself without this.
 export LD_LIBRARY_PATH="$ROOTFS/lib:$ROOTFS/usr/lib"
 
 download() {
-  cd "$DIR"
   echo "downloading python3 source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
-
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting python3 source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   cp -a "$DIR/Setup" ./Modules/Setup.local
   ./configure --prefix="/usr" --exec-prefix="/usr"\
     --with-sysroot="${ROOTFS:-/}"\
@@ -54,11 +59,11 @@ extract() {
 
 makeinstall() {
   echo "building python3..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
   # In 3.14 the HACL* rewrite means _sha2 and _blake2 link against the prebuilt
   # static archives (Modules/_hacl/libHacl_Hash_{SHA2,BLAKE2}.a) we reference in
   # Setup.local. The makesetup-generated link rules name those archives on the
@@ -77,11 +82,10 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download
@@ -102,11 +106,11 @@ case "$1" in
     cat <<EOF
 Build script for python3
 
-download|d -> download the tarball
-extract|e -> extract and patch the tarball
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract and patch the tarball under \$BUILDDIR
 makeinstall|mi -> make and install the build artifacts
-clear|clean|c -> clean all artifacts
-all|a -> clean, and then go through everything.
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
 EOF
     exit 1
     ;;

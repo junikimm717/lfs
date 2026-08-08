@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,6 +15,9 @@ BASEURL="https://codeberg.org/Limine/Limine/releases/download/v$VERSION"
 SRCDIR="limine-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
 # Unbelievable that 9.6.0 actually requires these???
 # gcc, ld, and friends should all be pointing to the musl cross toolchain
 # because of work done in /tools/env.sh tho
@@ -25,20 +28,20 @@ export OBJDUMP_FOR_TARGET="objdump"
 export READELF_FOR_TARGET="readelf"
 
 download() {
-  cd "$DIR"
   echo "downloading limine source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting limine source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
@@ -48,30 +51,30 @@ extract() {
     uefi_arch=x86-64
   fi
 
-  tar xzf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xzf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   ./configure --prefix="/usr" --exec-prefix="/usr" --target="$TARGET"\
     --enable-uefi-$uefi_arch --with-sysroot="${ROOTFS:-/}"
 }
 
 makeinstall() {
   echo "building limine..."
-  if ! test -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR"
+  cd "$WORK/$SRCDIR"
 
   make -j"${JOBS:-8}"
   make -j"${JOBS:-8}" DESTDIR="$ROOTFS" install
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download

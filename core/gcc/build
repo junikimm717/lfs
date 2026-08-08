@@ -2,7 +2,7 @@
 set -eu
 
 DIR="$(realpath "$(dirname "$0" )" )"
-cd "$DIR"
+NAME="$(basename "$DIR")"
 
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && {
@@ -15,29 +15,34 @@ SRCDIR="gcc-$VERSION"
 BASEURL="https://ftp.gnu.org/gnu/gcc/$SRCDIR"
 TARBALL="$SRCDIR.tar.xz"
 
-BUILDDIR="dist"
+OBJDIR="dist"
+
+# Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
-  cd "$DIR"
   echo "downloading gcc source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
 
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "$BASEURL/$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
   echo "extracting gcc source..."
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No tarball to operate on!"
     exit 1
   fi
 
-  tar xf "$TARBALL"
-  cd "$SRCDIR"
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
+  cd "$WORK/$SRCDIR"
   case $(uname -m) in
     x86_64)
       sed -e '/m64=/s/lib64/lib/' \
@@ -61,11 +66,11 @@ extract() {
   # reaches CC_FOR_BUILD/CFLAGS_FOR_BUILD used for the build-side libiberty.
   export CFLAGS="${CFLAGS:-} -Wno-error=implicit-function-declaration"
 
-  mkdir -p "$DIR/$BUILDDIR" && cd "$DIR/$BUILDDIR"
+  mkdir -p "$WORK/$OBJDIR" && cd "$WORK/$OBJDIR"
 
   # This gcc will be used when we are actually booted into our system.
   # Therefore, its sysroot must be set to /
-  "$DIR/$SRCDIR/configure" \
+  "$WORK/$SRCDIR/configure" \
     --prefix="/usr" \
     --target="$TARGET" \
     --libdir=/usr/lib \
@@ -96,16 +101,16 @@ extract() {
     --enable-libstdcxx-time=rt \
     CC="$CC $CFLAGS -fPIC"\
     CXX="$CXX $CXXFLAGS -fPIC"\
-   
+
 }
 
 makeinstall() {
   echo "building gcc..."
-  if ! test -d "$DIR/$BUILDDIR" -a -d "$DIR/$SRCDIR"; then
+  if ! test -d "$WORK/$OBJDIR" -a -d "$WORK/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$BUILDDIR"
+  cd "$WORK/$OBJDIR"
 
   make -j"${JOBS:-8}" all-gcc
   make -j"${JOBS:-8}" all-target-libgcc
@@ -120,11 +125,9 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL" "$BUILDDIR"
+  rm -rf "$WORK"
 }
 
-cd "$DIR"
 case "$1" in
   download|d)
     download

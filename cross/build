@@ -13,23 +13,27 @@ test -z "$INOSENV" && \
 SRCDIR="$TARGET-native"
 TARBALL="$SRCDIR.tgz"
 
+# NOTE: unlike package builds, the toolchain is NOT built out-of-tree -- it is
+# extracted in place at cross/$TARGET-native because tools/env.sh and buildall.sh
+# hardcode that path as the cross compiler. Only the download tarball moves to
+# the shared $TARBALLS cache.
 download() {
-  cd "$DIR"
   echo "downloading musl-cross-make toolchain..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     return
   fi
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors "https://dev.mit.junic.kim/cross/$(uname -m)/$TARBALL"
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "https://dev.mit.junic.kim/cross/$(uname -m)/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
-  if ! test -f "$TARBALL"; then
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "no archive found"
     exit 1
   fi
-  echo "extracting pre-built musl too"
-  tar -xzf "$TARBALL"
+  echo "extracting pre-built musl toolchain into cross/"
+  tar -xzf "$TARBALLS/$TARBALL" -C "$DIR"
 }
 
 makeinstall() {
@@ -64,8 +68,8 @@ makeinstall() {
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz "$TARBALL" "$SRCDIR"
+  # Remove the extracted toolchain; the cached tarball in $TARBALLS is kept.
+  rm -rf "${DIR:?}/$SRCDIR"
 }
 
 cd "$DIR"

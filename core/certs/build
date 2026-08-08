@@ -10,25 +10,26 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION=""
 BASEURL="https://curl.se/ca"
-SRCDIR="certs-$VERSION"
 TARBALL="cacert.pem"
 
+# certs ships a single PEM (no archive to unpack). It is cached in $TARBALLS
+# like every other download; update-cacert is a vendored input in $DIR.
+
 download() {
-  cd "$DIR"
   echo "downloading certs source..."
-  if test -f "$TARBALL"; then
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
     echo "$TARBALL exists, skipping..."
     return
   fi
-  curl -LOf --retry 5 --retry-delay 5 --retry-all-errors $BASEURL/$TARBALL
+  curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+    -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
 }
 
 extract() {
-  cd "$DIR"
-  echo "extracting certs source..."
-  if ! test -f "$TARBALL"; then
+  echo "checking certs source..."
+  if ! test -f "$TARBALLS/$TARBALL"; then
     echo "No cert to operate on!"
     exit 1
   fi
@@ -36,19 +37,18 @@ extract() {
 
 makeinstall() {
   echo "building certs..."
-  cd "$DIR"
-  if ! test -f "$DIR/$TARBALL"; then
-    echo "No source directory to operate on!"
+  if ! test -f "$TARBALLS/$TARBALL"; then
+    echo "No cert to operate on!"
     exit 1
   fi
-  install -m755 "$TARBALL" "$ROOTFS/etc/ssl/cert.pem"
+  install -m755 "$TARBALLS/$TARBALL" "$ROOTFS/etc/ssl/cert.pem"
   install -m755 "$DIR/update-cacert" "$ROOTFS/usr/bin/"
   ln -sfn /etc/ssl/cert.pem "$ROOTFS/etc/ssl/certs/ca-certificates.crt"
 }
 
 clear() {
-  cd "$DIR"
-  rm -rf ./*.tgz ./*.tar.xz ./*.tar.bz2 ./*.tar.gz "$SRCDIR" "$TARBALL"
+  # Only a cached PEM in $TARBALLS; nothing package-local to remove.
+  true
 }
 
 cd "$DIR"
