@@ -10,7 +10,6 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION=""
 BASEURL="https://curl.se/ca"
 TARBALL="cacert.pem"
 

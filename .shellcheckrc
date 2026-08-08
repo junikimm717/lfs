@@ -1,0 +1,5 @@
+# Build scripts consume environment variables injected by tools/env.sh /
+# buildall.sh -- notably $TARBALLS and $BUILDDIR. shellcheck's SC2153 sees
+# $TARBALLS used but never assigned in-script and guesses it's a typo of the
+# local $TARBALL, which is a false positive for every package build. Disable it.
+disable=SC2153

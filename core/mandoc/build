@@ -32,7 +32,7 @@ download() {
     # run the check from inside $TARBALLS.
     if ! (cd "$TARBALLS" && sha256sum -c "$DIR/$SRCDIR.sha256"); then
       echo "sha256 failed oops"
-      rm -rf "$TARBALLS/$TARBALL"
+      rm -rf "${TARBALLS:?}/$TARBALL"
       exit 1
     fi
   fi

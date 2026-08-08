@@ -69,7 +69,7 @@ makeinstall() {
 
 clear() {
   # Remove the extracted toolchain; the cached tarball in $TARBALLS is kept.
-  rm -rf "$DIR/$SRCDIR"
+  rm -rf "${DIR:?}/$SRCDIR"
 }
 
 cd "$DIR"
