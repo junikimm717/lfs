@@ -17,7 +17,7 @@ TARBALL="$SRCDIR.tar.gz"
 # distinct from core/busybox -- both share the same cached tarball in $TARBALLS
 # but need separate build dirs, so $WORK is named explicitly (not $NAME, which
 # would collide with core/busybox). config and net.patch are vendored in $DIR.
-WORK="$BUILDDIR/busybox-initramfs"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/busybox-initramfs"
 
 download() {
   mkdir -p "$TARBALLS"

@@ -20,7 +20,7 @@ SRCDIR="imlib2-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
   echo "downloading imlib2 source..."

@@ -24,7 +24,7 @@ TARBALL="$SRCDIR.tar.xz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK. The
 # kernel config, boot logo (cat.ppm) and pnmtologo.c are vendored inputs in $DIR.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
   mkdir -p "$TARBALLS"

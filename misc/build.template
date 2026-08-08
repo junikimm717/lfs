@@ -19,7 +19,7 @@ TARBALL="$SRCDIR.tar.xz"
 # Out-of-tree locations (exported by tools/env.sh): the tarball is cached in
 # $TARBALLS, and the package is unpacked and built under $WORK. $DIR is used only
 # for this script and any vendored inputs it ships (patches, config.h, ...).
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
   echo "downloading PACKAGE source..."

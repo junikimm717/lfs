@@ -17,7 +17,7 @@ SRCDIR="libev-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
   echo "downloading libev source..."

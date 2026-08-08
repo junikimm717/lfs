@@ -16,7 +16,7 @@ TARBALL="$SRCDIR.tar.gz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK. The
 # .config and net.patch are vendored inputs kept in $DIR.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 download() {
   mkdir -p "$TARBALLS"

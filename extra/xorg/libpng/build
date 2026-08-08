@@ -16,7 +16,7 @@ SRCDIR="libpng-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 # libpng's pnglibconf prepass locates zlib.h via $(CPPFLAGS), but the mimux env
 # only carries the sysroot include paths in $CFLAGS. Mirror them into CPPFLAGS.

@@ -17,7 +17,7 @@ SRCDIR="perl-$VERSION"
 TARBALL="$SRCDIR.tar.xz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 # mimux builds perl "natively": BUILDTRIPLE == TARGET (same arch, musl), so the
 # miniperl produced during the build runs directly on the build host and perl's

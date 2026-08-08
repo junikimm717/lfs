@@ -16,7 +16,7 @@ SRCDIR="limine-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
 # Out-of-tree: tarball cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 # Unbelievable that 9.6.0 actually requires these???
 # gcc, ld, and friends should all be pointing to the musl cross toolchain

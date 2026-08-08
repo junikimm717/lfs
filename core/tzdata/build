@@ -20,7 +20,7 @@ TARBALL="tzdata$VERSION.tar.gz"
 TARBALL2="tzcode$VERSION.tar.gz"
 
 # Out-of-tree: tarballs cached in $TARBALLS, unpacked/built under $WORK.
-WORK="$BUILDDIR/$NAME"
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
 
 export CFLAGS="$CFLAGS -static"
 export LDFLAGS="$LDFLAGS -static"
