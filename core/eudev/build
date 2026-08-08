@@ -38,13 +38,14 @@ extract() {
   cd "$SRCDIR"
   # monkey patched for now, but bad idea to hard code /usr/bin
   # ideal scenario, we just never search for g++ because IT's NOT NEEDED
-  # Pinned off rather than probed: the kernel is CONFIG_MODULES=n, and a
-  # libblkid probe would resolve by build order since userspace.sh builds eudev
-  # before util-linux. Nothing reads /dev/disk/by-* (misc/init uses busybox
-  # blkid). Linking stays dynamic like the rest of the rootfs.
+  # kmod stays off (the kernel is CONFIG_MODULES=n). blkid is ON: userspace.sh
+  # now builds util-linux before eudev, so libblkid is present in the sysroot
+  # and udev's blkid builtin can populate /dev/disk/by-{uuid,label,partuuid}
+  # (and stop logging "IMPORT{builtin}: 'blkid' unknown" from the stock rules).
+  # Linking stays dynamic like the rest of the rootfs.
   ./configure --prefix="/" --exec-prefix="/" --host="$TARGET"\
     --with-sysroot="${ROOTFS:-/}"\
-    --disable-kmod --disable-blkid --disable-selinux --disable-manpages
+    --disable-kmod --enable-blkid --disable-selinux --disable-manpages
 }
 
 
