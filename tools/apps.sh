@@ -44,6 +44,12 @@ build st
 build bspwm
 build sxhkd
 
+# ---- status bar (lemonbar panel) + launcher ----
+build lemonbar
+build slstatus
+build xtitle
+build dmenu
+
 # ---- compositor (transparency) + its libraries ----
 build uthash
 build libev

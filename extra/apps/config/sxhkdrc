@@ -10,6 +10,12 @@ alt + shift + a
 alt + Return
 	st
 
+# application launcher (your Super+Space -> rofi; here dmenu)
+alt + space
+	dmenu_run
+alt + p
+	dmenu_run
+
 # close focused window (your Super+Shift+Q)
 alt + shift + q
 	bspc node -c

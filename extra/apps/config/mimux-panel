@@ -1,0 +1,70 @@
+#!/bin/sh
+# mimux-panel -- a Nord-themed lemonbar panel for bspwm.
+#
+# Merges three streams into one bar:
+#   * bspwm desktop state  (bspc subscribe report)  -> left, clickable
+#   * focused window title  (xtitle)                -> center
+#   * cpu / mem / clock     (slstatus -s)           -> right
+# The bar renders through picom, so the alpha in the background colour makes it
+# translucent. Launched from bspwmrc.
+
+FIFO="/tmp/mimux-panel.fifo"
+FONT="DejaVu Sans Mono:size=11"
+HEIGHT=24
+
+# --- Nord palette ---
+BG="#cc2e3440"   # polar night, ~80% opaque (composited by picom)
+FG="#d8dee9"     # snow storm
+ACC="#88c0d0"    # frost  (focused desktop background)
+ACC_FG="#2e3440" # dark text on the accent
+OCC="#e5e9f0"    # bright (occupied desktop)
+IDLE="#4c566a"   # dim    (empty desktop)
+URG="#bf616a"    # aurora red (urgent)
+TITLE_FG="#81a1c1"
+
+# Clean up any previous instance, then make a fresh fifo.
+pkill -x lemonbar  >/dev/null 2>&1
+pkill -x xtitle    >/dev/null 2>&1
+pkill -x slstatus  >/dev/null 2>&1
+[ -e "$FIFO" ] && rm -f "$FIFO"
+mkfifo "$FIFO"
+
+# Feed the three sources into the fifo, each tagged by its first character.
+bspc subscribe report                                     > "$FIFO" &
+xtitle -sf 'T%s' -t 120                                    > "$FIFO" &
+slstatus -s | while IFS= read -r s; do printf 'S%s\n' "$s"; done > "$FIFO" &
+
+# Parse the tagged stream and emit a formatted lemonbar line.
+parse() {
+  wm=""
+  title=""
+  stat=""
+  while IFS= read -r line; do
+    case "$line" in
+      W*)   # desktop report, colon-separated items; first char is the type
+        wm=""
+        rest="${line#W}"
+        oldifs="$IFS"; IFS=":"
+        for item in $rest; do
+          typ="${item%"${item#?}"}"   # first character
+          name="${item#?}"            # the rest (desktop name / monitor / flag)
+          case "$typ" in
+            O|F) wm="$wm%{B$ACC}%{F$ACC_FG} $name %{F-}%{B-}" ;;                       # focused
+            o)   wm="$wm%{A:bspc desktop -f $name:}%{F$OCC} $name %{F-}%{A}" ;;         # occupied
+            f)   wm="$wm%{A:bspc desktop -f $name:}%{F$IDLE} $name %{F-}%{A}" ;;        # empty
+            U|u) wm="$wm%{A:bspc desktop -f $name:}%{F$URG} $name %{F-}%{A}" ;;         # urgent
+          esac
+        done
+        IFS="$oldifs" ;;
+      T*)   title="${line#T}" ;;
+      S*)   stat="${line#S}" ;;
+    esac
+    printf '%%{l} %s%%{c}%%{F%s}%s%%{F-}%%{r}%s \n' "$wm" "$TITLE_FG" "$title" "$stat"
+  done
+}
+
+parse < "$FIFO" \
+  | lemonbar -p -n mimuxbar -f "$FONT" -g "x$HEIGHT" -B "$BG" -F "$FG" -a 32 \
+  | sh &
+
+wait

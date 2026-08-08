@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -fLs https://api.github.com/repos/baskerville/xtitle/tags \
+  | jq -r '.[].name' \
+  | grep -E '^[0-9.]+$' \
+  | sort -V \
+  | tail -n1

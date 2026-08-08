@@ -1,7 +1,0 @@
-#!/bin/sh
-
-curl -s https://dl.suckless.org/st/ \
-  | grep -oE 'st-[0-9.]+\.tar\.gz' \
-  | sed -E 's/^st-([0-9.]+)\.tar\.gz$/\1/' \
-  | sort -V \
-  | tail -n 1

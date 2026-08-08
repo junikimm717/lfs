@@ -91,26 +91,47 @@ preferred wherever a `configure` ships.
   and `Shift+MouseWheel` scroll a 10000-line history, and a 32-bit ARGB visual
   gives the background transparency that picom composites.
 - `bspwm` + `sxhkd` — the window manager and its hotkey daemon.
+- `lemonbar` + `slstatus` + `xtitle` + `dmenu` — the status bar + launcher.
+  lemonbar (Xft fork) renders the panel; slstatus feeds cpu/mem/clock; xtitle
+  streams the focused window title; dmenu is the `Alt+Space` launcher. The
+  `mimux-panel` script (below) wires them together, Nord-themed.
 - `uthash` → `libev` → `libconfig` → `picom` — the compositor stack. picom is
   built on the **XRender** backend only (`-Dopengl=false -Ddbus=false
   -Dregex=false`), so no mesa/libepoxy, dbus, or pcre2 are pulled in. It draws
   the transparency (st's ARGB background), shadows, and fading.
+- `config` — the session config, installed last (see below).
 
-## Session config (`extra/apps/config/`, installed by `tools/apps.sh`)
+**No `version` script on suckless packages.** `st`, `dmenu`, and `slstatus` are
+configured through vendored patches / `config.h`, so their builds are pinned to
+a specific release; a blind "latest" bump would break those edits. They are
+version-managed by hand and deliberately ship no `version` script (unlike the
+rest of the tree).
+
+## Session config (`extra/apps/config/`, installed by its own `build` script)
+
+Unlike the other packages there is nothing to compile here; `config/build` just
+drops the files below into the rootfs. `tools/apps.sh` runs it last.
 
 - **`xstart`** — the launcher; runs `xinit` on the current VT. Installed to
   `/usr/bin/xstart` and also as `/usr/bin/startx`. Log in as `mimi` and run it.
 - **`xinitrc`** → `exec bspwm`.
 - **`bspwmrc`** — 10 desktops, borders/gaps, focus-follows-pointer, launches the
-  compositor (`picom -b`), and sets the wallpaper
-  (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via `feh --bg-fill`.
+  compositor (`picom -b`) and the status bar (`mimux-panel`), and sets the
+  wallpaper (`/usr/share/mimux/mimicoco.jpg`, shipped by the feh package) via
+  `feh --bg-fill`.
+- **`mimux-panel`** — the lemonbar panel script (installed to `/usr/bin`).
+  Nord-themed: clickable bspwm desktops on the left (focused = frost accent,
+  occupied = bright, empty = dim, urgent = red), the focused window title in the
+  center, and slstatus (cpu/mem/clock) on the right. The alpha in its background
+  colour makes it translucent through picom.
 - **`picom.conf`** — XRender backend, shadows + fade on, opacity left at 1.0 so
   only st's own background is see-through (forcing opacity would dim text too).
 - **`sxhkdrc`** — keybindings. The modifier is **Alt** (`mod1`), not Super: a
   Wayland host such as Hyprland grabs Super globally, so it never reaches the
   guest. Layout mirrors a typical Hyprland setup — `Alt+Return`/`Alt+Shift+A`
-  terminal, `Alt+Shift+Q` close, `Alt+V`/`Alt+F` float/fullscreen, `Alt+hjkl`
-  focus, `Alt+Shift+hjkl` swap, `Alt+1..0` desktops, `Alt+Shift+1..0` send.
+  terminal, `Alt+Space`/`Alt+p` launcher (dmenu), `Alt+Shift+Q` close,
+  `Alt+V`/`Alt+F` float/fullscreen, `Alt+hjkl` focus, `Alt+Shift+hjkl` swap,
+  `Alt+1..0` desktops, `Alt+Shift+1..0` send.
 - **`00-keyboard.conf`** — `us` XkbLayout.
 
 ## Testing
