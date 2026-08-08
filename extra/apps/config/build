@@ -1,0 +1,60 @@
+#!/bin/sh
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+cd "$DIR"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+# The default session configuration for the graphical layer. Unlike the other
+# packages there is nothing to download or compile -- the config files live
+# here in-tree; makeinstall just drops them into the rootfs. It is kept as a
+# `build` script so the app layer installs everything uniformly (see apps.sh).
+
+download() { :; }  # nothing to fetch
+extract()  { :; }  # nothing to extract
+
+makeinstall() {
+  echo "installing session config..."
+  cd "$DIR"
+
+  # System launcher + session. Also install it as `startx`, overriding xinit's
+  # xauth-dependent wrapper so the familiar command works out of the box.
+  install -Dm755 "$DIR/xstart"           "$ROOTFS/usr/bin/xstart"
+  install -Dm755 "$DIR/xstart"           "$ROOTFS/usr/bin/startx"
+  install -Dm755 "$DIR/xinitrc"          "$ROOTFS/etc/X11/xinit/xinitrc"
+  install -Dm644 "$DIR/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
+
+  # Per-user bspwm/sxhkd/picom config for the default user (mimi, uid/gid 1000).
+  install -Dm755 "$DIR/bspwmrc"          "$ROOTFS/home/mimi/.config/bspwm/bspwmrc"
+  install -Dm644 "$DIR/sxhkdrc"          "$ROOTFS/home/mimi/.config/sxhkd/sxhkdrc"
+  install -Dm644 "$DIR/picom.conf"       "$ROOTFS/home/mimi/.config/picom/picom.conf"
+  chown -R 1000:1000 "$ROOTFS/home/mimi/.config"
+}
+
+clear() { :; }  # in-tree config; nothing to clean
+
+cd "$DIR"
+case "$1" in
+  download|d) download ;;
+  extract|e) extract ;;
+  makeinstall|mi) makeinstall ;;
+  clear|clean|c) clear ;;
+  all|a) download && extract && makeinstall ;;
+  *)
+    cat <<EOF
+Build script for the session config (install-only)
+
+download|d -> no-op (config is in-tree)
+extract|e -> no-op
+makeinstall|mi -> install the config files into the rootfs
+clear|clean|c -> no-op
+all|a -> install the config files.
+EOF
+    exit 1
+    ;;
+esac

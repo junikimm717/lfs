@@ -5,7 +5,6 @@ set -eu
 DIR="$(realpath "$(dirname "$0" )" )"
 
 APPS="$DIR/../extra/apps"
-CFG="$APPS/config"
 # You MUST make sure that we are in a correct environment.
 test -z "$INOSENV" && \
   echo "You cannot run this script while not in the mimuxenv!" && \
@@ -26,21 +25,6 @@ export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}:$ROOTFS/lib/pkgconfig"
 build() {
   echo "========= Building $1... ==========="
   "$APPS/$1/build" a
-}
-
-install_config() {
-  echo "========= Installing session config... ==========="
-  # System launcher + session. Also install it as `startx`, overriding xinit's
-  # xauth-dependent wrapper so the familiar command works out of the box.
-  install -Dm755 "$CFG/xstart"           "$ROOTFS/usr/bin/xstart"
-  install -Dm755 "$CFG/xstart"           "$ROOTFS/usr/bin/startx"
-  install -Dm755 "$CFG/xinitrc"          "$ROOTFS/etc/X11/xinit/xinitrc"
-  install -Dm644 "$CFG/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
-  # Per-user bspwm/sxhkd/picom config for the default user (mimi, uid/gid 1000).
-  install -Dm755 "$CFG/bspwmrc"          "$ROOTFS/home/mimi/.config/bspwm/bspwmrc"
-  install -Dm644 "$CFG/sxhkdrc"          "$ROOTFS/home/mimi/.config/sxhkd/sxhkdrc"
-  install -Dm644 "$CFG/picom.conf"       "$ROOTFS/home/mimi/.config/picom/picom.conf"
-  chown -R 1000:1000 "$ROOTFS/home/mimi/.config"
 }
 
 # ---- font (needed for anything to render text) ----
@@ -70,6 +54,6 @@ build picom
 build feh
 
 # ---- default session configuration ----
-install_config
+build config
 
 echo "Application layer built. Log in as mimi and run 'xstart' to launch bspwm."
