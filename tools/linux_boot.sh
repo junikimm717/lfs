@@ -60,12 +60,12 @@ for f in \
   /usr/share/qemu/edk2-i386-vars.fd ; do
   [ -f "$f" ] && { OVMF_VARS_SRC="$f"; break; }
 done
-test -n "$OVMF_CODE" && test -n "$OVMF_VARS_SRC" || {
+if [ -z "$OVMF_CODE" ] || [ -z "$OVMF_VARS_SRC" ]; then
   echo "Could not find OVMF UEFI firmware."
   echo "Install it (Fedora: edk2-ovmf, Debian/Ubuntu: ovmf) or point this"
   echo "script at OVMF_CODE.fd / OVMF_VARS.fd manually."
   exit 1
-}
+fi
 
 # UEFI needs a WRITABLE variable store. Keep a per-image copy under dist/ so
 # boot entries persist between runs; delete it to reset UEFI NVRAM.
