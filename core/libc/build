@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="1.2.6"
-BASEURL=https://musl.libc.org/releases
+BASEURL=https://sources.buildroot.net/musl
 SRCDIR="musl-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 

@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
 }
 
 VERSION="4.4.1"
-BASEURL="https://mirrors.ibiblio.org/gnu/make"
+BASEURL="https://sources.openwrt.org"
 SRCDIR="make-$VERSION"
 TARBALL="$SRCDIR.tar.gz"
 
