@@ -1,0 +1,103 @@
+#!/bin/sh
+
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+NAME="$(basename "$DIR")"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+# neovim: bundles its own third-party deps (LuaJIT, libuv, msgpack,
+# unibilium, libtermkey, libvterm, tree-sitter) via its own cmake.deps build
+# and statically links them in -- no separate mimux packages needed for those.
+VERSION="0.12.4"
+BASEURL="https://github.com/neovim/neovim/archive/refs/tags"
+SRCDIR="neovim-$VERSION"
+TARBALL="v$VERSION.tar.gz"
+
+# Out-of-tree locations (exported by tools/env.sh): the tarball is cached in
+# $TARBALLS, and the package is unpacked and built under $WORK. $DIR is used only
+# for this script and any vendored inputs it ships (patches, config.h, ...).
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
+download() {
+  echo "downloading neovim source..."
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+  else
+    curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+      -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
+  fi
+}
+
+extract() {
+  echo "extracting neovim source..."
+  if ! test -f "$TARBALLS/$TARBALL"; then
+    echo "No tarball to operate on!"
+    exit 1
+  fi
+
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
+  # No ./configure -- neovim's own top-level Makefile drives the two-stage
+  # cmake build below (bundled deps, then nvim itself).
+}
+
+makeinstall() {
+  echo "building neovim..."
+  if ! test -d "$WORK/$SRCDIR"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  cd "$WORK/$SRCDIR"
+
+  # Bundled deps (LuaJIT et al.) are plain native builds against $CC/$CXX --
+  # they don't touch $ROOTFS at all, so none of the sysroot flags apply here.
+  # ninja (invoked internally) parallelizes on its own; CMAKE_BUILD_PARALLEL_LEVEL
+  # is the knob it and the main cmake build both respect.
+  export CMAKE_BUILD_PARALLEL_LEVEL="${JOBS:-8}"
+  make CMAKE_BUILD_TYPE=RelWithDebInfo deps
+  make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=/usr"
+  make DESTDIR="$ROOTFS" install
+}
+
+clear() {
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
+}
+
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for neovim
+
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract and patch the tarball under \$BUILDDIR
+makeinstall|mi -> make and install the build artifacts
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
+EOF
+    exit 1
+    ;;
+esac

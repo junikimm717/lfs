@@ -59,6 +59,12 @@ build picom
 # ---- wallpaper setter ----
 build feh
 
+# ---- terminal goodies (no X deps -- useful over SSH on a core-only rootfs too) ----
+build btop
+build libevent
+build tmux
+build neovim
+
 # ---- default session configuration ----
 build config
 

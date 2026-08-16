@@ -1,0 +1,96 @@
+#!/bin/sh
+
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+NAME="$(basename "$DIR")"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+VERSION="1.4.7"
+BASEURL="https://github.com/aristocratos/btop/archive/refs/tags"
+SRCDIR="btop-$VERSION"
+TARBALL="v$VERSION.tar.gz"
+
+# Out-of-tree locations (exported by tools/env.sh): the tarball is cached in
+# $TARBALLS, and the package is unpacked and built under $WORK. $DIR is used only
+# for this script and any vendored inputs it ships (patches, config.h, ...).
+WORK="${BUILDDIR:?set BUILDDIR -- re-activate the mimuxenv}/$NAME"
+
+download() {
+  echo "downloading btop source..."
+  mkdir -p "$TARBALLS"
+  if test -f "$TARBALLS/$TARBALL"; then
+    echo "$TARBALL exists, skipping..."
+  else
+    curl -Lf --retry 5 --retry-delay 5 --retry-all-errors \
+      -o "$TARBALLS/$TARBALL" "$BASEURL/$TARBALL"
+  fi
+}
+
+extract() {
+  echo "extracting btop source..."
+  if ! test -f "$TARBALLS/$TARBALL"; then
+    echo "No tarball to operate on!"
+    exit 1
+  fi
+
+  rm -rf "$WORK"
+  mkdir -p "$WORK"
+  tar xf "$TARBALLS/$TARBALL" -C "$WORK"
+}
+
+makeinstall() {
+  echo "building btop..."
+  if ! test -d "$WORK/$SRCDIR"; then
+    echo "No source directory to operate on!"
+    exit 1
+  fi
+  cd "$WORK/$SRCDIR"
+
+  # No ./configure; btop is a plain Makefile build. It self-detects
+  # PLATFORM/ARCH from `$(CXX) -dumpmachine`, so the cross CXX is enough.
+  # GPU_SUPPORT auto-enables on linux/x86_64 (nvml/rsmi via dlopen) -- off
+  # here since this is a headless VM target with no GPU passthrough.
+  make -j"${JOBS:-8}" CXX="$CXX" GPU_SUPPORT=false
+  make -j"${JOBS:-8}" CXX="$CXX" GPU_SUPPORT=false PREFIX=/usr DESTDIR="$ROOTFS" install
+}
+
+clear() {
+  # Drop the out-of-tree build dir. The cached tarball in $TARBALLS is kept.
+  rm -rf "$WORK"
+}
+
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for btop
+
+download|d -> download the tarball into \$TARBALLS
+extract|e -> extract and patch the tarball under \$BUILDDIR
+makeinstall|mi -> make and install the build artifacts
+clear|clean|c -> remove the out-of-tree build dir
+all|a -> download, extract, and makeinstall.
+EOF
+    exit 1
+    ;;
+esac
