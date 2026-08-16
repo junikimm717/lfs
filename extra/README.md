@@ -39,16 +39,12 @@ packages now ship one).
 
 ## Design decisions that keep this small
 
-- **Video via the in-tree `modesetting` DDX**, driving virtio-gpu's DRM/KMS
-  node directly via `libdrm`. `xorg-server` is built with glamor, GLX and DRI
-  disabled — only `--enable-dri2` (server-side DRI2 protocol only, not mesa)
-  plus `libdrm` is needed to get `modesetting` built at all. All of the
-  driver's GBM/EGL-accelerated code paths are compiled out with glamor
-  disabled, so it unconditionally falls back to plain KMS dumb buffers. This
-  still lets us **skip mesa / libgbm / LLVM entirely** — there is **no GL**,
-  just a software-only render path — while getting a driver the kernel can
-  autodetect via udev on real PCI/virtio GPUs alike, instead of the
-  VGA-class-only PCI matching the old `xf86-video-fbdev` driver relied on.
+- **Video via the in-tree `modesetting` DDX**, driving the DRM/KMS node
+  directly via `libdrm`. Built with glamor/GLX/DRI disabled, so its
+  GBM/EGL paths compile out and it falls back to plain KMS dumb buffers —
+  we **skip mesa / libgbm / LLVM entirely**, there is **no GL**. Only
+  `--enable-dri2` (the protocol extension, not mesa) is needed to get it
+  built at all.
 - **Suckless st** for the terminal, so we **skip the entire GLib / GTK / Cairo /
   Pango stack**.
 - **Reuse from `core/`**: zlib, openssl, ncurses, libffi, python3, perl, eudev

@@ -91,10 +91,8 @@ build libevdev
 # ---- the X server ----
 build xorg-server
 
-# ---- input driver ----
-# Builds against the xorg-server SDK, so it must come after it. No separate
-# video-driver package is needed: the `modesetting` DDX that drives virtio-gpu
-# via KMS is built into xorg-server itself (see extra/xorg/xorg-server/build).
+# ---- input driver (builds against the xorg-server SDK; video is the
+# modesetting DDX, built into xorg-server itself) ----
 build mtdev
 build xf86-input-evdev
 
