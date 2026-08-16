@@ -91,11 +91,9 @@ build libevdev
 # ---- the X server ----
 build xorg-server
 
-# ---- input + video drivers (fbdev drives /dev/fb0; no mesa/DRI needed) ----
-# These build against the xorg-server SDK, so they must come after it. The
-# modesetting DDX is not built (it needs gbm/mesa), so fbdev is the video path.
+# ---- input driver (builds against the xorg-server SDK; video is the
+# modesetting DDX, built into xorg-server itself) ----
 build mtdev
 build xf86-input-evdev
-build xf86-video-fbdev
 
 echo "Graphical stack built. See extra/README.md for the layered application plan."

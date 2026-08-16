@@ -26,8 +26,8 @@ DISPLAY_BACKEND="${DISPLAY_BACKEND:-gtk}"
 XRES="${XRES:-1280}"
 YRES="${YRES:-720}"
 # GL=on routes the guest scanout through the host's OpenGL for a lower-latency
-# present path (helps the fbdev software cursor feel less laggy). Off by default
-# since it needs working host GL; flip to on if your host supports it.
+# present path (helps the guest's software cursor feel less laggy). Off by
+# default since it needs working host GL; flip to on if your host supports it.
 GL="${GL:-off}"
 
 test -f "$IMG" || {

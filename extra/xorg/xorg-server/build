@@ -39,22 +39,16 @@ extract() {
   mkdir -p "$WORK"
   tar xf "$TARBALLS/$TARBALL" -C "$WORK"
   cd "$WORK/$SRCDIR"
-  # xf86-video-fbdev's PCI ID match table only matches VGA-class (0x0300xx)
-  # devices; virtio-gpu-pci reports 0x0380xx so it never matches, and probing
-  # falls back to fbdevhw's non-PCI open path, which refuses to touch any
-  # fb device that resolves to a PCI subsystem. Drop that refusal: fbdev is
-  # our only display driver here, so there's no other driver it could be
-  # racing to open the device.
-  patch -p1 < "$DIR/fbdev-pci.patch"
-  # A minimal Xorg DDX: no GL/DRI/glamor (we drive /dev/fb0 via the fbdev
-  # driver), so mesa/libdrm are not required. udev handles input hotplug.
+  patch -p1 < "$DIR/modesetting-shadow-header.patch"
+  # --enable-dri2 is what gets the modesetting DDX built (DRM + DRI2 =>
+  # XORG_DRIVER_MODESETTING); it's the protocol extension only, not mesa/GL.
   ./configure --prefix="/usr" --exec-prefix="/usr" \
     --with-sysroot="${ROOTFS:-/}" \
     --enable-xorg \
     --disable-xwayland --disable-xnest --disable-xvfb --disable-xephyr \
     --disable-dmx --disable-xwin \
     --disable-glamor --disable-glx \
-    --disable-dri --disable-dri2 --disable-dri3 \
+    --disable-dri --enable-dri2 --disable-dri3 \
     --disable-libunwind --disable-dtrace --disable-secure-rpc \
     --disable-docs --disable-devel-docs --disable-selective-werror \
     --disable-systemd-logind \
