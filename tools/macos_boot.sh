@@ -13,7 +13,7 @@ qemu-system-aarch64 \
   -drive if=pflash,format=raw,readonly=on,file="$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" \
   -drive file=./bootable.img,format=raw,if=virtio \
   -no-reboot \
-  -net nic -net user\
+  -net nic -net user,hostfwd=tcp::2222-:22\
   -device qemu-xhci -usb -device usb-kbd\
   -device virtio-gpu-pci -display cocoa\
   -device virtio-rng-pci\

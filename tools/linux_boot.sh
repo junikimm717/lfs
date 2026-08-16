@@ -99,7 +99,7 @@ exec qemu-system-x86_64 \
   -device virtio-vga,edid=on,xres="$XRES",yres="$YRES" \
   -display "$DISP" \
   -device virtio-keyboard-pci -device virtio-tablet-pci \
-  -netdev user,id=net0 -device virtio-net-pci,netdev=net0 \
+  -netdev user,id=net0,hostfwd=tcp::2222-:22 -device virtio-net-pci,netdev=net0 \
   -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci \
   -serial mon:stdio \
   "$@"
