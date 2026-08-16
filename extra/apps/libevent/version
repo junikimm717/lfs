@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Only the "-stable" release channel -- libevent also tags "-alpha" releases
+# that sort higher than the latest stable but aren't what we want to track.
+curl -s https://api.github.com/repos/libevent/libevent/tags \
+  | jq -r '.[].name' \
+  | grep -E '^release-[0-9.]+-stable$' \
+  | sed -e 's/^release-//' -e 's/-stable$//' \
+  | sort -V \
+  | tail -n 1 \
+  | sed -e 's/$/-stable/'

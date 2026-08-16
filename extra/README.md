@@ -100,7 +100,25 @@ preferred wherever a `configure` ships.
   built on the **XRender** backend only (`-Dopengl=false -Ddbus=false
   -Dregex=false`), so no mesa/libepoxy, dbus, or pcre2 are pulled in. It draws
   the transparency (st's ARGB background), shadows, and fading.
+- `btop` — a resource monitor (CPU/mem/proc/net). Plain Makefile build, no
+  `./configure`; `GPU_SUPPORT=false` since there's no GPU passthrough on this
+  VM target.
+- `libevent` → `tmux` — a terminal multiplexer, so a session survives a
+  dropped SSH connection. `ncurses` (`core/ncurses`) only builds the wide-char
+  libraries (`libncursesw*`); `core/ncurses/build` now aliases them to the
+  plain (non-w) names, since tmux's `configure` unconditionally probes for
+  `-lncurses`.
+- `neovim` — bundles its own third-party deps (LuaJIT, libuv, msgpack,
+  unibilium, libtermkey, libvterm, tree-sitter) via its `cmake.deps` build,
+  statically linked into the `nvim` binary. No system package needed for any
+  of those.
 - `config` — the session config, installed last (see below).
+
+None of `btop`/`tmux`/`neovim` need the X11 stack — they build and run fine
+against a `core/`-only rootfs too (e.g. over SSH, see the root
+[`AGENTS.md`](../AGENTS.md)); they're just grouped under `extra/apps/` since,
+like the rest of this layer, they're opt-in and not part of the minimal
+bootable core.
 
 **No `version` script on suckless packages.** `st`, `dmenu`, and `slstatus` are
 configured through vendored patches / `config.h`, so their builds are pinned to

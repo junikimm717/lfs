@@ -1,0 +1,7 @@
+#!/bin/sh
+
+curl -s https://api.github.com/repos/tmux/tmux/tags \
+  | jq -r '.[].name' \
+  | grep -E '^[0-9]+\.[0-9]+[a-z]?$' \
+  | sort -V \
+  | tail -n 1
