@@ -29,7 +29,7 @@ makeinstall() {
   install -Dm755 "$DIR/mimux-panel"      "$ROOTFS/usr/bin/mimux-panel"
   install -Dm755 "$DIR/xinitrc"          "$ROOTFS/etc/X11/xinit/xinitrc"
   install -Dm644 "$DIR/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
-  install -Dm644 "$DIR/00-fbdev.conf"    "$ROOTFS/etc/X11/xorg.conf.d/00-fbdev.conf"
+  install -Dm644 "$DIR/00-modesetting.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-modesetting.conf"
 
   # Per-user bspwm/sxhkd/picom config for the default user (mimi, uid/gid 1000).
   install -Dm755 "$DIR/bspwmrc"          "$ROOTFS/home/mimi/.config/bspwm/bspwmrc"
