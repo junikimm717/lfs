@@ -1,0 +1,25 @@
+--- a/hw/xfree86/fbdevhw/fbdevhw.c
++++ b/hw/xfree86/fbdevhw/fbdevhw.c
+@@ -329,22 +329,6 @@
+         return -1;
+     }
+ 
+-    /* only touch non-PCI devices on this path */
+-    {
+-        char buf[PATH_MAX] = {0};
+-        char *sysfs_path = NULL;
+-        char *node = strrchr(dev, '/') + 1;
+-
+-        if (asprintf(&sysfs_path, "/sys/class/graphics/%s/device/subsystem", node) < 0 ||
+-            readlink(sysfs_path, buf, sizeof(buf) - 1) < 0 ||
+-            strstr(buf, "bus/pci")) {
+-            free(sysfs_path);
+-            close(fd);
+-            return -1;
+-        }
+-        free(sysfs_path);
+-    }
+-
+     if (namep) {
+         if (-1 == ioctl(fd, FBIOGET_FSCREENINFO, (void *) (&fix))) {
+             *namep = NULL;

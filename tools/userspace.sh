@@ -67,6 +67,7 @@ build util-linux
 build eudev
 build chrony
 build dhcpcd
+build dropbear
 build opendoas
 build fastfetch
 build file

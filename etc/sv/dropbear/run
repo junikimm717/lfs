@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "starting dropbear..."
+
+# -R generates any missing host keys (rsa/ecdsa/ed25519) lazily per
+# connection, so a freshly-imaged rootfs doesn't need pregenerated keys.
+mkdir -p /etc/dropbear
+
+exec dropbear -F -E -R -p 22
