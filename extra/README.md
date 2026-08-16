@@ -39,11 +39,12 @@ packages now ship one).
 
 ## Design decisions that keep this small
 
-- **Video via `xf86-video-fbdev`** (writes to `/dev/fb0`, which the shipped
-  kernel exposes over virtio-gpu). This lets us **skip mesa / libgbm / LLVM
-  entirely** — there is **no GL**. `xorg-server` is built with glamor, GLX and
-  DRI disabled; the `modesetting` DDX auto-disables (it needs gbm). The cost is
-  a software-only render path.
+- **Video via the in-tree `modesetting` DDX**, driving the DRM/KMS node
+  directly via `libdrm`. Built with glamor/GLX/DRI disabled, so its
+  GBM/EGL paths compile out and it falls back to plain KMS dumb buffers —
+  we **skip mesa / libgbm / LLVM entirely**, there is **no GL**. Only
+  `--enable-dri2` (the protocol extension, not mesa) is needed to get it
+  built at all.
 - **Suckless st** for the terminal, so we **skip the entire GLib / GTK / Cairo /
   Pango stack**.
 - **Reuse from `core/`**: zlib, openssl, ncurses, libffi, python3, perl, eudev
@@ -71,8 +72,10 @@ Fonts / text: `libpng`, `freetype`, `expat`, `fontconfig`, `libXft`,
 Keyboard: `libxkbfile`, `xkeyboard-config`, `xkbcomp`.
 
 Server support + drivers: `libpciaccess`, `libxcvt`, `libdrm`, `pixman`,
-`libevdev`, then `xorg-server`, then the drivers `mtdev`, `xf86-input-evdev`,
-`xf86-video-fbdev` (drivers build against the server's SDK, so they come last).
+`libevdev`, then `xorg-server` (the `modesetting` video driver is built into
+the server itself — see the design decisions above), then the input driver
+`mtdev`, `xf86-input-evdev` (builds against the server's SDK, so it comes
+last).
 
 Most are small autotools builds. A handful are meson-only (`xorgproto`,
 `xkeyboard-config`, `libpciaccess`, `libxcvt`, `libdrm`, `pixman`); autotools is

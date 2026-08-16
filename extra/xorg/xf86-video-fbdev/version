@@ -1,7 +1,0 @@
-#!/bin/sh
-
-curl -fLs https://www.x.org/releases/individual/driver/ \
-  | grep -oE 'xf86-video-fbdev-[0-9.]+\.tar\.xz' \
-  | sed -E 's/^xf86-video-fbdev-([0-9.]+)\.tar\.xz$/\1/' \
-  | sort -V \
-  | tail -n1
