@@ -5,10 +5,13 @@
 [![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
 [![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). Bootstrapping a
-from-scratch Linux-based OS with complete toolchain and runtime (musl libc, gcc,
-chrony, runit), manually packaging 30+ core utilities (busybox, openssl, perl)
-into a <600 MB bootable image, supporting x86_64 and aarch64.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025). His little brother Coco
+(b. 4/29/2023) is still very much with us, and has the on-target build tool
+named after him.
+
+Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
+(musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
+openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 
 The kernel has been manually configured to remove unnnecessary components and
 sits at around 25MB. It also shows pictures of Mimi instead of the canonical Tux
@@ -65,7 +68,8 @@ Root login is disabled by default; you can perform root commands via `doas`.
 
 Mimux uses musl, busybox, and runit (init scripts shamelessly ripped from void)
 to reduce bloat. However, the intention is that there are sufficiently many
-build tools that theoretically you can build most things from source.
+build tools that theoretically you can build most things from source. `coco`
+(below) is what makes that practical.
 
 The default timezone is US Eastern Time. To change, run
 ```sh
@@ -79,6 +83,22 @@ Below are some mimux-specific scripts provided for convenience:
   store from curl.se
 - `mimux-test` - a wrapper to execute all test programs stored in `/usr/test`.
   These are mostly sanity checks on python and perl.
+- `coco` - runs a package `build` script from this repo on the booted system.
+  Those scripts depend only on a handful of environment variables rather than on
+  the dev container, so `coco` exports a native version of that environment and
+  runs one unmodified:
+
+  ```sh
+  coco ./mypackage/build all                        # download, build, install
+  ROOTFS="$HOME/stage" coco ./mypackage/build all   # ...or stage it elsewhere
+  coco                                              # a shell in that env
+  ```
+
+  `ROOTFS` defaults to `/`, so a plain `build all` installs into the running
+  system and wants `doas`. Setting it elsewhere stages the install instead, and
+  the compiler and `pkg-config` search paths follow it. The same environment
+  drives `extra/xorg/buildall` and `extra/apps/buildall` — see
+  [`extra/README.md`](./extra/README.md).
 
 ## Setup
 
