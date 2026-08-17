@@ -86,6 +86,7 @@ build gcc
 build pkgconf
 build byacc
 build gperf
+build coco
 build mandoc
 build kbd
 
