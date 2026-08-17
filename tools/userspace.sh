@@ -92,3 +92,6 @@ build kbd
 
 # install tests
 build tests
+
+# ship the opt-in extra/ package tree so a booted mimux can build it with coco.
+"$DIR/coco_export.sh"

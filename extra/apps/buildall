@@ -22,6 +22,17 @@ else
   COCO="coco"
 fi
 
+# picom is meson-only; neovim drives its bundled deps through cmake.deps. The
+# dev container has these from the Dockerfile; a booted mimux does not, since
+# core ships neither.
+for tool in meson ninja cmake; do
+  command -v "$tool" > /dev/null 2>&1 || {
+    echo "missing build tool: $tool" >&2
+    echo "run $(dirname "$APPS")/builddeps/buildall first" >&2
+    exit 1;
+  }
+done
+
 build() {
   echo "========= Building $1... ==========="
   $COCO "$APPS/$1/build" a

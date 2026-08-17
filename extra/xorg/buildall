@@ -31,6 +31,17 @@ else
   COCO="coco"
 fi
 
+# xorgproto, xkeyboard-config, libpciaccess, libxcvt, libdrm and pixman are
+# meson-only. The dev container has these from the Dockerfile; a booted mimux
+# does not, since core ships neither.
+for tool in meson ninja; do
+  command -v "$tool" > /dev/null 2>&1 || {
+    echo "missing build tool: $tool" >&2
+    echo "run $(dirname "$XORG")/builddeps/buildall first" >&2
+    exit 1;
+  }
+done
+
 build() {
   echo "========= Building $1... ==========="
   $COCO "$XORG/$1/build" a

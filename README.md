@@ -96,9 +96,39 @@ Below are some mimux-specific scripts provided for convenience:
 
   `ROOTFS` defaults to `/`, so a plain `build all` installs into the running
   system and wants `doas`. Setting it elsewhere stages the install instead, and
-  the compiler and `pkg-config` search paths follow it. The same environment
-  drives `extra/xorg/buildall` and `extra/apps/buildall` — see
-  [`extra/README.md`](./extra/README.md).
+  the compiler and `pkg-config` search paths follow it.
+
+## Additional packages (`/coco`)
+
+**If you are looking to install more software, start at `/coco`.** The whole
+opt-in [`extra/`](./extra/) tree ships in the image there, so the graphical
+layer is built on the booted system rather than baked into it:
+
+```sh
+doas /coco/xorg/buildall   # the X11 stack
+doas /coco/apps/buildall   # bspwm, st, fonts, wallpaper, session config
+```
+
+Each subdirectory of `/coco/xorg` and `/coco/apps` is a package with the same
+`./build` contract as `core/`, so you can also build just one:
+
+```sh
+doas coco /coco/apps/tmux/build all
+```
+
+The orchestrators call `coco` themselves, which is why they are run directly.
+
+A handful of those packages are built by `meson` or `cmake`, which the base
+image does not ship — together they weigh ~229 MB installed, which is a lot to
+carry for the few packages that need them. `/coco/builddeps` pulls them from
+PyPI on demand, and both orchestrators will tell you to run it if they are
+missing:
+
+```sh
+doas /coco/builddeps/buildall   # meson, ninja, cmake
+```
+
+See [`extra/README.md`](./extra/README.md) for the full package list.
 
 ## Setup
 
@@ -143,6 +173,11 @@ completed `./buildall.sh` first. Once booted, log in as `mimi` and run `xstart`
 to launch bspwm. See [`extra/README.md`](./extra/README.md) for the package
 list, keybindings, and `tools/linux_boot.sh` (a graphical QEMU launcher for
 testing).
+
+Baking the layer in this way is optional: the same two stacks can be built on a
+booted mimux instead, from `/coco` (see above). These scripts are thin stubs
+over `extra/xorg/buildall` and `extra/apps/buildall`, which is what `/coco`
+ships.
 
 ## Virtual Machines
 

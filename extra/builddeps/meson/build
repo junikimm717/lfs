@@ -1,0 +1,66 @@
+#!/bin/sh
+
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+NAME="$(basename "$DIR")"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+# Deliberately unversioned: pip resolves the newest release that works on this
+# interpreter, and there is no tarball to pin. meson is pure python, so the
+# py3-none-any wheel covers every mimux arch.
+
+download() {
+  true
+}
+
+extract() {
+  true
+}
+
+makeinstall() {
+  echo "installing $NAME from PyPI..."
+  # NOT staged into $ROOTFS: this is a tool the *builder* runs, so it has to
+  # land on PATH in the running system even when everything else is staged.
+  python3 -m pip install --upgrade --disable-pip-version-check \
+    --root-user-action=ignore "$NAME"
+}
+
+clear() {
+  true
+}
+
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for $NAME
+
+download|d -> no-op (pip fetches at install time)
+extract|e -> no-op
+makeinstall|mi -> pip install $NAME into the running system
+clear|clean|c -> no-op
+all|a -> download, extract, and makeinstall.
+EOF
+    exit 1
+    ;;
+esac

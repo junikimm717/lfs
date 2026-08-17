@@ -19,6 +19,14 @@ unmodified one runs on the target:
 
   $PROG ./mypackage/build all
 
+Additional packages ship at /coco -- the opt-in Xorg stack and app layer, each
+package a ./build script like the one above. Their orchestrators call $PROG
+themselves, so run those directly:
+
+  doas /coco/builddeps/buildall   meson, ninja, cmake (needed by the two below)
+  doas /coco/xorg/buildall        the X11 stack
+  doas /coco/apps/buildall        bspwm, st, fonts, wallpaper, session config
+
 Preset any of these to override: ROOTFS TARBALLS BUILDDIR JOBS CC CXX AR
 RANLIB LD CFLAGS CXXFLAGS LDFLAGS
 

@@ -10,20 +10,31 @@ running the graphical build scripts against an already-built rootfs.
 
 ```
 extra/
+  builddeps/   meson, ninja, cmake -- pip installs, not built from source
   xorg/        the X11 stack (protocol libs, Xlib/xcb, fonts, drivers, server)
   apps/        the session: bspwm, sxhkd, st, xinit, fonts, feh wallpaper
     config/    session config installed into the rootfs (see below)
 ```
 
-Two orchestrators drive the build, mirroring `tools/userspace.sh`:
+This whole tree is copied into the image at **`/coco`** (`tools/coco_export.sh`,
+run by `tools/userspace.sh`), so a booted mimux can build the opt-in layers
+without the repo checked out.
 
+Three orchestrators drive the build, mirroring `tools/userspace.sh`:
+
+- **`extra/builddeps/buildall`** — installs `meson`, `ninja` and `cmake` from
+  PyPI.
 - **`extra/xorg/buildall`** — builds every package in `extra/xorg/` in dependency
   order.
 - **`extra/apps/buildall`** — builds the `extra/apps/` layer on top and installs
   the default session config.
 
-Both run each package's `./build` through **`coco`** (`core/coco`) by default, so
-they work on a booted mimux with no build environment set up:
+`xorg/buildall` and `apps/buildall` check for the tools they need up front and
+point you at `builddeps/buildall` if any are missing, rather than failing
+halfway through a long build.
+
+All three run each package's `./build` through **`coco`** (`core/coco`) by
+default, so they work on a booted mimux with no build environment set up:
 
 ```sh
 doas ./extra/xorg/buildall              # installs into the running system
@@ -51,8 +62,10 @@ rather than mixing the two toolchains.
 Individual packages use the same standalone `./build` contract as `core/`
 (`download` / `extract` / `makeinstall` / `clear`, plus `all`). See
 [`../core/README.md`](../core/README.md) for the details — everything there
-applies here too, including the `version` script convention (all `extra/`
-packages now ship one).
+applies here too, including the `version` script convention — every `extra/`
+package ships one except those under `builddeps/`, which are deliberately
+unversioned: there is no tarball to pin, and pip resolves the newest release
+that works on the installed interpreter.
 
 ## Design decisions that keep this small
 
