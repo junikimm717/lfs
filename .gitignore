@@ -12,4 +12,9 @@
 *.pem
 *.crt
 
+# Ignores any build dir named dist (binutils/gcc use OBJDIR=dist), but keeps
+# the top-level one in the tree: build scripts assume $DIST already exists.
 dist
+!/dist/
+/dist/*
+!/dist/.gitkeep

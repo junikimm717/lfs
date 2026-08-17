@@ -83,6 +83,9 @@ build mpfr
 build mpc
 build binutils
 build gcc
+build pkgconf
+build byacc
+build gperf
 build mandoc
 build kbd
 

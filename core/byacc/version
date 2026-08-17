@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -eu
+
+curl https://invisible-island.net/archives/byacc/ 2> /dev/null \
+  | grep -oE 'byacc-[0-9]{8}\.tgz' \
+  | sed 's/^byacc-\([0-9]*\)\.tgz$/\1/g' \
+  | sort -n \
+  | uniq \
+  | tail -n 1
