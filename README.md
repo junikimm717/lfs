@@ -99,16 +99,21 @@ coco                                              # a shell in that env
 system and wants `doas`. Setting it elsewhere stages the install instead, and
 the compiler and `pkg-config` search paths follow it.
 
-## Additional Packages (`/coco`)
+## Graphical Layer and Additional Packages (`/coco`)
 
-**If you are looking to install more software, start at `/coco`.** The whole
-opt-in [`extra/`](./extra/) tree ships in the image there, so the graphical
-layer is built on the booted system rather than baked into it:
+The core image is headless. **If you are looking to install more software, start
+at `/coco`** — the whole opt-in [`extra/`](./extra/) tree ships in the image
+there (Xorg, the bspwm window manager, st, a wallpaper, plus tmux/neovim/btop),
+so the graphical layer can be built on the booted system rather than baked into
+it:
 
 ```sh
-doas /coco/xorg/buildall   # the X11 stack
-doas /coco/apps/buildall   # bspwm, st, fonts, wallpaper, session config
+doas /coco/builddeps/buildall   # meson, ninja, cmake (see below)
+doas /coco/xorg/buildall        # the X11 stack
+doas /coco/apps/buildall        # bspwm, st, fonts, wallpaper, session config
 ```
+
+Then log in as `mimi` and run `xstart` to launch bspwm.
 
 Each subdirectory of `/coco/xorg` and `/coco/apps` is a package with the same
 `./build` contract as `core/`, so you can also build just one:
@@ -123,13 +128,10 @@ A handful of those packages are built by `meson` or `cmake`, which the base
 image does not ship — together they weigh ~229 MB installed, which is a lot to
 carry for the few packages that need them. `/coco/builddeps` pulls them from
 PyPI on demand, and both orchestrators will tell you to run it if they are
-missing:
+missing.
 
-```sh
-doas /coco/builddeps/buildall   # meson, ninja, cmake
-```
-
-See [`extra/README.md`](./extra/README.md) for the full package list.
+See [`extra/README.md`](./extra/README.md) for the package list and the bspwm
+keybindings.
 
 ## Setup
 
@@ -156,12 +158,11 @@ All final build artifacts will be located in `./dist/`.
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete. The GitHub CI takes around an hour to build each image.
 
-### Optional graphical layer (Xorg + bspwm)
+### Baking in the graphical layer
 
-The core image is headless. An **opt-in** graphical environment (Xorg, the bspwm
-window manager, st, and a wallpaper) lives under [`extra/`](./extra/) and is
-**not** part of `buildall.sh` or the CI images. To add it, build the two extra
-stacks on top of the already-built rootfs, then repackage the image:
+The graphical layer (see `/coco` above) can also be bundled into the image at
+build time rather than built on the booted system. Both stacks go on top of an
+already-built rootfs, so run these after `./buildall.sh` and repackage:
 
 ```sh
 ./tools/graphical.sh   # the X11 stack (extra/xorg)
@@ -169,16 +170,10 @@ stacks on top of the already-built rootfs, then repackage the image:
 ./tools/bootable.sh    # fold the new rootfs contents into dist/bootable.img
 ```
 
-Both scripts run inside the dev container (like everything else) and expect a
-completed `./buildall.sh` first. Once booted, log in as `mimi` and run `xstart`
-to launch bspwm. See [`extra/README.md`](./extra/README.md) for the package
-list, keybindings, and `tools/linux_boot.sh` (a graphical QEMU launcher for
-testing).
-
-Baking the layer in this way is optional: the same two stacks can be built on a
-booted mimux instead, from `/coco` (see above). These scripts are thin stubs
-over `extra/xorg/buildall` and `extra/apps/buildall`, which is what `/coco`
-ships.
+They run inside the dev container like everything else, and are thin stubs over
+`extra/xorg/buildall` and `extra/apps/buildall` — the same scripts `/coco`
+ships. `tools/linux_boot.sh` is a graphical QEMU launcher for testing the
+result.
 
 ## Virtual Machines
 
