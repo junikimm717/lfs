@@ -55,6 +55,17 @@ extract() {
   # config that is slimmed down and reduces used modules
   cp -p "$DIR/configs/nomodules.config" "$WORK/$SRCDIR/.config"
   cd "$WORK/$SRCDIR"
+  # musl's x86_64 SIGSTKSZ (8K) is under the sigaltstack minimum x86 derives
+  # from the host CPU's XSAVE state, so objtool dies with ENOMEM on AMX hosts.
+  if test -f tools/objtool/signal.c; then
+    sed -i \
+      -e 's/malloc(SIGSTKSZ)/malloc(65536)/' \
+      -e 's/ss\.ss_size = SIGSTKSZ;/ss.ss_size = 65536;/' \
+      tools/objtool/signal.c
+    grep -q 'ss_size = 65536' tools/objtool/signal.c || {
+      echo "objtool signal.c changed shape; re-check the SIGSTKSZ patch" && exit 1;
+    }
+  fi
   # pnmtologo script
   gcc "$DIR/pnmtologo.c" -o "$WORK/$SRCDIR/pnmtologo"
   cp "$DIR/cat.ppm" drivers/video/logo/logo_linux_clut224.ppm
@@ -68,7 +79,9 @@ makeinstall() {
   cd "$WORK/$SRCDIR"
   # this screws up the config
   make olddefconfig
-  make -j"${JOBS:-8}" 2>&1 | tee build.log
+  # A pipeline reports tee's status, not make's, hence the explicit capture.
+  { make -j"${JOBS:-8}" 2>&1; echo "$?" > make.status; } | tee build.log
+  test "$(cat make.status)" -eq 0
   make -j"${JOBS:-8}" headers_install INSTALL_HDR_PATH="$ROOTFS/usr"
   if [ "$(arch)" = "x86_64" ]; then
     test -f ./arch/x86/boot/bzImage
