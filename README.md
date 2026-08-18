@@ -5,9 +5,7 @@
 [![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
 [![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). His little brother Coco
-(b. 4/29/2023) is still very much with us, and has the on-target build tool
-named after him.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025).
 
 Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
 (musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
@@ -83,22 +81,25 @@ Below are some mimux-specific scripts provided for convenience:
   store from curl.se
 - `mimux-test` - a wrapper to execute all test programs stored in `/usr/test`.
   These are mostly sanity checks on python and perl.
-- `coco` - runs a package `build` script from this repo on the booted system.
-  Those scripts depend only on a handful of environment variables rather than on
-  the dev container, so `coco` exports a native version of that environment and
-  runs one unmodified:
 
-  ```sh
-  coco ./mypackage/build all                        # download, build, install
-  ROOTFS="$HOME/stage" coco ./mypackage/build all   # ...or stage it elsewhere
-  coco                                              # a shell in that env
-  ```
+## In-Rootfs Build Script
 
-  `ROOTFS` defaults to `/`, so a plain `build all` installs into the running
-  system and wants `doas`. Setting it elsewhere stages the install instead, and
-  the compiler and `pkg-config` search paths follow it.
+Named after Mimi's brother Coco (4/29/2023 -). `coco` runs a package `build`
+script from this repo on the booted system. Those scripts depend only on a
+handful of environment variables rather than on the dev container, so `coco`
+exports a native version of that environment and runs one unmodified:
 
-## Additional packages (`/coco`)
+```sh
+coco ./mypackage/build all                        # download, build, install
+ROOTFS="$HOME/stage" coco ./mypackage/build all   # ...or stage it elsewhere
+coco                                              # a shell in that env
+```
+
+`ROOTFS` defaults to `/`, so a plain `build all` installs into the running
+system and wants `doas`. Setting it elsewhere stages the install instead, and
+the compiler and `pkg-config` search paths follow it.
+
+## Additional Packages (`/coco`)
 
 **If you are looking to install more software, start at `/coco`.** The whole
 opt-in [`extra/`](./extra/) tree ships in the image there, so the graphical
