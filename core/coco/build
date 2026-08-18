@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -eu
+
+DIR="$(realpath "$(dirname "$0" )" )"
+
+# You MUST make sure that we are in a correct environment.
+test -z "$INOSENV" && {
+  echo "You cannot run this script while not in the mimuxenv!" && \
+  exit 1;
+}
+
+download() {
+  true
+}
+
+extract() {
+  true
+}
+
+makeinstall() {
+  echo "installing coco..."
+  install -Dm755 "$DIR/coco" "$ROOTFS/usr/bin/coco"
+}
+
+clear() {
+  true
+}
+
+case "$1" in
+  download|d)
+    download
+    ;;
+  extract|e)
+    extract
+    ;;
+  makeinstall|mi)
+    makeinstall
+    ;;
+  clear|clean|c)
+    clear
+    ;;
+  all|a)
+    download && extract && makeinstall
+    ;;
+  *)
+    cat <<EOF
+Build script for coco
+
+download|d -> no-op
+extract|e -> no-op
+makeinstall|mi -> install coco into the rootfs
+clear|clean|c -> no-op
+all|a -> download, extract, and makeinstall.
+EOF
+    exit 1
+    ;;
+esac

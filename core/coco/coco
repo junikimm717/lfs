@@ -1,0 +1,137 @@
+#!/bin/sh
+
+set -eu
+
+PROG="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+$PROG - run a command inside a native mimux build environment.
+
+usage:
+  $PROG <command> [args...]   run command with the build env exported
+  $PROG                       start an interactive shell in that env
+  $PROG -p | --print          print the env as shell code for eval
+  $PROG -h | --help           show this
+
+Every core/ and extra/ build script depends only on this environment, so an
+unmodified one runs on the target:
+
+  $PROG ./mypackage/build all
+
+Additional packages ship at /coco -- the opt-in Xorg stack and app layer, each
+package a ./build script like the one above. Their orchestrators call $PROG
+themselves, so run those directly:
+
+  doas /coco/builddeps/buildall   meson, ninja, cmake (needed by the two below)
+  doas /coco/xorg/buildall        the X11 stack
+  doas /coco/apps/buildall        bspwm, st, fonts, wallpaper, session config
+
+Preset any of these to override: ROOTFS TARBALLS BUILDDIR JOBS CC CXX AR
+RANLIB LD CFLAGS CXXFLAGS LDFLAGS
+
+ROOTFS defaults to / -- build scripts install with DESTDIR="\$ROOTFS", so
+that writes into the running system and needs doas:
+
+  doas $PROG ./mypackage/build all
+
+Point ROOTFS at a directory to stage the install instead. The compiler and
+pkgconf search paths follow it automatically:
+
+  ROOTFS="\$HOME/stage" $PROG ./mypackage/build all
+EOF
+}
+
+# CC/CFLAGS/LDFLAGS below are deliberately inherited so they can be overridden,
+# which means a foreign build env would leak its toolchain and sysroot into the
+# build. COCO_ENV distinguishes a nested coco (harmless) from that.
+if test -n "${INOSENV:-}" && test -z "${COCO_ENV:-}"; then
+  echo "$PROG: a non-coco mimux build environment is already active." >&2
+  echo "$PROG: run the build script directly, or set DISABLE_COCO=1." >&2
+  exit 1
+fi
+
+if uname -m | grep -E 'arm|aarch' > /dev/null 2>&1; then
+  TARGET="aarch64-linux-musl"
+else
+  TARGET="x86_64-linux-musl"
+fi
+BUILDTRIPLE="$TARGET"
+
+ROOTFS="${ROOTFS:-/}"
+# Strip a trailing slash so "$ROOTFS/usr/lib" never doubles up; / itself stays.
+test "$ROOTFS" != "/" && ROOTFS="${ROOTFS%/}"
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/mimux"
+TARBALLS="${TARBALLS:-$CACHE/tarballs}"
+BUILDDIR="${BUILDDIR:-$CACHE/build}"
+
+if test -z "${JOBS:-}"; then
+  JOBS=$(($(nproc) - 2))
+  test "$JOBS" -lt 1 && JOBS="$(nproc)"
+fi
+
+CC="${CC:-gcc}"
+CXX="${CXX:-g++}"
+CPP="${CPP:-$CC -E}"
+CXXCPP="${CXXCPP:-$CXX -E}"
+AR="${AR:-ar}"
+RANLIB="${RANLIB:-ranlib}"
+LD="${LD:-ld}"
+
+# gnu17 is pinned for the same reason buildall.sh pins it: under GCC 15's C23
+# default an empty parameter list means (void), which breaks the K&R-style
+# declarations still present in several of these sources. C only.
+CFLAGS="${CFLAGS:-} -O2 -pipe -fPIC -w -std=gnu17"
+CXXFLAGS="${CXXFLAGS:-} -O2 -pipe -fPIC -w"
+LDFLAGS="${LDFLAGS:-} -s"
+
+# A staging root is not on any default search path, so it has to be spelled
+# out. At / everything is already default, and pkgconf's compiled-in path
+# (/usr/lib/pkgconfig:/usr/share/pkgconfig:/lib/pkgconfig) is correct -- so
+# PKG_CONFIG_* is deliberately left unset there.
+if test "$ROOTFS" != "/"; then
+  CFLAGS="$CFLAGS -I$ROOTFS/usr/include -I$ROOTFS/include"
+  CXXFLAGS="$CXXFLAGS -I$ROOTFS/usr/include -I$ROOTFS/include"
+  LDFLAGS="$LDFLAGS -L$ROOTFS/lib -L$ROOTFS/usr/lib -L$ROOTFS/usr/lib64"
+  LDFLAGS="$LDFLAGS -Wl,-rpath-link,$ROOTFS/usr/lib -Wl,-rpath-link,$ROOTFS/lib -Wl,-rpath-link,$ROOTFS/usr/lib64"
+  PKG_CONFIG_SYSROOT_DIR="$ROOTFS"
+  PKG_CONFIG_LIBDIR="$ROOTFS/usr/lib/pkgconfig:$ROOTFS/usr/share/pkgconfig:$ROOTFS/lib/pkgconfig"
+  export PKG_CONFIG_SYSROOT_DIR PKG_CONFIG_LIBDIR
+fi
+
+export INOSENV=1
+export COCO_ENV=1
+export TARGET BUILDTRIPLE ROOTFS TARBALLS BUILDDIR JOBS
+export CC CXX CPP CXXCPP AR RANLIB LD CFLAGS CXXFLAGS LDFLAGS
+
+print_env() {
+  for var in INOSENV COCO_ENV TARGET BUILDTRIPLE ROOTFS TARBALLS BUILDDIR JOBS \
+    CC CXX CPP CXXCPP AR RANLIB LD CFLAGS CXXFLAGS LDFLAGS \
+    PKG_CONFIG_SYSROOT_DIR PKG_CONFIG_LIBDIR; do
+    eval "val=\${$var:-}"
+    test -n "$val" && echo "export $var='$val'"
+  done
+  return 0
+}
+
+case "${1:-}" in
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  -p|--print)
+    print_env
+    exit 0
+    ;;
+esac
+
+mkdir -p "$TARBALLS" "$BUILDDIR"
+
+if test "$#" -eq 0; then
+  PS1="(coco) ${PS1:-$ }"
+  export PS1
+  exec "${SHELL:-/bin/sh}"
+fi
+
+exec "$@"

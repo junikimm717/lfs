@@ -5,10 +5,11 @@
 [![aarch64 Images](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_aarch64.yml)
 [![x86 Images](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml/badge.svg)](https://github.com/junikimm717/lfs/actions/workflows/build_x86.yml)
 
-Named in memory of our cat Mimi (1/1/2022-5/13/2025). Bootstrapping a
-from-scratch Linux-based OS with complete toolchain and runtime (musl libc, gcc,
-chrony, runit), manually packaging 30+ core utilities (busybox, openssl, perl)
-into a <600 MB bootable image, supporting x86_64 and aarch64.
+Named in memory of our cat Mimi (1/1/2022-5/13/2025).
+
+Bootstrapping a from-scratch Linux-based OS with complete toolchain and runtime
+(musl libc, gcc, chrony, runit), manually packaging 30+ core utilities (busybox,
+openssl, perl) into a <600 MB bootable image, supporting x86_64 and aarch64.
 
 The kernel has been manually configured to remove unnnecessary components and
 sits at around 25MB. It also shows pictures of Mimi instead of the canonical Tux
@@ -65,7 +66,8 @@ Root login is disabled by default; you can perform root commands via `doas`.
 
 Mimux uses musl, busybox, and runit (init scripts shamelessly ripped from void)
 to reduce bloat. However, the intention is that there are sufficiently many
-build tools that theoretically you can build most things from source.
+build tools that theoretically you can build most things from source. `coco`
+(below) is what makes that practical.
 
 The default timezone is US Eastern Time. To change, run
 ```sh
@@ -79,6 +81,57 @@ Below are some mimux-specific scripts provided for convenience:
   store from curl.se
 - `mimux-test` - a wrapper to execute all test programs stored in `/usr/test`.
   These are mostly sanity checks on python and perl.
+
+## In-Rootfs Build Script
+
+Named after Mimi's brother Coco (4/29/2023 -). `coco` runs a package `build`
+script from this repo on the booted system. Those scripts depend only on a
+handful of environment variables rather than on the dev container, so `coco`
+exports a native version of that environment and runs one unmodified:
+
+```sh
+coco ./mypackage/build all                        # download, build, install
+ROOTFS="$HOME/stage" coco ./mypackage/build all   # ...or stage it elsewhere
+coco                                              # a shell in that env
+```
+
+`ROOTFS` defaults to `/`, so a plain `build all` installs into the running
+system and wants `doas`. Setting it elsewhere stages the install instead, and
+the compiler and `pkg-config` search paths follow it.
+
+## Graphical Layer and Additional Packages (`/coco`)
+
+The core image is headless. **If you are looking to install more software, start
+at `/coco`** — the whole opt-in [`extra/`](./extra/) tree ships in the image
+there (Xorg, the bspwm window manager, st, a wallpaper, plus tmux/neovim/btop),
+so the graphical layer can be built on the booted system rather than baked into
+it:
+
+```sh
+doas /coco/builddeps/buildall   # meson, ninja, cmake (see below)
+doas /coco/xorg/buildall        # the X11 stack
+doas /coco/apps/buildall        # bspwm, st, fonts, wallpaper, session config
+```
+
+Then log in as `mimi` and run `xstart` to launch bspwm.
+
+Each subdirectory of `/coco/xorg` and `/coco/apps` is a package with the same
+`./build` contract as `core/`, so you can also build just one:
+
+```sh
+doas coco /coco/apps/tmux/build all
+```
+
+The orchestrators call `coco` themselves, which is why they are run directly.
+
+A handful of those packages are built by `meson` or `cmake`, which the base
+image does not ship — together they weigh ~229 MB installed, which is a lot to
+carry for the few packages that need them. `/coco/builddeps` pulls them from
+PyPI on demand, and both orchestrators will tell you to run it if they are
+missing.
+
+See [`extra/README.md`](./extra/README.md) for the package list and the bspwm
+keybindings.
 
 ## Setup
 
@@ -105,12 +158,11 @@ All final build artifacts will be located in `./dist/`.
 On an M4 Pro Mac running Orbstack, this should take around 10 minutes to
 complete. The GitHub CI takes around an hour to build each image.
 
-### Optional graphical layer (Xorg + bspwm)
+### Baking in the graphical layer
 
-The core image is headless. An **opt-in** graphical environment (Xorg, the bspwm
-window manager, st, and a wallpaper) lives under [`extra/`](./extra/) and is
-**not** part of `buildall.sh` or the CI images. To add it, build the two extra
-stacks on top of the already-built rootfs, then repackage the image:
+The graphical layer (see `/coco` above) can also be bundled into the image at
+build time rather than built on the booted system. Both stacks go on top of an
+already-built rootfs, so run these after `./buildall.sh` and repackage:
 
 ```sh
 ./tools/graphical.sh   # the X11 stack (extra/xorg)
@@ -118,11 +170,10 @@ stacks on top of the already-built rootfs, then repackage the image:
 ./tools/bootable.sh    # fold the new rootfs contents into dist/bootable.img
 ```
 
-Both scripts run inside the dev container (like everything else) and expect a
-completed `./buildall.sh` first. Once booted, log in as `mimi` and run `xstart`
-to launch bspwm. See [`extra/README.md`](./extra/README.md) for the package
-list, keybindings, and `tools/linux_boot.sh` (a graphical QEMU launcher for
-testing).
+They run inside the dev container like everything else, and are thin stubs over
+`extra/xorg/buildall` and `extra/apps/buildall` — the same scripts `/coco`
+ships. `tools/linux_boot.sh` is a graphical QEMU launcher for testing the
+result.
 
 ## Virtual Machines
 

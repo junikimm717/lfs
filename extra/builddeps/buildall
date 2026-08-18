@@ -1,0 +1,53 @@
+#!/bin/sh
+
+set -eu
+
+BUILDDEPS="$(realpath "$(dirname "$0" )" )"
+
+if test -n "${DISABLE_COCO:-}"; then
+  test -z "${INOSENV:-}" && {
+    echo "You cannot run this script while not in the mimuxenv!" && \
+    exit 1;
+  }
+  COCO=""
+else
+  COCO="coco"
+fi
+
+# meson + its backend feed the meson-only packages in extra/xorg and picom;
+# cmake is for neovim, which drives its bundled deps through cmake.deps.
+TOOLS="meson ninja cmake"
+
+MISSING=""
+for tool in $TOOLS; do
+  if command -v "$tool" > /dev/null 2>&1; then
+    echo "$tool is already installed, skipping."
+  else
+    MISSING="$MISSING $tool"
+  fi
+done
+
+test -z "$MISSING" && {
+  echo "All build dependencies are already present."
+  exit 0;
+}
+
+# These are not built from source: they are pip installs into the running
+# system. mimux core deliberately ships none of them -- together they are around
+# 229M installed -- so they are fetched only when something needs them.
+python3 -m pip --version > /dev/null 2>&1 || {
+  echo "python3 -m pip is not available, so$MISSING cannot be installed." >&2
+  echo "On mimux, python3 and pip are part of core; elsewhere, install pip." >&2
+  exit 1;
+}
+
+build() {
+  echo "========= Building $1... ==========="
+  $COCO "$BUILDDEPS/$1/build" a
+}
+
+for tool in $MISSING; do
+  build "$tool"
+done
+
+echo "Build dependencies installed. extra/xorg/buildall and extra/apps/buildall can now run."

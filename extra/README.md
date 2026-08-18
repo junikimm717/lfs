@@ -10,32 +10,62 @@ running the graphical build scripts against an already-built rootfs.
 
 ```
 extra/
+  builddeps/   meson, ninja, cmake -- pip installs, not built from source
   xorg/        the X11 stack (protocol libs, Xlib/xcb, fonts, drivers, server)
   apps/        the session: bspwm, sxhkd, st, xinit, fonts, feh wallpaper
     config/    session config installed into the rootfs (see below)
 ```
 
-Two orchestrators drive the build, mirroring `tools/userspace.sh`:
+This whole tree is copied into the image at **`/coco`** (`tools/coco_export.sh`,
+run by `tools/userspace.sh`), so a booted mimux can build the opt-in layers
+without the repo checked out.
 
-- **`tools/graphical.sh`** — builds every package in `extra/xorg/` in dependency
+Three orchestrators drive the build, mirroring `tools/userspace.sh`:
+
+- **`extra/builddeps/buildall`** — installs `meson`, `ninja` and `cmake` from
+  PyPI.
+- **`extra/xorg/buildall`** — builds every package in `extra/xorg/` in dependency
   order.
-- **`tools/apps.sh`** — builds the `extra/apps/` layer on top and installs the
-  default session config.
+- **`extra/apps/buildall`** — builds the `extra/apps/` layer on top and installs
+  the default session config.
 
-Both must run **inside the dev container** (they guard on `$INOSENV`) against a
-rootfs that already has `core/` built. Typical flow:
+`xorg/buildall` and `apps/buildall` check for the tools they need up front and
+point you at `builddeps/buildall` if any are missing, rather than failing
+halfway through a long build.
+
+All three run each package's `./build` through **`coco`** (`core/coco`) by
+default, so they work on a booted mimux with no build environment set up:
 
 ```sh
-./tools/graphical.sh   # X11 stack
+doas ./extra/xorg/buildall              # installs into the running system
+ROOTFS="$HOME/stage" ./extra/apps/buildall   # or stage it somewhere
+```
+
+Set **`DISABLE_COCO=1`** to skip coco and use the caller's environment instead.
+That is the dev-container path: `tools/env.sh` has already exported the cross
+toolchain and a sysroot at `$ROOTFS`, and re-deriving a native environment on top
+of it would be wrong. In that mode the scripts guard on `$INOSENV` and add the
+sysroot `-rpath-link` / `PKG_CONFIG_PATH` wiring that coco would otherwise
+supply. `tools/graphical.sh` and `tools/apps.sh` are one-line stubs that do
+exactly this, so the container flow is unchanged:
+
+```sh
+./tools/graphical.sh   # X11 stack       (= DISABLE_COCO=1 extra/xorg/buildall)
 ./tools/apps.sh        # WM + terminal + fonts + wallpaper + config
 ./tools/bootable.sh    # repackage dist/bootable.img
 ```
 
+Note that `coco` refuses to run when a non-coco build environment is already
+active, so running the container flow without `DISABLE_COCO=1` fails loudly
+rather than mixing the two toolchains.
+
 Individual packages use the same standalone `./build` contract as `core/`
 (`download` / `extract` / `makeinstall` / `clear`, plus `all`). See
 [`../core/README.md`](../core/README.md) for the details — everything there
-applies here too, including the `version` script convention (all `extra/`
-packages now ship one).
+applies here too, including the `version` script convention — every `extra/`
+package ships one except those under `builddeps/`, which are deliberately
+unversioned: there is no tarball to pin, and pip resolves the newest release
+that works on the installed interpreter.
 
 ## Design decisions that keep this small
 
@@ -56,7 +86,7 @@ packages now ship one).
 
 ## Packages
 
-### `extra/xorg/` — build order (see `tools/graphical.sh`)
+### `extra/xorg/` — build order (see `extra/xorg/buildall`)
 
 Protocol + base libs: `util-macros`, `xorgproto`, `xcb-proto`, `libXau`,
 `libXdmcp`, `libxcb`, `xcb-util`, `xcb-util-keysyms`, `xcb-util-wm`,
@@ -81,7 +111,7 @@ Most are small autotools builds. A handful are meson-only (`xorgproto`,
 `xkeyboard-config`, `libpciaccess`, `libxcvt`, `libdrm`, `pixman`); autotools is
 preferred wherever a `configure` ships.
 
-### `extra/apps/` — build order (see `tools/apps.sh`)
+### `extra/apps/` — build order (see `extra/apps/buildall`)
 
 - `dejavu-fonts` — one real TTF so st/WM can render text.
 - `xinit` — the session launcher.
@@ -132,7 +162,7 @@ rest of the tree).
 ## Session config (`extra/apps/config/`, installed by its own `build` script)
 
 Unlike the other packages there is nothing to compile here; `config/build` just
-drops the files below into the rootfs. `tools/apps.sh` runs it last.
+drops the files below into the rootfs. `extra/apps/buildall` runs it last.
 
 - **`xstart`** — the launcher; runs `xinit` on the current VT. Installed to
   `/usr/bin/xstart` and also as `/usr/bin/startx`. Log in as `mimi` and run it.
