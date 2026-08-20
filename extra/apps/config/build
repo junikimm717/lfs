@@ -31,10 +31,17 @@ makeinstall() {
   install -Dm644 "$DIR/00-keyboard.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-keyboard.conf"
   install -Dm644 "$DIR/00-modesetting.conf" "$ROOTFS/etc/X11/xorg.conf.d/00-modesetting.conf"
 
-  # Per-user bspwm/sxhkd/picom config for the default user (mimi, uid/gid 1000).
+  # Mimi's face as the fastfetch logo. The art (with $1-$4 colour placeholders)
+  # is a system asset alongside mimicoco.jpg; the config that references it is a
+  # per-user dotfile so `fastfetch` just works in mimi's shell.
+  install -Dm644 "$DIR/mimi.txt"         "$ROOTFS/usr/share/mimux/mimi.txt"
+
+  # Per-user bspwm/sxhkd/picom/fastfetch config for the default user
+  # (mimi, uid/gid 1000).
   install -Dm755 "$DIR/bspwmrc"          "$ROOTFS/home/mimi/.config/bspwm/bspwmrc"
   install -Dm644 "$DIR/sxhkdrc"          "$ROOTFS/home/mimi/.config/sxhkd/sxhkdrc"
   install -Dm644 "$DIR/picom.conf"       "$ROOTFS/home/mimi/.config/picom/picom.conf"
+  install -Dm644 "$DIR/fastfetch.jsonc"  "$ROOTFS/home/mimi/.config/fastfetch/config.jsonc"
   chown -R 1000:1000 "$ROOTFS/home/mimi/.config"
 }
 
