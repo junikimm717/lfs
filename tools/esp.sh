@@ -26,7 +26,7 @@ test -z "$bootloader" && {
 }
 
 rootuuid=$(tune2fs -l rootfs.img | grep 'UUID' | awk '{print $3}')
-kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort -r | head -n 1)")"
+kernel="$(basename "$(find "$ROOTFS/boot" -name 'vmlinu*' | sort -Vr | head -n 1)")"
 
 # x86_64 serial is 8250/ttyS0, aarch64 virt is PL011/ttyAMA0; both drivers are
 # built into the kernel. The last console= becomes /dev/console, so serial goes
