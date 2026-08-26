@@ -18,7 +18,7 @@ TARBALL="$SRCDIR.tgz"
 # hardcode that path as the cross compiler. Only the download tarball moves to
 # the shared $TARBALLS cache.
 download() {
-  echo "downloading musl-cross-make toolchain..."
+  echo "downloading toolchain..."
   mkdir -p "$TARBALLS"
   if test -f "$TARBALLS/$TARBALL"; then
     return
@@ -36,35 +36,27 @@ extract() {
   tar -xzf "$TARBALLS/$TARBALL" -C "$DIR"
 }
 
+# The toolchain ships bin/cc, bin/gcc, bin/ld, ... as symlinks onto their
+# $TARGET-prefixed binaries, so there is nothing left to link up: this only
+# checks that what we extracted actually has them. Every binary is static, so
+# there is no wrapper and no .real/ shadow tree to keep in sync either.
 makeinstall() {
-  echo "linking up cross toolchain..."
+  echo "checking cross toolchain..."
   if ! test -d "$DIR/$SRCDIR"; then
     echo "No source directory to operate on!"
     exit 1
   fi
-  cd "$DIR/$SRCDIR/bin"
-  for tool in gcc gcc-ar gcc-nm gcc-ranlib ld nm objcopy objdump ranlib readelf\
-    size strings strip ar as cpp c++ g++; do
-    ln -sf "$TARGET-$tool" $tool
+  missing=""
+  for tool in cc gcc g++ cpp ld ar as nm ranlib readelf strip make; do
+    test -e "$DIR/$SRCDIR/bin/$tool" || missing="$missing $tool"
   done
-  ln -sf "$TARGET-gcc" cc
-
-  # EMERGENCY WORKAROUND (see static-python toolchain bug report).
-  # The tc-wrapper resolves its real binary via .real/$(basename argv[0]).
-  # The toolchain's post-install only shadows names that existed at its
-  # install time (the $TARGET-prefixed binaries + pre-existing aliases like
-  # cc), so the unprefixed aliases we create just above have no matching
-  # entry in .real/ and invoking them fails with
-  # "tc-wrapper: missing real binary: .../.real/<tool>".
-  # Mirror each unprefixed alias into .real/ so the wrapper can resolve it.
-  # Remove once static-python ships these aliases / the wrapper falls back.
-  if test -d .real; then
-    for tool in gcc gcc-ar gcc-nm gcc-ranlib ld nm objcopy objdump ranlib readelf\
-      size strings strip ar as cpp c++ g++; do
-      test -e ".real/$TARGET-$tool" && ln -sf "$TARGET-$tool" ".real/$tool"
-    done
-    test -e ".real/$TARGET-gcc" && ln -sf "$TARGET-gcc" .real/cc
+  if test -n "$missing"; then
+    echo "toolchain has no unprefixed$missing in bin/" >&2
+    echo "that is an old musl-cross-make tarball; remove" >&2
+    echo "$TARBALLS/$TARBALL and re-run to fetch the current one." >&2
+    exit 1
   fi
+  echo "toolchain provides the unprefixed tool names."
 }
 
 clear() {
@@ -91,11 +83,11 @@ case "$1" in
     ;;
   *)
     cat <<EOF
-Build script for musl-cross-make on macos
+Build script for the prebuilt musl toolchain (built by gccfactory)
 
 download|d -> download the tarball
-extract|e -> extract and patch the tarball
-makeinstall|mi -> make and install the tarball into ../gcc
+extract|e -> extract the tarball into cross/
+makeinstall|mi -> check the extracted toolchain is usable
 clear|clean|c -> clean everything except the tarballs (prevent extra downloads)
 all|a -> go through the entire build process.
 EOF
