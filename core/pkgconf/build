@@ -11,7 +11,7 @@ test -z "$INOSENV" && {
   exit 1;
 }
 
-VERSION="3.0.5"
+VERSION="3.0.7"
 # The GitHub tag tarballs ship no pregenerated ./configure; the upstream
 # release tarballs on distfiles do, which keeps autotools out of the build.
 BASEURL="https://distfiles.ariadne.space/pkgconf"
