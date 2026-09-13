@@ -1,0 +1,11 @@
+diff --git a/libmount/src/hook_idmap.c b/libmount/src/hook_idmap.c
+--- a/libmount/src/hook_idmap.c
++++ b/libmount/src/hook_idmap.c
+@@ -23,6 +23,7 @@
+ 
+ #include "strutils.h"
+ #include "all-io.h"
++#include "fileutils.h"
+ #include "namespace.h"
+ 
+ #include "mountP.h"
