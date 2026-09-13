@@ -42,6 +42,11 @@ extract() {
   mkdir -p "$WORK"
   tar xf "$TARBALLS/$TARBALL" -C "$WORK"
   cd "$WORK/$SRCDIR"
+  # 2.42.3 uses RESOLVE_NO_SYMLINKS in hook_idmap.c without including
+  # fileutils.h, which is where util-linux defines the fallback. musl (and
+  # older glibc) do not pull it in via <fcntl.h>, so the build dies with
+  # 'RESOLVE_NO_SYMLINKS' undeclared. Upstream: a323dddbcd1ed05a10e7e870b3e1a48b4ed44a43
+  patch -p1 < "$DIR/hook-idmap-fileutils.patch"
   ./configure --prefix="/usr" --exec-prefix="/usr"\
     --without-python\
     --disable-nls\
@@ -95,7 +100,7 @@ case "$1" in
 Build script for util-linux
 
 download|d -> download the tarball into \$TARBALLS
-extract|e -> extract the tarball under \$BUILDDIR
+extract|e -> extract and patch the tarball under \$BUILDDIR
 makeinstall|mi -> make and install the build artifacts
 clear|clean|c -> remove the out-of-tree build dir
 all|a -> download, extract, and makeinstall.
